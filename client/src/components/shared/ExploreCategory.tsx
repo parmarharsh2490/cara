@@ -1,12 +1,12 @@
 import { Link } from 'react-router-dom';
 
 const categories = [
-  { image: '/Shirts.avif', link: '/category/shirt', name: 'Shirt' },
-  { image: '/Bottoms.avif', link: '/category/bottoms', name: 'Bottoms' },
-  { image: '/Jackets.avif', link: '/category/jackets', name: 'Jackets' },
-  { image: '/Co-Ords.avif', link: '/category/co-ords', name: 'Co-Ords' },
-  { image: '/T-shirts.avif', link: '/category/t-shirts', name: 'T-Shirts' },
-  { image: '/On-Sale.avif', link: '/category/on-sale', name: 'On Sale' }
+  { image: '/Shirts.avif', link: '/shopping/shirt', name: 'Shirt' },
+  { image: '/Bottoms.avif', link: '/shopping/bottoms', name: 'Bottoms' },
+  { image: '/Jackets.avif', link: '/shopping/jackets', name: 'Jackets' },
+  { image: '/Co-Ords.avif', link: '/shopping/co-ords', name: 'Co-Ords' },
+  { image: '/T-shirts.avif', link: '/shopping/t-shirts', name: 'T-Shirts' },
+  { image: '/On-Sale.avif', link: '/shopping/pants', name: 'On Sale' }
 ];
 
 const ExploreCategory = () => (

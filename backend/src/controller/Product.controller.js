@@ -4,6 +4,8 @@ import { asyncHandler } from "../utils/AsyncHandler.js";
 import { Product } from "../model/Product.model.js";
 import ApiResponse from "../utils/ApiResponse.js";
 import ApiError from "../utils/ApiError.js";
+import { uploadImage } from "../utils/Cloudinary.js";
+import { unlink } from 'node:fs';
 
 
 const getAllProducts = asyncHandler(async (req, res) => {
@@ -15,7 +17,7 @@ const getAllProducts = asyncHandler(async (req, res) => {
   if (searchTerm) {
     matchConditions.push({
       $or: [
-        { name: { $regex: searchTerm, $options: 'i' } },
+        { title: { $regex: searchTerm, $options: 'i' } },
         { description: { $regex: searchTerm, $options: 'i' } }
       ]
     });
@@ -61,41 +63,57 @@ const getProductDetails = asyncHandler(async (req, res) => {
 });
 
 const createProduct = asyncHandler(async (req, res) => {
-  const {
-    name,
-    description,
-    category,
-    images,
-    sizeOptions,
-    rating = 0,
-  } = req.body; // Default rating to 0
-
-  // const user = req.user;
-
+  let { title, description, category, sizeOptions, rating = 0} = req.body; 
+  sizeOptions = JSON.parse(sizeOptions)
+  const user = req.user;
+  
   // Validate required fields
-  if ([name, description, category].some((entry) => entry.trim() == "")) {
+  if ([title, description, category].some((entry) => entry.trim() == "")) {
     throw new ApiError(400, "Entry fields should not be empty");
   }
 
   // Validate images
-  if (!Array.isArray(images) || images.length === 0) {
-    throw new ApiError(400, "Images not found");
+  const files = req.files;
+  console.log(files.length);
+  
+  if(!files || files.length !== 5){
+    throw new ApiError(400, "Images not found");    
   }
 
+  // const images = [];
+  // for await(let file of files){
+    //   const imageDetails = await uploadImage(file.path);
+    //   images.push({ publicId: imageDetails.public_id, imageUrl: imageDetails.secure_url },)
+    //   console.log(images);
+    // }
+  //Promise.all is use because This allows you to handle multiple file uploads concurrently rather than sequentially. It's much faster when you need to upload many images.
+  const images = await Promise.all(
+    files.map(async (file) => {
+      // upload image on cloudinary
+      const imageDetails = await uploadImage(file.path);
+      return {
+        publicId: imageDetails.public_id,
+        imageUrl: imageDetails.secure_url,
+      };
+    })
+  );
+  
   // Validate sizeOptions
   if (!Array.isArray(sizeOptions) || sizeOptions.length === 0) {
     throw new ApiError(400, "Size options not found");
   }
-
+ 
+  
   // Create the product
+  console.log("end");
   const product = await Product.create({
-    owner: req.user._id,
-    name,
+    owner : user._id,
+    title,
     description,
     category,
-    images,
     rating,
     sizeOptions,
+    images
   });
 
   return res
@@ -104,7 +122,7 @@ const createProduct = asyncHandler(async (req, res) => {
 });
 
 const updateProduct = asyncHandler(async (req, res) => {
-  const { name, description, category, sizeOptions } = req.body;
+  const { title, description, category, sizeOptions } = req.body;
   const { productId } = req.params;
   const user = req.user;
 
@@ -112,7 +130,7 @@ const updateProduct = asyncHandler(async (req, res) => {
     throw new ApiError(400, "ProductId should be valid");
   }
 
-  if ([name, description, category].some((entry) => entry.trim() === "")) {
+  if ([title, description, category].some((entry) => entry.trim() === "")) {
     throw new ApiError(400, "Entry fields should not be empty");
   }
 
@@ -126,7 +144,7 @@ const updateProduct = asyncHandler(async (req, res) => {
   }
 
   const updateFields = {};
-  if (product.name !== name) updateFields.name = name;
+  if (product.title !== title) updateFields.title = title;
   if (product.description !== description)
     updateFields.description = description;
   if (product.category !== category) updateFields.category = category;
@@ -182,7 +200,7 @@ export {
 // done// 1st without query all products //not needed
 // done// 2nd lastest arrival createdAt : -1 
 // done//3rd category  if(category){ matchCondtions.push({category : category}) }
-// done//4th search if(searchTerm) {matchCondtions.push({search : $regex and other in name and description})}
+// done//4th search if(searchTerm) {matchCondtions.push({search : $regex and other in title and description})}
 // done//5th price highToLow and lowToHigh : hard 
 // //6th price range $gt $lt can be use
 // done//7th color : easy 

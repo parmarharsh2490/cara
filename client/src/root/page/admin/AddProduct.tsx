@@ -228,9 +228,12 @@ const AddProduct = () => {
             id="category"
           >
             <option value="">Select Category</option>
-            <option value="men">Men</option>
-            <option value="women">Women</option>
-            <option value="kids">Kids</option>
+            <option value="tshirt">T-shirt</option>
+            <option value="shirt">Shirt</option>
+            <option value="pant">Pant</option>
+            <option value="bottom">Bottom</option>
+            <option value="jacket">Jacket</option>
+            <option value="coorder">Co-order</option>
           </select>
         </div>
         

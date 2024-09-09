@@ -13,7 +13,7 @@ app.use(bodyParser.urlencoded({extended : true}))
 app.use(cors())
 
 app.use('/api/v1/user', userRouter);
-app.use('/api/v1/product', productRouter);
+app.use('/api/v1/product', verifyJWT, productRouter);
 // app.use('/api/v1/cart', verifyJWT, cartRoutes);
 // app.use('/api/v1/order', verifyJWT, orderRoutes);
 // app.use('/api/v1/wishlist', verifyJWT, wishlistRoutes);

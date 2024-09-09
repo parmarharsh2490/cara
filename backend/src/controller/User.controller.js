@@ -4,6 +4,11 @@ import User from "../model/User.model.js";
 import ApiError from "../utils/ApiError.js";
 import ApiResponse from "../utils/ApiResponse.js";
 import { asyncHandler } from "../utils/AsyncHandler.js"
+import { getTransporter } from "../index.js";
+import nodemailer from "nodemailer"
+import otpGenerator from "otp-generator"
+
+
 
 const generateAccessAndRefreshToken = (user) => {
    try {
@@ -22,13 +27,14 @@ const generateAccessAndRefreshToken = (user) => {
 }
 
 const registerUser = asyncHandler(async(req,res) => {
-    try {
         const {name,username,email,password} = req.body;
-
         if([name,username,email,password].some((entry) => entry.trim() === "")){
             throw new ApiError(400,"Entry fileds should not be empty");
         };
-        
+        const alreadyExitUser = await User.find({email});
+        if(!alreadyExitUser.length == 0){
+            throw new ApiError(400,"User Already Exit Via Email")
+        }
         const user = await User.create({
             name,
             username,
@@ -40,23 +46,17 @@ const registerUser = asyncHandler(async(req,res) => {
         }
         const {accessToken,refreshToken} = generateAccessAndRefreshToken(user);
         if(!accessToken || !refreshToken){
-            throw new ApiError(400,"Creating Token failed");
+            throw new ApiError(400,"Creating Acess Token and Refresh Token failed");
         }
 
         user.refreshToken = refreshToken;
-        if(!user){
-            throw new ApiError(400,"Creating user failed on database");
-        }
+       
         await user.save({validationBeforeSave : false});
         return res
         .status(200)
         .cookie("accessToken",accessToken,cookieOptions)
         .cookie("refreshToken",refreshToken,cookieOptions)
         .json(new ApiResponse(200,user,"Successfully created User"))
-    } catch (error) {
-        console.log(error);
-        res.status(500).json({msg : "Internal Server Error"})
-    }
 })
 
 const loginUser = asyncHandler(async(req,res) => {
@@ -103,12 +103,21 @@ const forgetPassword = async(req,res) => {
     if(!user){
         throw new ApiError(400,"User not found by this email address");
     };
-    // send code for change password in mail
+    const transporter = await getTransporter();
+    const otp = parseInt(otpGenerator.generate(6, { upperCaseAlphabets: false, specialChars: false }));
+    await transporter.sendMail({
+      from: `"Cara" <${process.env.NODEMAILER_AUTH_USER}>`,
+      to: {email}, // list of receivers
+      subject: "Forget Password",
+      text: `"This is your otp to forget password ${otp}"`, // plain text body
+      html: "<b>This is your otp to forget password</b>", // html body
+    });
 
     return res
     .status(200)
     .json(new ApiResponse(200,user,"Successfully send otp to your mail"))
 }
+
 
 const changePassword = asyncHandler(async(req,res) => {
      const {email,oldPassword,newPassword} = req.body;

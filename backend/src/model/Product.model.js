@@ -1,14 +1,26 @@
 import mongoose from "mongoose";
 
+const imageSchema = new mongoose.Schema({
+  imageUrl: {
+    type: String,
+    required: true
+  },
+  publicId: {
+    type: String,
+    required: true
+  }
+});
+
 const productSchema = new mongoose.Schema({
   owner: {
     type: mongoose.Schema.Types.ObjectId,
     ref: "User",
   },
-  name: {
+  title: {
     type: String,
     required: true,
     trim: true,
+    index: true
   },
   description: {
     type: String,
@@ -16,19 +28,13 @@ const productSchema = new mongoose.Schema({
   },
   category: {
     type: String,
-    enums : ["tshirt","shirt","pant","bottom","jacket","coorder","test"],
+    enum: ["tshirt", "shirt", "pant", "bottom", "jacket", "coorder"], 
     trim: true
   },
-  images: [{
-    imageUrl: {
-      type: String,
-      required: true
-    },
-    publicId: {
-      type: String,
-      required: true
-    },
-  }],
+  images: {
+    type: [imageSchema],
+    validate: [arrayLimit, 'A product must have exactly 5 images'] 
+  },
   sizeOptions: [{
     size: {
       type: String,
@@ -54,6 +60,12 @@ const productSchema = new mongoose.Schema({
         type: Number,
         default: 0,
         min: 0,
+        validate: {
+          validator: function(value) {
+            return value <= this.price.originalPrice;
+          },
+          message: "Discounted price should not be higher than the original price"
+        }
       }
     },
     gender: {
@@ -73,9 +85,15 @@ const productSchema = new mongoose.Schema({
   rating: {
     type: Number,
     default: 0,
+    min: 0,
+    max: 5  
   },
 }, {
   timestamps: true
 });
+
+function arrayLimit(val) {
+  return val.length === 5;
+}
 
 export const Product = mongoose.model("Product", productSchema);
