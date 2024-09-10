@@ -5,12 +5,16 @@ import { Product } from "../model/Product.model.js";
 import ApiResponse from "../utils/ApiResponse.js";
 import ApiError from "../utils/ApiError.js";
 import { uploadImage } from "../utils/Cloudinary.js";
-import { unlink } from 'node:fs';
-
 
 const getAllProducts = asyncHandler(async (req, res) => {
-  const { searchTerm, color, latestProduct, skip = 10, limit = 10, category, maxPrice, minPrice, priceHighToLow, priceLowToHigh } = req.query;
-
+  const { searchTerm, color, latestProduct, skip = 0, limit = 10, category, maxPrice, minPrice, priceHighToLow, priceLowToHigh } = req.query;
+  console.log("start");
+  if (latestProduct) {
+    const products = await Product.find({},{'images.0.imageUrl' : 1, _id : 1,title : 1, price : 1}).sort({ createdAt: 1 }).skip(parseInt(skip)).limit(parseInt(limit));
+    return res.status(200).json({ data: products });
+  }
+  console.log("end");
+  
   const matchConditions = [];
   if (category) matchConditions.push({ category });
   if (color) matchConditions.push({ color });
@@ -31,10 +35,7 @@ const getAllProducts = asyncHandler(async (req, res) => {
   if (priceLowToHigh) sortOptions.price = 1;
   if (!priceHighToLow && !priceLowToHigh) sortOptions.createdAt = 1;
 
-  if (latestProduct) {
-    const products = await Product.find().sort({ createdAt: 1 }).skip(parseInt(skip)).limit(parseInt(limit));
-    return res.status(200).json({ length: products.length, data: products });
-  }
+  
 
   const products = await Product.aggregate([
     { $match: { $and: matchConditions } },
@@ -63,6 +64,11 @@ const getProductDetails = asyncHandler(async (req, res) => {
 });
 
 const createProduct = asyncHandler(async (req, res) => {
+  return res
+    .status(200)
+    .json(
+      new ApiResponse(200, req.body, "Successfully created product")
+    )
   let { title, description, category, sizeOptions, rating = 0} = req.body; 
   sizeOptions = JSON.parse(sizeOptions)
   const user = req.user;

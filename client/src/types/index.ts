@@ -17,12 +17,42 @@ export interface IProduct {
     price : string
 }
 export interface IProductAllDetails{
+    _id? : string,
+    title : string,
+    description : string,
+    category : string,
+    rating : number,
+    price : {
+     discountedPrice : string,
+     price : string  
+    },
+    sizeOptions : ISizeOption[]
     images : string[],
+}
+
+export interface ISizeOption {
+    size: string;
+    stock: number;
+    price: {   
+      originalPrice: number;
+      discountedPrice: number;
+    };
+    gender: string;
+    color: string;
+}
+  
+  
+
+export interface INewArrivalProduct{
     _id : string,
     title : string,
-    discountedPrice : string,
-    price : string
+    price : {
+     discountedPrice : string,
+     price : string  
+    },
+    imageUrl : string,
 }
+
 export interface IFilter{
     price : string,
     colors : string,

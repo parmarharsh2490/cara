@@ -34,12 +34,12 @@ const App = () => {
           <Route path="/auth/sign-up" element={<Signup />} />
         </Route>
         
-        <Route element={<ProfileComponent />}>
+        {/* <Route element={<ProfileComponent />}>
           <Route path="/profile" element={<Profile />} />
           <Route path="/wishlist" element={<Wishlist />} />
           <Route path="/address" element={<Address />} />
           <Route path="/orders" element={<Orders />} />
-        </Route>
+        </Route> */}
         
         <Route element={<SellerPage />}>
           <Route path="/dashboard" element={<Dashboard />} />
@@ -51,7 +51,7 @@ const App = () => {
           <Route path="/transaction" element={<Transaction />} />
           <Route path="/analytics" element={<Analytics />} />
         </Route>
-        
+{/*         
         <Route index element={<Home />} />
         <Route path="/seller" element={<SellerPage />} />
         <Route path="/product/:productId" element={<ProductDetails />} />
@@ -60,7 +60,7 @@ const App = () => {
         <Route path="/about" element={<About />} />
         <Route path="/contact" element={<Contact />} />
         <Route path="/shopping/:category" element={<Category />} />
-        
+         */}
         {/* Catch-all route */}
         <Route path="*" element={<Blog />} />
       </Routes>

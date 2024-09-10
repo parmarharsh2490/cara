@@ -1,6 +1,6 @@
-import { IInputFieldInterface } from '@/types';
+import { IInputFieldInterface, IProductAllDetails, ISizeOption } from "../../../types/index.ts";
 import {  ChangeEventHandler, useState } from 'react';
-
+import { useCreateProduct } from "../../../query/queries.ts"
 
 const InputField = ({ label, value, name, onChange, placeholder, options, isTextArea }: IInputFieldInterface) => (
   <div className="mb-4 ml-2 w-full">
@@ -47,14 +47,7 @@ interface InputSizeOptionProps {
   onSizeOptionChange: (index: number, name: string, value: string) => void;
 }
 
-interface SizeOption {
-  size: string;
-  stock: string;
-  originalPrice: string;
-  discountedPrice: string;
-  gender: string;
-  color: string;
-}
+
 
 interface InputSizeOptionProps {
   index: number;
@@ -95,14 +88,14 @@ const InputSizeOption = ({ index, sizeOption, onSizeOptionChange }: InputSizeOpt
         />
         <InputField
           label="Original Price"
-          value={sizeOption.originalPrice}
+          value={sizeOption.price.originalPrice}
           onChange={(e) => onSizeOptionChange(index, 'originalPrice', e.target.value)}
           name="originalPrice"
           placeholder="Enter Original Price"
         />
         <InputField
           label="Discounted Price"
-          value={sizeOption.discountedPrice}
+          value={sizeOption.price.discountedPrice}
           onChange={(e) => onSizeOptionChange(index, 'discountedPrice', e.target.value)}
           name="discountedPrice"
           placeholder="Enter Discounted Price"
@@ -130,45 +123,67 @@ const InputSizeOption = ({ index, sizeOption, onSizeOptionChange }: InputSizeOpt
 
 
 const AddProduct = () => {
+  const {mutateAsync : createProduct} = useCreateProduct()
   const [countSelectedImages, setCountSelectedImages] = useState(0);
   const [images, setImages] = useState<string[]>(["/blog1.jpg", "/blog2.jpg", "/blog3.jpg", "/blog4.jpg", "/blog5.jpg"]);
-  const [title, setTitle] = useState("");
-  const [description, setDescription] = useState("");
-  const [category, setCategory] = useState("");
-  const [sizeOptions, setSizeOptions] = useState<SizeOption[]>([
+  const [title, setTitle] = useState("1-title");
+  const [description, setDescription] = useState("1-description");
+  const [category, setCategory] = useState("tshirt");
+  const [sizeOptions, setSizeOptions] = useState<ISizeOption[]>([
     {
-      size: "",
-      stock: "",
-      originalPrice: "",
-      discountedPrice: "",
-      gender: "",
-      color: "",
-    },
+      size: "XL",
+      stock: 10,
+      price: {
+        originalPrice: 1299,
+        discountedPrice: 1099,
+      },
+      gender: "male",
+      color: "blue"
+    }
   ]);
 
-  const handleImageChange: ChangeEventHandler<HTMLInputElement> = (e) => {
-    const file = e.target.files?.[0];
-    if (file) {
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        if (typeof reader.result === 'string') {
-          setImages((prev) =>
-            prev.map((image, index) =>
-              index === countSelectedImages ? reader.result as string : image
-            )
-          );
-          setCountSelectedImages((prev) => prev + 1);
-        } else {
-          console.error('File could not be read as a string.');
-        }
-      };
-      reader.readAsDataURL(file);
+  const handleImageChange: ChangeEventHandler<HTMLInputElement> = async (e) => {
+    if (e.target.files) {
+      // Limit the number of files to 5
+      const files = Array.from(e.target.files).slice(0, 5);
+      
+      // Initialize an array to store image data URLs
+      const newImages = await Promise.all(
+        files.map((file) => {
+          return new Promise<string>((resolve, reject) => {
+            const reader = new FileReader();
+            reader.onloadend = () => {
+              if (typeof reader.result === 'string') {
+                resolve(reader.result);
+              } else {
+                reject(new Error('File could not be read as a string.'));
+              }
+            };
+            reader.readAsDataURL(file);
+          });
+        })
+      );
+      
+      // Update the images state with the new image URLs
+      setImages((prev) => {
+        // Determine how many images will be replaced or added
+        const replaceCount = Math.min(newImages.length, 5);
+        
+        // Replace the first part of the array with new images
+        const updatedImages = [
+          ...newImages,
+          ...prev.slice(replaceCount, 5) // Keep the remaining images if total is less than 5
+        ];
+        
+        return updatedImages;
+      });
     }
   };
-
+  
+  
   const handleSubmit: React.FormEventHandler<HTMLFormElement> = (e) => {
     e.preventDefault();
-    const formData = {
+    const formData : IProductAllDetails = {
       title,
       description,
       category,
@@ -176,6 +191,7 @@ const AddProduct = () => {
       sizeOptions,
     };
     console.log(formData);
+    createProduct(formData)
   };
 
   const handleSizeOptionChange = (index: number, name: string, value: string) => {
@@ -261,6 +277,7 @@ const AddProduct = () => {
             accept="image/*"
             onChange={handleImageChange}
             className="mb-2"
+            multiple
           />
           <div className="flex flex-wrap gap-2">
             {images.map((image, index) => (
@@ -273,7 +290,8 @@ const AddProduct = () => {
             ))}
           </div>
         </div>
-       
+       {/* <input type="file"  accept='image/*' onChange={(e) => console.log(e)
+       }/> */}
         <button
           type="submit"
           className="mt-4 bg-blue-500 text-white p-2 rounded"
