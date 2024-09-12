@@ -22,6 +22,9 @@ const userSchema = new mongoose.Schema({
     enum: ["customer", "admin"],
     default: "customer",
   },
+  companyName : {
+    type : String
+  },
   gender: {
     type: String,
     enum: ["male", "female"],
@@ -62,7 +65,6 @@ userSchema.methods.generateAccessToken = function(){
   const accessToken = Jwt.sign({
     data: {
       _id : this._id,
-      username: this.username,
       name: this.name,
       email: this.email
     }
@@ -77,7 +79,6 @@ userSchema.methods.generateRefreshToken = function(){
   console.log(REFRESH_TOKEN_EXPIRY);
   const refreshToken = Jwt.sign({
     data: {
-      username: this.username,
       name: this.name,
       email: this.email
     }

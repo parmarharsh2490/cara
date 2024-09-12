@@ -5,12 +5,23 @@ import { Product } from "../model/Product.model.js";
 import ApiResponse from "../utils/ApiResponse.js";
 import ApiError from "../utils/ApiError.js";
 import { uploadImage } from "../utils/Cloudinary.js";
+import { getIndexOfVarietyAndImage } from "../utils/index.js";
 
 const getAllProducts = asyncHandler(async (req, res) => {
   const { searchTerm, color, latestProduct, skip = 0, limit = 10, category, maxPrice, minPrice, priceHighToLow, priceLowToHigh } = req.query;
   console.log("start");
   if (latestProduct) {
-    const products = await Product.find({},{'images.0.imageUrl' : 1, _id : 1,title : 1, price : 1}).sort({ createdAt: 1 }).skip(parseInt(skip)).limit(parseInt(limit));
+const products = await Product.aggregate([
+  { $project: {
+    _id: 1,
+    title: 1,
+    price: { $arrayElemAt: ["$variety.sizeOptions.price.originalPrice", 0] },
+    imageUrl: { $arrayElemAt: ["$variety.images.imageUrl", 0] }
+  }},
+  { $sort: { createdAt: 1 } },
+  { $skip: parseInt(skip) },
+  { $limit: parseInt(limit) }
+]);
     return res.status(200).json({ data: products });
   }
   console.log("end");
@@ -64,27 +75,31 @@ const getProductDetails = asyncHandler(async (req, res) => {
 });
 
 const createProduct = asyncHandler(async (req, res) => {
-  return res
-    .status(200)
-    .json(
-      new ApiResponse(200, req.body, "Successfully created product")
-    )
-  let { title, description, category, sizeOptions, rating = 0} = req.body; 
-  sizeOptions = JSON.parse(sizeOptions)
+  let { title, description, category, variety, gender, rating = 0} = req.body;
+  const parsedVariety = typeof variety === 'string' ? JSON.parse(variety) : variety;
   const user = req.user;
   
   // Validate required fields
-  if ([title, description, category].some((entry) => entry.trim() == "")) {
+  if ([title, description, category, gender].some((entry) => entry.trim() == "")) {
     throw new ApiError(400, "Entry fields should not be empty");
   }
-
+  
   // Validate images
   const files = req.files;
-  console.log(files.length);
-  
-  if(!files || files.length !== 5){
-    throw new ApiError(400, "Images not found");    
+
+  if (!files || files.length === 0) {
+    throw new ApiError(400, "At least one image is required");
   }
+
+    // Map images to the variety array
+    parsedVariety.forEach((v) => v.images = []);
+    files.forEach((file) => {
+      const index = parseInt(file.fieldname.substr(8,1))
+      if (parsedVariety[index]) {
+        parsedVariety[index].images.push(file);
+      }
+    });
+  
 
   // const images = [];
   // for await(let file of files){
@@ -93,50 +108,49 @@ const createProduct = asyncHandler(async (req, res) => {
     //   console.log(images);
     // }
   //Promise.all is use because This allows you to handle multiple file uploads concurrently rather than sequentially. It's much faster when you need to upload many images.
-  const images = await Promise.all(
-    files.map(async (file) => {
-      // upload image on cloudinary
-      const imageDetails = await uploadImage(file.path);
-      return {
-        publicId: imageDetails.public_id,
-        imageUrl: imageDetails.secure_url,
-      };
+  await Promise.all(
+    parsedVariety.map(async (variety) => {
+      variety.images = await Promise.all(
+        variety.images.map(async (file) => {
+          const { public_id, secure_url } = await uploadImage(file.path);
+          return {
+            publicId: public_id,
+            imageUrl: secure_url,
+          };
+        })
+      );
     })
   );
   
-  // Validate sizeOptions
-  if (!Array.isArray(sizeOptions) || sizeOptions.length === 0) {
-    throw new ApiError(400, "Size options not found");
-  }
- 
   
   // Create the product
-  console.log("end");
   const product = await Product.create({
-    owner : user._id,
+    owner :"60d5c5f6973a3b001f6473e9",
     title,
     description,
     category,
     rating,
-    sizeOptions,
-    images
+    variety : parsedVariety,
+    gender
   });
 
   return res
     .status(201)
     .json(new ApiResponse(201, product, "Successfully created product"));
 });
-
+ 
 const updateProduct = asyncHandler(async (req, res) => {
-  const { title, description, category, sizeOptions } = req.body;
-  const { productId } = req.params;
+  const {productId} = req.params;
+  let { title, description, category, variety, gender} = req.body;
+  
+  const parsedVariety = typeof variety === 'string' ? JSON.parse(variety) : variety;
   const user = req.user;
 
   if (!productId || !mongoose.isValidObjectId(productId)) {
     throw new ApiError(400, "ProductId should be valid");
   }
 
-  if ([title, description, category].some((entry) => entry.trim() === "")) {
+  if ([title, description, category,gender].some((entry) => entry.trim() === "")) {
     throw new ApiError(400, "Entry fields should not be empty");
   }
 
@@ -151,17 +165,39 @@ const updateProduct = asyncHandler(async (req, res) => {
 
   const updateFields = {};
   if (product.title !== title) updateFields.title = title;
-  if (product.description !== description)
-    updateFields.description = description;
+  if (product.description !== description) updateFields.description = description;
   if (product.category !== category) updateFields.category = category;
-  if (JSON.stringify(product.sizeOptions) !== JSON.stringify(sizeOptions)) {
-    updateFields.sizeOptions = sizeOptions;
+  if (product.gender !== gender) updateFields.gender = gender;
+  
+  const files = req.files;
+
+  if(files && Array.isArray(files)){
+    files.forEach((file) => {
+       //file.fieldName = variety[0].images[0]
+       const { varietyIndex , imageIndex } = getIndexOfVarietyAndImage(file.fieldname);
+      if (parsedVariety[varietyIndex] && parsedVariety[varietyIndex].images[imageIndex]) {
+        parsedVariety[varietyIndex].images[imageIndex] = file;
+      }
+    });
   }
 
-  if (Object.keys(updateFields).length === 0) {
-    throw new ApiError(400, "No changes detected");
-  }
-
+    await Promise.all(
+      parsedVariety.map(async (variety) => {
+        variety.images = await Promise.all(
+          variety.images.map(async (file) => {
+            if(file && file.path){
+              const { public_id, secure_url } = await uploadImage(file.path);
+              return {
+                publicId: public_id,
+                imageUrl: secure_url,
+              };
+            }
+            return file
+          })
+        );
+      })
+    );
+    updateFields.variety = parsedVariety
   const updatedProduct = await Product.findByIdAndUpdate(
     productId,
     updateFields,

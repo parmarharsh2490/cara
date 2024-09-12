@@ -1,5 +1,7 @@
+import { useDeleteProduct } from '../../../query/queries.ts';
 import { IProduct } from '@/types';
 import { FaEdit, FaTrash } from 'react-icons/fa'; 
+import { Navigate, useNavigate } from 'react-router-dom';
 
 const products: IProduct[] = [
   { _id : "123456789", discountedPrice : "12345", imageUrl: '/blog1.jpg', title: 'Dummy Product 1', price: "100" },
@@ -24,7 +26,8 @@ const products: IProduct[] = [
 ];
 
 const AdminProducts: React.FC = () => {
-
+  const {mutateAsync : deleteProduct} = useDeleteProduct();
+  const navigate = useNavigate();
   return (
     <div className="p-4 text-center">
       <h2 className="text-2xl font-bold mb-4">All Products</h2>
@@ -50,10 +53,10 @@ const AdminProducts: React.FC = () => {
                 </td>
                 <td className="py-2 px-4 border-b">
                   <div className="flex items-center justify-center">
-                    <button className="bg-blue-500 text-white px-2 py-1 rounded mr-2 flex items-center">
+                    <button  onClick={() => navigate(`/update-product/${product._id}`)} className="bg-blue-500 text-white px-2 py-1 rounded mr-2 flex items-center">
                       <FaEdit className="mr-1" /> Edit
                     </button>
-                    <button className="bg-red-500 text-white px-2 py-1 rounded flex items-center">
+                    <button onClick={() => deleteProduct(product._id)}  className="bg-red-500 text-white px-2 py-1 rounded flex items-center">
                       <FaTrash className="mr-1" /> Delete
                     </button>
                   </div>

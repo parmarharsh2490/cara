@@ -2,6 +2,8 @@ import { IProduct } from '@/types'
 import Product from './Product'
 
 const ProductList = ({ products} : {products : IProduct[]}) => {
+  console.log(products);
+  
   return (
     <div className='flex items-center justify-center flex-col lg:mx-7 mx-2'>
       {/* Container with padding and start alignment */}

@@ -9,6 +9,7 @@ export const User = {
 export interface IAdminProduct extends IProduct{
     
 }
+
 export interface IProduct {
     imageUrl : string,
     _id : string,
@@ -22,25 +23,24 @@ export interface IProductAllDetails{
     description : string,
     category : string,
     rating : number,
-    price : {
-     discountedPrice : string,
-     price : string  
-    },
-    sizeOptions : ISizeOption[]
-    images : string[],
+    variety : IVariety[],
+    gender : string
 }
 
-export interface ISizeOption {
+export interface IVariety {
+    color: string;
+    images: string[];
+    sizeOptions: ISizeOption[];
+  }
+  
+  export interface ISizeOption {
     size: string;
     stock: number;
-    price: {   
+    price: {
       originalPrice: number;
       discountedPrice: number;
     };
-    gender: string;
-    color: string;
-}
-  
+  }
   
 
 export interface INewArrivalProduct{
@@ -119,15 +119,6 @@ export interface IBankDetails {
     ifscCode: string;
     accountNumber: string;
   }
-
-export interface ISizeOption {
-    size: string;
-    stock: string;
-    originalPrice: string;
-    discountedPrice: string;
-    gender: string;
-    color: string;
-}
 
 export interface IOrderItem {
     image: string;

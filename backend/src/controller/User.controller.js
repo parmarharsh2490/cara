@@ -27,8 +27,10 @@ const generateAccessAndRefreshToken = (user) => {
 }
 
 const registerUser = asyncHandler(async(req,res) => {
-        const {name,username,email,password} = req.body;
-        if([name,username,email,password].some((entry) => entry.trim() === "")){
+    console.log("RegisterUser");
+    
+        const {name,email,password} = req.body;
+        if([name,email,password].some((entry) => entry.trim() === "")){
             throw new ApiError(400,"Entry fileds should not be empty");
         };
         const alreadyExitUser = await User.find({email});
@@ -37,7 +39,6 @@ const registerUser = asyncHandler(async(req,res) => {
         }
         const user = await User.create({
             name,
-            username,
             email,
             password,
         });
@@ -50,7 +51,6 @@ const registerUser = asyncHandler(async(req,res) => {
         }
 
         user.refreshToken = refreshToken;
-       
         await user.save({validationBeforeSave : false});
         return res
         .status(200)

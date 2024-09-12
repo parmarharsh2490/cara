@@ -24,6 +24,7 @@ import PaymentWallet from "./root/page/admin/PaymentWallet.tsx";
 import AdminProducts from "./root/page/admin/AdminProducts.tsx";
 import Transaction from "./root/page/admin/Transaction.tsx";
 import Setting from "./root/page/admin/Setting.tsx";
+import UpdateProduct from "./root/page/admin/UpdateProduct.tsx";
 
 const App = () => {
   return (
@@ -44,14 +45,15 @@ const App = () => {
         <Route element={<SellerPage />}>
           <Route path="/dashboard" element={<Dashboard />} />
           <Route path="/setting" element={<Setting />} />
-          <Route path="/add-product" element={<AddProduct />} />
+          <Route path="/add-product" element={<AddProduct/>} />
+          <Route path="/update-product/:productId" element={<UpdateProduct/>} />
           <Route path="/admin/orders" element={<AdminOrders />} />
           <Route path="/payment-wallet" element={<PaymentWallet />} />
           <Route path="/admin-products" element={<AdminProducts />} />
           <Route path="/transaction" element={<Transaction />} />
           <Route path="/analytics" element={<Analytics />} />
         </Route>
-{/*         
+        
         <Route index element={<Home />} />
         <Route path="/seller" element={<SellerPage />} />
         <Route path="/product/:productId" element={<ProductDetails />} />
@@ -60,7 +62,7 @@ const App = () => {
         <Route path="/about" element={<About />} />
         <Route path="/contact" element={<Contact />} />
         <Route path="/shopping/:category" element={<Category />} />
-         */}
+        
         {/* Catch-all route */}
         <Route path="*" element={<Blog />} />
       </Routes>

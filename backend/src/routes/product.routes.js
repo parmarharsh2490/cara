@@ -5,8 +5,8 @@ const productRouter = Router();
 
 productRouter.get('/',getAllProducts)
 productRouter.get('/:productId',getProductDetails) //done
-productRouter.post('/create',upload.any("image1","image2"),createProduct) //done
-productRouter.patch('/update/:productId',updateProduct) //done
+productRouter.post('/create',upload.any(),createProduct) //done
+productRouter.patch('/update/:productId',upload.any(),updateProduct) //done
 productRouter.delete('/delete/:productId',deleteProduct) //done
 
 export default productRouter

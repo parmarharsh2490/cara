@@ -12,10 +12,10 @@ const Home = () => {
   return (
     <>
          <Navigation/>
-        {/*<ImageSlider/> 
+        {/* <ImageSlider/> 
         <SeasonBanner/>
-        <ExploreCategory/> */}
-        {/* <img src="/payment_promotion.avif" className='mt-20' alt="" />
+        <ExploreCategory/>
+        <img src="/payment_promotion.avif" className='mt-20' alt="" />
         <NewArrival/> */}
        {/* <div className='flex flex-col items-center justify-center gap-2 p-5 sm:py-10 sm:px-20'>
        <h1 className='text-2xl '>Flannel Season</h1>

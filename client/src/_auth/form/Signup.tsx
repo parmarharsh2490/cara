@@ -1,13 +1,34 @@
-import { Link } from "react-router-dom";
+import { useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
+import { useCreateUserAccount } from "../../query/queries.ts";
 
 const Signup = () => {
+  const { mutateAsync: createUserAccount } = useCreateUserAccount();
+  const [name, setName] = useState("harsh");
+  const [email, setEmail] = useState("harsh23020@gmail.com");
+  const [password, setPassword] = useState("harsh");
+  const navigate = useNavigate();
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    const user = { name, email, password };
+
+    try {
+      await createUserAccount(user); 
+      navigate('/')
+    } catch (error) {
+      console.error("Error creating user account: ", error); // Log error for debugging
+    }
+  };
+
+
   return (
     <div className="flex min-w-[384px] min-h-[512px] flex-1 items-center justify-center flex-col max-w-sm bg-white">
       <div className="pt-5">
         <h1 className="text-xl md:text-2xl font-semibold">Welcome To Cara</h1>
         <p className="text-gray-400">Please enter your details</p>
       </div>
-      <form action="" className="flex flex-col w-full gap-3 p-8 pt-3">
+      <form onSubmit={(e) =>handleSubmit(e)} className="flex flex-col w-full gap-3 p-8 pt-3">
         <label htmlFor="name">Name</label>
         <input
           type="text"
@@ -15,6 +36,8 @@ const Signup = () => {
           id="name"
           placeholder="Enter your name"
           className="h-10 border p-3"
+          value={name}
+          onChange={(e) => setName(e.target.value)}
         />
         <label htmlFor="email">Email</label>
         <input
@@ -23,6 +46,8 @@ const Signup = () => {
           id="email"
           placeholder="Enter your email"
           className="h-10 border p-3"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
         />
         <label htmlFor="password">Password</label>
         <input
@@ -31,6 +56,8 @@ const Signup = () => {
           id="password"
           placeholder="Enter your password"
           className="h-10 border p-3"
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
         />
         <div className="flex items-center justify-between my-1 gap-2">
           <div className="flex gap-1 items-center">

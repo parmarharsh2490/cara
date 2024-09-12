@@ -17,12 +17,15 @@ export const uploadImage = async (imagePath) => {
     };
 
     try {
-        const result = await cloudinary.uploader.upload(imagePath, options);
+        const result = await cloudinary.uploader.upload(imagePath);
         unlink(imagePath, (err) => {
             if (err) throw err;
           }); 
         return result;
     } catch (error) {
         console.error('Error uploading image:', error);
+        unlink(imagePath, (err) => {
+            if (err) throw err;
+          }); 
     }
 };
