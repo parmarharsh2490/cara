@@ -1,5 +1,5 @@
 import React from "react";
-import { IVariety } from "@/types/index.ts";
+import { IVariety } from "@/types/index";
 
 interface VarietyFormProps {
   index: number;

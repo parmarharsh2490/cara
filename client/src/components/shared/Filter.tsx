@@ -1,4 +1,4 @@
-import { IFilter } from '@/types/index.ts';
+import { IFilter } from '@/types/index';
 import  { ChangeEvent, useState } from 'react';
 
 const Filter = () => {

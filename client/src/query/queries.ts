@@ -1,9 +1,9 @@
 import {   useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
 import { QUERY_KEYS } from "./queryKeys"
-import {createProduct, deleteProduct, getLatestProducts, getProductDetails, updateProduct} from "../services/productService.ts"
-import {createUserAccount, getUserDetails, loginUserAccount, updateUserDetails} from "../services/userServices.ts"
-import { becomeSeller, getSellerDetails, updateSellerDetails } from "../services/adminServices.ts"
-import { ILoginUser, INewUser } from "@/types/index.ts"
+import {createProduct, deleteProduct, getLatestProducts, getProductDetails, updateProduct} from "../services/productService"
+import {createUserAccount, getUserDetails, loginUserAccount, updateUserDetails} from "../services/userServices"
+import { becomeSeller, getSellerDetails, updateSellerDetails } from "../services/adminServices"
+import { ILoginUser, INewUser } from "../types/index"
 
 /// auth queries
 const useCreateUserAccount = () => {

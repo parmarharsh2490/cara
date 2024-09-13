@@ -1,4 +1,4 @@
-import apiClient from "./index.ts";
+import apiClient from "./index";
 
 export {
     getSellerDetails,

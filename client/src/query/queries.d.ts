@@ -1,0 +1,14 @@
+import { ILoginUser, INewUser } from "../types/index";
+declare const useCreateUserAccount: () => import("@tanstack/react-query").UseMutationResult<any, Error, INewUser, unknown>;
+declare const useLoginUserAccount: () => import("@tanstack/react-query").UseMutationResult<any, Error, ILoginUser, unknown>;
+declare const useGetLatestProducts: () => import("@tanstack/react-query").UseQueryResult<any, Error>;
+declare const useCreateProduct: () => import("@tanstack/react-query").UseMutationResult<import("axios").AxiosResponse<any, any>, Error, any, unknown>;
+declare const useUpdateProduct: () => import("@tanstack/react-query").UseMutationResult<import("axios").AxiosResponse<any, any>, Error, any, unknown>;
+declare const useDeleteProduct: () => import("@tanstack/react-query").UseMutationResult<import("axios").AxiosResponse<any, any>, Error, any, unknown>;
+declare const useGetProductDetails: (data: string) => import("@tanstack/react-query").UseQueryResult<any, Error>;
+declare const useGetUserDetails: () => import("@tanstack/react-query").UseQueryResult<any, Error>;
+declare const useBecomeSeller: () => import("@tanstack/react-query").UseMutationResult<any, Error, void, unknown>;
+declare const useGetSellerDetails: () => import("@tanstack/react-query").UseQueryResult<any, Error>;
+declare const useUpdateSellerDetails: () => import("@tanstack/react-query").UseMutationResult<any, Error, void, unknown>;
+declare const useUpdateUserDetails: () => import("@tanstack/react-query").UseMutationResult<any, Error, any, unknown>;
+export { useGetLatestProducts, useCreateProduct, useUpdateProduct, useGetProductDetails, useDeleteProduct, useCreateUserAccount, useLoginUserAccount, useGetUserDetails, useGetSellerDetails, useUpdateSellerDetails, useUpdateUserDetails, useBecomeSeller };

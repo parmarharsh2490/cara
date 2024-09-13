@@ -1,5 +1,5 @@
-import apiClient from "./index.ts";
-import { ILoginUser, INewUser } from "../types/index.ts";
+import apiClient from "./index";
+import { ILoginUser, INewUser } from "../types/index";
 
 export {
     createUserAccount,

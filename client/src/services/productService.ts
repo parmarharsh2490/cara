@@ -1,5 +1,5 @@
 import axios from "axios";
-import apiClient from "./index.ts"
+import apiClient from "./index"
 
 export {
     getLatestProducts,
@@ -10,7 +10,7 @@ export {
 }
  
 const getLatestProducts = async () => {
-   const response =  await axios.get(`${apiClient}/products/`,{
+   const response =  await apiClient.get("/products",{
     params : {
       latestProduct : true,
       limit : 10,
