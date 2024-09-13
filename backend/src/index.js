@@ -34,8 +34,9 @@ export const getTransporter = () => {
 const startServer = async () => {
   // await initializeTransporter();
   const PORT = process.env.PORT || 3000;
-  app.listen(PORT, () => {
+  app.listen(PORT, (req,res) => {
     console.log(`Server is running on port ${PORT}`);
+    res.send('Hello World');
   });
 };
 

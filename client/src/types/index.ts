@@ -1,10 +1,28 @@
 import { HTMLInputTypeAttribute } from "react";
 import { ChangeEventHandler } from 'react';
 
-export const User = {
-    name : String,
-    email : String,
+export interface IUser {
+  _id: string;
+  name : string;
+  email: string;
+  role?: "customer" | "admin";
+  gender?: "male" | "female" | "child" | "unisex" | null;
+  mobileNumber?: string;
+  alternativeNumber?: string;
+  dateOfBirth?: string;
 }
+
+export interface INewUser {
+  name : string;
+  email: string;
+  password : string
+}
+
+export interface ILoginUser {
+  email: string;
+  password: string;
+}
+
 
 export interface IAdminProduct extends IProduct{
     
@@ -29,7 +47,7 @@ export interface IProductAllDetails{
 
 export interface IVariety {
     color: string;
-    images: string[];
+    images: (string | File)[];
     sizeOptions: ISizeOption[];
   }
   
@@ -69,7 +87,9 @@ export interface IPopupFormProps {
     inputData: InputData[];
     showPopupForm: boolean;
     setShowPopupForm: (show: boolean) => void;
-    title? : String
+    title? : String,
+    handleSubmitFunction : any
+    label  : string
 }
 
 export interface IRating {
@@ -102,7 +122,7 @@ export interface ITransaction {
 }
 
 export interface ISellerProfileDetails {
-    fullName: string;
+    name: string;
     primaryPhone: string;
     primaryEmail: string;
     secondaryPhone: string;
@@ -112,7 +132,7 @@ export interface ISellerProfileDetails {
     panNumber: string;
     aadharNumber: string;
     gstin: string;
-  }
+}
 
 export interface IBankDetails {
     bankName: string;

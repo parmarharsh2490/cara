@@ -1,18 +1,69 @@
-import React, { createContext } from "react";
+import { useNavigate } from "react-router-dom";
+import { getUserDetails } from "../services/userServices.ts";
+import React, { createContext, useEffect, useState } from "react";
+import { IUser } from "../types/index.ts";
 
-let  count =  0;
+const INITIAL_USER : IUser = {
+  _id: "",
+  name: "",
+  email: "",
+  gender: null,
+  mobileNumber: "",
+  alternativeNumber: "",
+  dateOfBirth: "",
+  role :"customer"
+};
+const INITIAL_STATE = {
+  user: INITIAL_USER,
+  isAuthenticated: false,
+  setIsAuthenticated: (() => {}) as React.Dispatch<React.SetStateAction<boolean>>,
+};
+export const UserContext = createContext(INITIAL_STATE);
 
-const UserContext = createContext(count);
+const UserProvider = ({ children }: { children: React.ReactNode }) => {
+  const navigate = useNavigate();
+  const [user, setUser] = useState<IUser>(INITIAL_USER);
+  const [isAuthenticated, setIsAuthenticated] = useState(true);
 
-const UserProvider = ({ children } : {children : React.ReactNode}) => {
-  const [count] = React.useState(0);    
-      return (
-        <UserContext.Provider value={count}>
-          {children}
-        </UserContext.Provider>
-      );
-    };
-    
-    // Create a custom hook for using the context
-    
-    export { UserProvider };
+  const checkAuthUser = async () => {
+    try {
+      const user = await getUserDetails();
+      console.log(user);
+      if (user) {
+        setUser({
+          _id: user._id,
+          name: user.name,
+          email: user.email,
+          gender: user?.gender,
+          mobileNumber: user?.mobileNumber,
+          alternativeNumber: user?.alternativeNumber,
+          dateOfBirth: user?.dateOfBirth,
+          role : user.role
+        });
+        setIsAuthenticated(true);
+      } else {
+        setIsAuthenticated(false);
+        navigate("/auth/sign-in");
+      }
+    } catch (error) {
+      console.error("Failed to authenticate user:", error);
+      setIsAuthenticated(false);
+      navigate("/auth/sign-in");
+    }
+  };
+
+  useEffect(() => {
+    checkAuthUser();
+  }, []);
+
+  const value = {
+    user,
+    isAuthenticated,
+    setIsAuthenticated,
+  };
+
+  return <UserContext.Provider value={value}>{children}</UserContext.Provider>;
+};
+
+// Create a custom hook for using the context
+export { UserProvider };

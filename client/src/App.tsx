@@ -35,12 +35,12 @@ const App = () => {
           <Route path="/auth/sign-up" element={<Signup />} />
         </Route>
         
-        {/* <Route element={<ProfileComponent />}>
+        <Route element={<ProfileComponent />}>
           <Route path="/profile" element={<Profile />} />
           <Route path="/wishlist" element={<Wishlist />} />
           <Route path="/address" element={<Address />} />
           <Route path="/orders" element={<Orders />} />
-        </Route> */}
+        </Route>
         
         <Route element={<SellerPage />}>
           <Route path="/dashboard" element={<Dashboard />} />
@@ -54,7 +54,7 @@ const App = () => {
           <Route path="/analytics" element={<Analytics />} />
         </Route>
         
-        <Route index element={<Home />} />
+         <Route index element={<Home />} />
         <Route path="/seller" element={<SellerPage />} />
         <Route path="/product/:productId" element={<ProductDetails />} />
         <Route path="/checkout/cart" element={<Cart />} />

@@ -1,10 +1,11 @@
-import { useState } from 'react'
 import ProductList from '../../components/shared/ProductList'
-import { IProduct } from '@/types'
-import { getLatestProducts, useGetLatestProducts } from '../../query/queries';
-import { useQuery } from '@tanstack/react-query';
+import {  useGetLatestProducts } from '../../query/queries';
+
 const NewArrival = () => {
-   const {data : products,isLoading,error,isFetched,isFetching} = useGetLatestProducts();
+   const {data : products,isLoading,error,isFetching} = useGetLatestProducts();
+   if(error){
+    return <p>Error Happened...</p>
+   }
   return (
     <>
     {

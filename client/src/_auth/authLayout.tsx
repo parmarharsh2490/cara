@@ -1,12 +1,14 @@
+import { UserContext } from '../context/index.tsx'
+import { useContext } from 'react'
 import { Navigate, Outlet } from 'react-router-dom'
 
 const authLayout = () => {
-  const isAuthenticated : boolean = false
+  const { isAuthenticated } = useContext(UserContext)
   return (
     <>
     {
       isAuthenticated ? (
-        <Navigate to={'/sign-in'}/>
+        <Navigate to={'/'}/>
       ) : (
         <>
        <>

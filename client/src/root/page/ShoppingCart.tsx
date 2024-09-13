@@ -1,10 +1,9 @@
 import  { useState } from "react";
 import Navigation from "../../components/shared/Navigation";
 import Footer from "../../components/shared/Footer";
-import {  IProductAllDetails } from "@/types";
 
 const ShoppingCart = () => {
-  const [products] = useState<IProductAllDetails[]>([
+  const [products] = useState([
     {
         images : [
         "https://cdn-media.powerlook.in/catalog/product/d/p/dp-939921.jpg",

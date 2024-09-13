@@ -1,16 +1,18 @@
-import axios from "axios";
 import apiClient from "./index.ts";
+import { ILoginUser, INewUser } from "../types/index.ts";
 
 export {
     createUserAccount,
-    loginUserAccount
+    loginUserAccount,
+    getUserDetails,
+    updateUserDetails
 }
 
-const createUserAccount = async (user: any) => {
+const createUserAccount = async (user: INewUser) => {
     try {
-        const response = await axios.post(`${apiClient}/user/register`, user, {
+        const response = await apiClient.post("/user/register", user, {
             headers: {
-                "Content-Type": "application/json",  // Ensure correct content type
+                "Content-Type": "application/json",  
             }
         });
         return response.data;
@@ -20,15 +22,37 @@ const createUserAccount = async (user: any) => {
     }
 }
 
-const loginUserAccount = async (user: any) => {
+const loginUserAccount = async (user: ILoginUser) => {
     try {
-        const response = await axios.post(`${apiClient}/user/login`, user, {
+        const response = await apiClient.post("/user/login", user, {
             headers: {
                 "Content-Type": "application/json",
             }
         })
         console.log(response);
         return response.data;
+    } catch (error) {
+        console.error("Error logging in user:", error);
+        throw error;
+    }
+}
+
+const getUserDetails = async () => {
+    try {
+        const response = await apiClient.get("/user")
+        console.log(response);
+        return response.data.data;
+    } catch (error) {
+        console.error("Error logging in user:", error);
+        throw error;
+    }
+}
+const updateUserDetails = async (userDetails : any) => {
+    console.log(userDetails);
+    try {
+        const response = await apiClient.post("/user/update",userDetails)
+        console.log(response);
+        return response.data.data;
     } catch (error) {
         console.error("Error logging in user:", error);
         throw error;

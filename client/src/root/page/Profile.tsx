@@ -61,7 +61,8 @@ const Profile: React.FC = () => {
       </div>
       <div style={{ position: 'fixed', zIndex: 9999, inset: '16px', pointerEvents: 'none' }}></div>
     </div>
-    <PopupForm inputData={
+    <PopupForm
+     inputData={
       [
         {type : "string",label :"fullName",name:"Your Full Name"},
         {type : "number",label :"contactNumber",name:"Contact Number"},
@@ -69,7 +70,12 @@ const Profile: React.FC = () => {
         {type : "email",label :"email",name:"Email"},
         {type : "date",label :"dateOfBirth",name:"Date Of Birth"},
         {type : "boolean",label :"gender",name:"Gender"},
-      ]} showPopupForm={showPopupForm} setShowPopupForm={setShowPopupForm}/>
+      ]} 
+      showPopupForm={showPopupForm} 
+      setShowPopupForm={setShowPopupForm}
+      handleSubmitFunction={() => {console.log("Profile Updated")}}
+      label="Edit Your Profile"
+      />
    </>
   );
 }

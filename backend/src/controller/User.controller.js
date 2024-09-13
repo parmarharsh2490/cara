@@ -27,8 +27,6 @@ const generateAccessAndRefreshToken = (user) => {
 }
 
 const registerUser = asyncHandler(async(req,res) => {
-    console.log("RegisterUser");
-    
         const {name,email,password} = req.body;
         if([name,email,password].some((entry) => entry.trim() === "")){
             throw new ApiError(400,"Entry fileds should not be empty");
@@ -159,11 +157,7 @@ const resetPassword = async(req,res) => {
 }
 
 const getUserDetails = async(req,res) => {
-    const {userId} = req.params;
-    if(!userId || !isValidObjectId(userId)){
-        throw new ApiError(401,"UserId is invalid");
-    }
-    const user = User.findById({userId}).select("-password -accessToken");
+    const user = req.user;
     if(!user){
         throw new ApiError(401,"User not found");
     }
@@ -171,6 +165,30 @@ const getUserDetails = async(req,res) => {
     .status(200)
     .json(new ApiResponse(200,user,"Successfully get user"))
 }
+
+const updateUserDetails = asyncHandler(async (req, res) => {
+    const userDetails = req.body;
+    console.log(userDetails);
+    
+    if (typeof userDetails !== 'object' || userDetails === null || Array.isArray(userDetails)) {
+        throw new ApiError(400, "Entry fields should be a non-null object.");
+    }
+
+    const user = await User.findByIdAndUpdate(
+        req.user._id, 
+        userDetails,
+        { new: true, runValidators: true }
+    );
+
+    if (!user) {
+        throw new ApiError(404, "User not found.");
+    }
+
+    return res
+        .status(200)
+        .json(new ApiResponse(200, user, "Successfully updated user."));
+});
+
 export {
     generateAccessAndRefreshToken,
     registerUser,
@@ -179,5 +197,6 @@ export {
     forgetPassword,
     resetPassword,
     changePassword,
-    getUserDetails
+    getUserDetails,
+    updateUserDetails
 }

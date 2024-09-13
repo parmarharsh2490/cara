@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import VarietyForm from "./VarietyForm.tsx"; // Import the VarietyForm component
+import VarietyForm from "./VarietyForm.tsx";
 import { IVariety } from "../../types/index.ts";
 import { useCreateProduct, useUpdateProduct } from "../../query/queries.ts";
 
@@ -42,8 +42,8 @@ const ProductForm: React.FC<ProductFormProps> = ({ existingProduct, isUpdate = f
     },
   ]);
 
-  const { mutateAsync: createProduct, isPending: isCreating, isError: isCreateError, isPaused: isCreatePaused } = useCreateProduct();
-  const { mutateAsync: updateProduct, isPending: isUpdating, isError: isUpdateError, isPaused: isUpdatePaused } = useUpdateProduct();
+  const { mutateAsync: createProduct, isPending: isCreating } = useCreateProduct();
+  const { mutateAsync: updateProduct, isPending: isUpdating } = useUpdateProduct();
 
   useEffect(() => {
     if (existingProduct) {
@@ -132,7 +132,7 @@ const ProductForm: React.FC<ProductFormProps> = ({ existingProduct, isUpdate = f
     formData.append("gender", gender);
       variety.forEach((varietyItem, varietyIndex) => {
         varietyItem.images.forEach((image, imageIndex) => {
-          if(!image?.imageUrl){
+          if (image instanceof File) {
             formData.append(`variety[${varietyIndex}].images[${imageIndex}]`, image);
           }
         });

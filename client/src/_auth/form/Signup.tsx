@@ -1,23 +1,23 @@
-import { useState } from "react";
+import { FormEvent, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useCreateUserAccount } from "../../query/queries.ts";
+import { INewUser } from "../../types/index.ts";
 
 const Signup = () => {
   const { mutateAsync: createUserAccount } = useCreateUserAccount();
-  const [name, setName] = useState("harsh");
-  const [email, setEmail] = useState("harsh23020@gmail.com");
-  const [password, setPassword] = useState("harsh");
+  const [name, setName] = useState<string>("harsh");
+  const [email, setEmail] = useState<string>("harsh23020@gmail.com");
+  const [password, setPassword] = useState<string>("harsh");
   const navigate = useNavigate();
 
-  const handleSubmit = async (e) => {
+  const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    const user = { name, email, password };
-
+    const user : INewUser = { name, email, password };
     try {
       await createUserAccount(user); 
       navigate('/')
     } catch (error) {
-      console.error("Error creating user account: ", error); // Log error for debugging
+      console.error("Error creating user account: ", error);
     }
   };
 

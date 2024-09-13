@@ -61,19 +61,20 @@ const Address: React.FC = () => {
       </div>
 
       <PopupForm
-  inputData={[
-    { type: "string", label: "streetAddress", name: "Street Address" },
-    { type: "string", label: "landmark", name: "Landmark" },
-    { type: "number", label: "postalCode", name: "Postal Code" },
-    { type: "string", label: "city", name: "City" },
-    { type: "string", label: "state", name: "State" },
-    { type: "string", label: "country", name: "Country" },
-    { type: "number", label: "contactNumber", name: "Contact Number" },
-  ]}
-  showPopupForm={showPopupForm}
-  setShowPopupForm={setShowPopupForm}
-/>
-
+        handleSubmitFunction={() => console.log("Address")}
+        inputData={[
+          { type: "string", label: "streetAddress", name: "Street Address" },
+          { type: "string", label: "landmark", name: "Landmark" },
+          { type: "number", label: "postalCode", name: "Postal Code" },
+          { type: "string", label: "city", name: "City" },
+          { type: "string", label: "state", name: "State" },
+          { type: "string", label: "country", name: "Country" },
+          { type: "number", label: "contactNumber", name: "Contact Number" },
+        ]}
+        showPopupForm={showPopupForm}
+        setShowPopupForm={setShowPopupForm} 
+        label={"Add Your Address"}
+        />
     </>
   );
 };

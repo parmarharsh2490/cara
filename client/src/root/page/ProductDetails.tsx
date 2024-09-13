@@ -3,11 +3,10 @@ import Navigation from '../../components/shared/Navigation';
 import Footer from '../../components/shared/Footer';
 import PromotionBanner from '../../components/shared/PromotionBanner';
 import Reviews from '../../components/shared/Reviews';
-import {  IProductAllDetails } from '@/types';
 
 const ProductDetails = () => {
     const productCount = useRef<HTMLInputElement>(null)
-    const [product,setProduct] = useState<IProductAllDetails>({
+    const [product,setProduct] = useState({
             images : [
             "https://cdn-media.powerlook.in/catalog/product/d/p/dp-939921.jpg",
             "https://cdn-media.powerlook.in/catalog/product/d/p/dp_1652_7.jpg",

@@ -1,7 +1,7 @@
 import { useDeleteProduct } from '../../../query/queries.ts';
 import { IProduct } from '@/types';
 import { FaEdit, FaTrash } from 'react-icons/fa'; 
-import { Navigate, useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 
 const products: IProduct[] = [
   { _id : "123456789", discountedPrice : "12345", imageUrl: '/blog1.jpg', title: 'Dummy Product 1', price: "100" },

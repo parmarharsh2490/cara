@@ -1,11 +1,12 @@
+import { useUpdateUserDetails } from '../../query/queries';
 import { IPopupFormProps } from '@/types';
 import React, { useState, useEffect } from 'react';
 
-const PopupForm: React.FC<IPopupFormProps> = ({ inputData, title, showPopupForm, setShowPopupForm }) => {
+const PopupForm: React.FC<IPopupFormProps> = ({ inputData,label, title, showPopupForm, setShowPopupForm,handleSubmitFunction }) => {
   const [isVisible, setIsVisible] = useState<boolean>(false);
   const [formValues, setFormValues] = useState<{ [key: string]: string }>({});
   const [errors, setErrors] = useState<{ [key: string]: string }>({});
-
+  const {mutateAsync : updateUserDetails} = useUpdateUserDetails()
   useEffect(() => {
     if (showPopupForm) {
       setIsVisible(true);
@@ -24,8 +25,15 @@ const PopupForm: React.FC<IPopupFormProps> = ({ inputData, title, showPopupForm,
     }
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if(label == "businessInformation" || label == "bankAccountDetails" || label == "legalInformation"){
+      const data = { [label] :{...formValues}}
+      await handleSubmitFunction(data)
+    }
+    if(label == "personalDetails"){
+      await updateUserDetails(formValues)
+    }
   };
 
   return (
@@ -66,7 +74,7 @@ const PopupForm: React.FC<IPopupFormProps> = ({ inputData, title, showPopupForm,
               name={data.label}
               id={data.label}
               min={data.type === 'number' ? 10 : 1}
-              value={formValues[data.label] || ''}
+              value={formValues[data.label] || 10}
               onChange={handleChange}
               className="border p-2 rounded-xl bg-gray-100 outline-none focus:border-primary-600"
             />

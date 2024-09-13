@@ -1,12 +1,11 @@
 import ProductForm from "../../../components/shared/ProductForm.tsx";
-import { useEffect, useState } from "react";
-import { useGetProductDetails } from "../../../query/queries.ts"; // Custom hook to fetch a product
+import { useGetProductDetails } from "../../../query/queries.ts";
 import { useParams } from "react-router-dom";
 
 const UpdateProduct = () => {
   const { productId } = useParams();
 
-  const { data: product, isLoading, error } = useGetProductDetails(productId);
+  const { data: product, isLoading, error } = useGetProductDetails(productId || "");
 
   if (isLoading) return <div>Loading product details...</div>;
 

@@ -1,11 +1,23 @@
-import { useState } from "react";
+import {  useContext, useState } from "react";
 import { Link } from "react-router-dom";
 import { AiOutlineShop } from "react-icons/ai";
+import { UserContext } from "../../context/index.tsx";
+import AlertDialog from "../ui/AlertDialog";
+import { useBecomeSeller } from "../../query/queries.ts";
 const Navigation = () => {
+  const [showAlertDialog,setShowAlertDialog] = useState(false);
   const [searchValue,setSearchValue] = useState<string>("");
   const [toggle,setToggle] = useState<boolean>(false)
   const toggleButton = () => {
     setToggle(!toggle);
+  }
+  const {user,isAuthenticated} = useContext(UserContext);
+  const {mutateAsync : becomeSeller,isPending,isSuccess} = useBecomeSeller()
+  const handleBecomeSellerClick = (e: React.MouseEvent<HTMLAnchorElement>) => {
+    if(user.role === "customer"){
+      e.preventDefault()
+      setShowAlertDialog(true)
+    } 
   }
   return (
     <>
@@ -149,8 +161,9 @@ const Navigation = () => {
                 <Link
                   className="my-2 flex gap-1 items-center text-sm xl:text-base leading-5 text-gray-700 transition-colors duration-300 transform hover:text-blue-600 hover:underline md:mx-2 lg:mx-4 md:my-1"
                   to="/dashboard"
+                  onClick={(e) => handleBecomeSellerClick(e)}
                 >
-                 <AiOutlineShop size={25}/> <span className=" whitespace-nowrap">Become a Seller</span>
+                 <AiOutlineShop  size={25}/> <span className=" whitespace-nowrap">Become a Seller</span>
                 </Link>
                 <Link
                   className="my-2 hidden  whitespace-nowrap lg:block text-sm xl:text-base leading-5 text-gray-700 transition-colors duration-300 transform hover:text-blue-600 hover:underline md:mx-2 lg:mx-4 md:my-1"
@@ -164,18 +177,18 @@ const Navigation = () => {
                 >
                   Contact Us
                 </Link>
-                <Link
+               {!isAuthenticated && <Link
                   className="my-2 text-sm  whitespace-nowrap xl:text-base leading-5 text-gray-700 transition-colors duration-300 transform hover:text-blue-600 hover:underline md:mx-2 lg:mx-4 md:my-1"
                   to="/auth/sign-in"
                 >
                   Login
-                </Link>
-                <Link
+                </Link>}
+               {!isAuthenticated &&  <Link
                   className="my-2 hidden  whitespace-nowrap lg:block text-sm xl:text-base leading-5 text-gray-700 transition-colors duration-300 transform hover:text-blue-600 hover:underline md:mx-2 lg:mx-4 md:my-1"
                   to="/auth/sign-up"
                 >
                   Sign Up
-                </Link>
+                </Link>}
               </div>
               <div className="sm:ml-6  gap-4 md:flex justify-center items-center hidden">
                 <div className="relative hidden xl:block">
@@ -266,6 +279,16 @@ const Navigation = () => {
           </div>
         </div>
       </nav>
+      { showAlertDialog && <AlertDialog
+    title='Become A Seller'
+    description='Are you sure you want to become a seller?'
+    isPopupVisible={showAlertDialog}
+    setIsPopupVisible={setShowAlertDialog}
+    submitOnClick={becomeSeller}
+    loading={isPending}
+    isSuccess={isSuccess}
+    navigateUrl={'/dashboard'}
+    />}
     </>
   );
 };

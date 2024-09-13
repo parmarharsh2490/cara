@@ -1,16 +1,17 @@
+import { ILoginUser } from "../../types/index.ts";
 import { useLoginUserAccount } from "../../query/queries.ts";
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 
 const SignIn = () => {
   const { mutateAsync: loginUserAccount } = useLoginUserAccount();
-  const [email, setEmail] = useState("harsh23020@gmail.com");
-  const [password, setPassword] = useState("harsh");
+  const [email, setEmail] = useState<string>("harsh23020@gmail.com");
+  const [password, setPassword] = useState<string>("harsh");
   const navigate = useNavigate();
 
-  const handleSubmit = async (e : any) => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    const user = {  email, password };
+    const user : ILoginUser = {  email, password };
     try {
       await loginUserAccount(user);
       navigate('/')
