@@ -19,11 +19,26 @@ app.get('/', (req, res) => {
 app.use(cookieParser());
 app.use(bodyParser.json())
 app.use(bodyParser.urlencoded({extended : true}))
-app.use(cors({
-    origin: 'http://localhost:5173',  
-    methods: ['GET', 'POST', 'PUT', 'DELETE','PATCH'],
-    credentials : true,
-  }));
+
+const allowedOrigins = [
+  'http://localhost:5173',
+  'https://cara-omega-six.vercel.app'
+];
+
+const corsOptions = {
+  origin: (origin, callback) => {
+    if (allowedOrigins.includes(origin) || !origin) {
+      // Allow requests with no origin (like mobile apps or curl requests)
+      callback(null, true);
+    } else {
+      callback(new Error('Not allowed by CORS'));
+    }
+  },
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH'],
+  credentials: true,
+};
+
+app.use(cors(corsOptions));
 
 app.use('/api/v1/user', userRouter);
 app.use('/api/v1/products', productRouter);
