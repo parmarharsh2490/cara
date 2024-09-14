@@ -12,7 +12,10 @@ import wishListRouter from './routes/wishlist.routes.js';
 const app = express();
 app.use(express.json({ limit: '50mb' }));  // Increase limit for JSON payloads
 app.use(express.urlencoded({ limit: '50mb', extended: true }));  // Increase limit for URL-encoded form data
-
+app.use(express.static('public'));
+app.get('/', (req, res) => {
+  res.send('Hello, world!');
+});
 app.use(cookieParser());
 app.use(bodyParser.json())
 app.use(bodyParser.urlencoded({extended : true}))
