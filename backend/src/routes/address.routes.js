@@ -1,11 +1,11 @@
 import { Router } from "express"
-import { createAddress, deleteAddress, getUserAddresses, updateAddress } from "../controller/address.controller.js";
+import { createAddress, deleteAddress, getUserAddress, updateAddress } from "../controller/address.controller.js";
 
 const addressRouter = Router();
 
 addressRouter.post('/create',createAddress)
-addressRouter.delete('/delete/:addressId',deleteAddress)
-addressRouter.patch('/update/:addressId',updateAddress)
-addressRouter.get('/',getUserAddresses)
+addressRouter.delete('/delete',deleteAddress)
+addressRouter.patch('/update',updateAddress)
+addressRouter.get('/',getUserAddress)
 
 export default addressRouter

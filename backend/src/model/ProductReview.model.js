@@ -1,21 +1,28 @@
 import mongoose from "mongoose";
+import { imageSchema } from "./Product.model.js";
 
-const ratingSchema = mongoose.Schema(
+const productReviewSchema = mongoose.Schema(
     {
         ratingStar: {
             type: Number,
             required: true,
-            min: 1, 
+            min: 1,
             max: 5
         },
-        ratingWords: {
+        reviewImage: imageSchema,
+        reviewTitle: {
+            type: String,
+            required: true
+        },
+        reviewDescription: {
             type: String,
             required: true
         },
         product: {
             type: mongoose.Types.ObjectId,
             ref: "Product",
-            required: true
+            required: true,
+            index: true
         },
         user: {
             type: mongoose.Types.ObjectId,
@@ -26,4 +33,4 @@ const ratingSchema = mongoose.Schema(
     { timestamps: true }
 );
 
-export const Rating = mongoose.model("Rating", ratingSchema);
+export const ProductReview = mongoose.model("ProductReview", productReviewSchema);

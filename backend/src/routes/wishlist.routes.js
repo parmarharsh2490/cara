@@ -1,8 +1,10 @@
-import {Router} from "express"
+import { Router } from "express";
+import { getUserWishlist, addToWishlist, removeFromWishlist } from "../controller/Wishlist.controller.js";
 
-import { getUserWishlist, toggleWishlist } from "../controller/Wishlist.controller.js"
-const wishListRouter = Router()
+const wishListRouter = Router();
 
-wishListRouter.post('/:productId',toggleWishlist)
-wishListRouter.get('/user',getUserWishlist)
-export default wishListRouter
+wishListRouter.post('/add/:productId', addToWishlist);
+wishListRouter.delete('/remove/:productId', removeFromWishlist);
+wishListRouter.get('/', getUserWishlist);
+
+export default wishListRouter;
