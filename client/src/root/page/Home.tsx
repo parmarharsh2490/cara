@@ -16,7 +16,7 @@ const Home = () => {
         <SeasonBanner/>
         <ExploreCategory/>
         <img src="/payment_promotion.avif" className='mt-20' alt="" />
-        <NewArrival/>
+        {/* <NewArrival/> */}
        <div className='flex flex-col items-center justify-center gap-2 p-5 sm:py-10 sm:px-20'>
        <h1 className='text-2xl '>Flannel Season</h1>
         <p className='text-gray-400'>Shop a shirt + layer in one with this new collection</p>
