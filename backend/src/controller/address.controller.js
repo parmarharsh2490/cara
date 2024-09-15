@@ -16,7 +16,7 @@ const createAddress = asyncHandler(async (req, res) => {
         { user: user._id },
         {  address, locality, landMark, city, state, postalCode, country },
         { upsert: true, new: true, runValidators: true }
-    );
+    ).select("-user").lean();
 
     res.status(200).json(new ApiResponse(200, newAddress, "Successfully created or updated Address"));
 });
@@ -45,7 +45,7 @@ const updateAddress = asyncHandler(async (req, res) => {
         { user: req.user._id },
         { address, locality, landMark, city, state, postalCode, country },
         { new: true, runValidators: true }
-    );
+    ).select("-user").lean();
 
     if (!updatedAddress) {
         throw new ApiError(404, "Address not found for the user");
@@ -57,7 +57,7 @@ const updateAddress = asyncHandler(async (req, res) => {
 const getUserAddress = asyncHandler(async (req, res) => {
     const user = req.user;
 
-    const address = await Address.findOne({ user: user._id });
+    const address = await Address.findOne({ user: user._id }).select("-user").lean();
 
     if (!address) {
         throw new ApiError(404, "Addresses not found");

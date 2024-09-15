@@ -51,14 +51,14 @@ export interface IVariety {
     sizeOptions: ISizeOption[];
   }
   
-  export interface ISizeOption {
+export interface ISizeOption {
     size: string;
     stock: number;
     price: {
       originalPrice: number;
       discountedPrice: number;
     };
-  }
+}
   
 
 export interface INewArrivalProduct{
@@ -138,20 +138,20 @@ export interface IBankDetails {
     bankName: string;
     ifscCode: string;
     accountNumber: string;
-  }
+}
 
 export interface IOrderItem {
     image: string;
     title: string;
     price: number;
-  }
+}
   
 export interface IOrder {
     id: number;
     items: IOrderItem[];
     totalPrice: number;
     status: 'PLACED' | 'CONFIRMED' | 'SHIPPED' | 'DELIVERED';
-  }
+}
   
 
 export interface ITransaction {
@@ -162,4 +162,14 @@ export interface ITransaction {
     dateTime: string;
     status: string;
     assignedTo: string;
+}
+
+export interface IAddress {
+  address: string;
+  locality: string;
+  landMark?: string;
+  city: string;
+  state: string;
+  postalCode: number;
+  country: string;
 }

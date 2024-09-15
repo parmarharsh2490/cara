@@ -17,7 +17,10 @@ const AddressField: React.FC<AddressFieldProps> = ({ label, value }) => (
 
 const Address: React.FC = () => {
   const [showPopupForm, setShowPopupForm] = useState(false);
-
+  // const {data : address,isLoading} = useGetUserAddress();
+  // if(isLoading){
+  //   return <p>Loading...</p>
+  // }
   return (
     <>
       <div className="sm:py-14 sm:px-14 py-10 px-5 h-auto w-full">
