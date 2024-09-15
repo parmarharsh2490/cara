@@ -15,7 +15,7 @@ const addToCart = asyncHandler(async (req, res) => {
     let cart = await Cart.findOneAndUpdate(
         {
             user: user._id,
-            "products.product": { $ne: productId } // Check if the product is not already in the cart
+            "products.product": { $ne: productId } 
         },
         {
             $push: {
