@@ -18,7 +18,7 @@ const createAddress = asyncHandler(async (req, res) => {
         { upsert: true, new: true, runValidators: true }
     ).select("-user").lean();
 
-    res.status(200).json(new ApiResponse(200, newAddress, "Successfully created or updated Address"));
+    res.status(201).json(new ApiResponse(200, newAddress, "Successfully created or updated Address"));
 });
 
 const deleteAddress = asyncHandler(async (req, res) => {
@@ -30,7 +30,7 @@ const deleteAddress = asyncHandler(async (req, res) => {
         throw new ApiError(404, "Address not found or already deleted");
     }
 
-    res.status(200).json(new ApiResponse(200, result, "Successfully deleted Address"));
+    res.status(204).json(new ApiResponse(200, result, "Successfully deleted Address"));
 });
 
 const updateAddress = asyncHandler(async (req, res) => {
