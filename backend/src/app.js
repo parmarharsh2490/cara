@@ -10,6 +10,7 @@ import addressRouter from './routes/address.routes.js';
 import productReviewRouter from './routes/ProductReview.routes.js';
 import wishListRouter from './routes/wishlist.routes.js';
 import cartRouter from './routes/cart.routes.js';
+import orderRouter from './routes/Order.routes.js';
 const app = express();
 app.use(express.json({ limit: '50mb' }));  // Increase limit for JSON payloads
 app.use(express.urlencoded({ limit: '50mb', extended: true }));  // Increase limit for URL-encoded form data
@@ -45,7 +46,7 @@ app.use('/api/v1/products', productRouter);
 app.use('/api/v1/productReview', verifyJWT, productReviewRouter);
 app.use('/api/v1/seller', verifyJWT,sellerRouter);
 app.use('/api/v1/cart', verifyJWT, cartRouter);
-// app.use('/api/v1/order', verifyJWT, orderRoutes);
+app.use('/api/v1/order', verifyJWT, orderRouter);
 app.use('/api/v1/wishlist', verifyJWT, wishListRouter);
 app.use('/api/v1/address', verifyJWT, addressRouter);
 

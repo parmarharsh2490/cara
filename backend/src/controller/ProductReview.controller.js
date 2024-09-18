@@ -4,6 +4,7 @@ import mongoose, { isValidObjectId } from "mongoose";
 import { uploadImage } from "../utils/Cloudinary.js";
 import { ProductReview } from "../model/ProductReview.model.js";
 import ApiResponse from "../utils/ApiResponse.js";
+import { transformProductReviewData } from "../utils/TransformReviewData.js";
 
 const createProductReview = asyncHandler(async (req, res) => {
   const user = req.user;
@@ -55,11 +56,9 @@ const createProductReview = asyncHandler(async (req, res) => {
   if (!review) {
     throw new ApiError(500, "Failed to create review");
   }
-  if (review.reviewImage) {
-    delete review.reviewImage.publicId;
-  }
-  
-  return res.status(201).json(new ApiResponse(201, review, "Review created successfully"));
+  review.name = user.name;
+  const transformReview = transformProductReviewData(review)
+  return res.status(201).json(new ApiResponse(201, transformReview, "Review created successfully"));
 });
 
 const updateProductReview = asyncHandler(async (req, res) => {
@@ -81,7 +80,7 @@ const updateProductReview = asyncHandler(async (req, res) => {
   const existingProductReview = await ProductReview.findOne({
     user: user._id,
     product: productId,
-  }).select('-createdAt -updatedAt');
+  }).select('-user -product -updatedAt');
   if (!existingProductReview) {
     throw new ApiError(404, "Product Review not found");
   }
@@ -99,12 +98,14 @@ const updateProductReview = asyncHandler(async (req, res) => {
   existingProductReview.reviewTitle = reviewTitle;
   existingProductReview.reviewDescription = reviewDescription;
   await existingProductReview.save({ validationBeforeSave: false });
+  existingProductReview.name = user.name;
+  const transformReview = transformProductReviewData(existingProductReview)
   return res
     .status(200)
     .json(
       new ApiResponse(
         200,
-        existingProductReview,
+        transformReview,
         "Successfully updated product review"
       )
     );
@@ -141,74 +142,78 @@ const getAverageProductReview = asyncHandler(async (req, res) => {
 
   const averageRating = await ProductReview.aggregate([
     {
-      $match: {
-        product: new mongoose.Types.ObjectId(productId)
-      }
-    },
-    {
-      $group: {
-        _id: "$ratingStar", // Group by rating star value
-        count: { $sum: 1 }  // Count how many times each rating star is given
-      }
-    },
-    {
-      $group: {
-        _id: null,
-        totalUserCount: { $sum: "$count" }, // Total number of users
-        weightedSum: { $sum: { $multiply: ["$_id", "$count"] } }, // Sum of ratings weighted by count
-        ratingData: { 
-          $push: { 
-            rating: "$_id",
-            count: "$count"
-          }
+        $match: {
+            product: new mongoose.Types.ObjectId(productId)
         }
-      }
     },
     {
-      $project: {
-        _id: 0,
-        totalUserCount: 1,
-        averageRating: {
-          $round: [{ $divide: ["$weightedSum", "$totalUserCount"] }, 2] // Round average rating to 2 decimal places
-        },
-        ratingData: {
-          $map: {
-            input: "$ratingData",
-            as: "rd",
-            in: {
-              rating: "$$rd.rating",
-              count: "$$rd.count",
-              percentage: { 
-                $round: [
-                  { $multiply: [{ $divide: ["$$rd.count", "$totalUserCount"] }, 100] }, 
-                  2
-                ] // Round percentage to 2 decimal places
-              }
+        $group: {
+            _id: "$ratingStar",
+            count: { $sum: 1 },
+            reviews: {
+                $push: {
+                    title: "$reviewTitle",
+                    description: "$reviewDescription",
+                    image: "$reviewImage"
+                }
             }
-          }
         }
-      }
+    },
+    {
+        $group: {
+            _id: null,
+            totalUserCount: { $sum: "$count" },
+            weightedSum: { $sum: { $multiply: ["$_id", "$count"] } },
+            ratingData: { 
+                $push: { 
+                    rating: "$_id",
+                    count: "$count"
+                }
+            },
+            allReviews: { $push: { rating: "$_id", reviews: "$reviews" } }
+        }
+    },
+    {
+        $project: {
+            _id: 0,
+            totalUserCount: 1,
+            averageRating: {
+                $round: [{ $divide: ["$weightedSum", "$totalUserCount"] }, 2] 
+            },
+            ratingData: {
+                $map: {
+                    input: { $sortArray: { input: "$ratingData", sortBy: { rating: -1 } } },
+                    as: "rd",
+                    in: {
+                        rating: "$$rd.rating",
+                        count: "$$rd.count",
+                        percentage: { 
+                            $round: [
+                                { $multiply: [{ $divide: ["$$rd.count", "$totalUserCount"] }, 100] }, 
+                                2
+                            ]
+                        }
+                    }
+                }
+            },
+            reviews: {
+                $reduce: {
+                    input: "$allReviews",
+                    initialValue: [],
+                    in: { $concatArrays: ["$$value", "$$this.reviews"] }
+                }
+            }
+        }
     }
 ])
-  // const averageRating = await ProductReview.aggregate([
-  //   {
-  //     $match: { product: new mongoose.Types.ObjectId(productId) },
-  //   },
-  //   {
-  //     $group: {
-  //       _id: "$product", // Group by product ID
-  //       ratingAverage: { $avg: "$ratingStar" }, // Calculate the average of the ratingStar field
-  //     },
-  //   },
-  // ]);
 
-  // if (averageRating.length === 0) {
-  //   return res
-  //     .status(404)
-  //     .json(new ApiResponse(404, null, "No ratings found for this product"));
-  // }
-  // return res.status(200).json(new ApiResponse(200, averageRating[0], "Average rating retrieved successfully"));
-  return res.status(200).json(new ApiResponse(200, averageRating, "Average rating retrieved successfully"));
+  const userRatings = await ProductReview.find(
+    {
+      product : productId
+    }
+  ).select("-createdAt -product").populate("user","name")
+  const transformReview = transformProductReviewData(userRatings)
+return res.status(200).json(new ApiResponse(200, averageRating, "Average rating retrieved successfully"));
 });
 
 export {

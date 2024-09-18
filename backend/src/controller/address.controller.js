@@ -5,7 +5,8 @@ import Address from "../model/Address.model.js"
 const createAddress = asyncHandler(async (req, res) => {
     const user = req.user;
     const { address, locality, landMark, city, state, postalCode, country } = req.body;
-
+    console.log({ address, locality, landMark, city, state, postalCode, country});
+    
     const requiredFields = [address, locality, city, state, postalCode, country,landMark];
 
     if (requiredFields.some(field => field === undefined || field === null || String(field).trim() === '')) {

@@ -11,3 +11,5 @@ export const BCRYPT_SORTORROUNDS=process.env.BCRYPT_SORTORROUNDS
 export const CLOUD_NAME=process.env.CLOUD_NAME 
 export const CLOUDINARY_API_KEY=process.env.CLOUDINARY_API_KEY 
 export const CLOUDINARY_API_SECRET=process.env.CLOUDINARY_API_SECRET
+export const RAZORPAY_API_KEY_ID= process.env.RAZORPAY_API_KEY_ID
+export const RAZORPAY_KEY_SECRET= process.env.RAZORPAY_KEY_SECRET

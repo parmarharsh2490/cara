@@ -14,7 +14,8 @@ export const transformCartData = (cartData) => {
         title: product.title,
         color: selectedVariety.color,
         size: selectedSize.size,
-        price: selectedSize.price.discountedPrice,
+        discountedPrice: selectedSize.price.discountedPrice,
+        originalPrice: selectedSize.price.discountedPrice,
         quantity: quantity,
         imageUrl: selectedImage,
       };

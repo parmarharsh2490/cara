@@ -9,16 +9,15 @@ export { addToCart, removeFromCart, updateQuantity, getUserCart };
 const addToCart = asyncHandler(async (req, res) => {
     const user = req.user;
     const { productId, sizeOptionId,varietyId,quantity = 1 } = req.body;
-  console.log({ productId, sizeOptionId,varietyId,quantity});
   
     // Step 1: Check if the item already exists in the cart
     const existingCart = await Cart.findOne({
       user: user._id,
       "products": {
         $elemMatch: {
-          product: productId,
-          sizeOption: sizeOptionId,
-          variety : varietyId
+          product: new mongoose.Types.ObjectId(productId),
+          sizeOption: new mongoose.Types.ObjectId(sizeOptionId),
+          variety: new mongoose.Types.ObjectId(varietyId),
         },
       },
     });
@@ -54,14 +53,15 @@ const addToCart = asyncHandler(async (req, res) => {
   
 
 const removeFromCart = asyncHandler(async (req, res) => {
-  const { productId, sizeOptionId } = req.body;
+  const { productId, sizeOptionId, varietyId } = req.body;
   const user = req.user;
 
   const updatedCart = await Cart.findOneAndUpdate(
     {
       user: user._id,
-      "products.product": productId,
-      "products.sizeOption": sizeOptionId,
+      "products.product": new mongoose.Types.ObjectId(productId),
+      "products.sizeOption": new mongoose.Types.ObjectId(sizeOptionId),
+      "products.variety": new mongoose.Types.ObjectId(varietyId),
     },
     {
       $pull: {
@@ -74,11 +74,7 @@ const removeFromCart = asyncHandler(async (req, res) => {
     {
       new: true,
     }
-  ).populate({
-    path :"products.product",
-
-  });
-  console.log(updatedCart);
+  ).populate("products.product", "title variety");
   
   if (!updatedCart || updatedCart.products.length === 0) {
     return res
@@ -86,30 +82,27 @@ const removeFromCart = asyncHandler(async (req, res) => {
       .json({ message: "Cart not found or product not in cart" });
   }
 
+  const transformedCart = transformCartData(updatedCart.products);
   return res.status(200).json({
-    cart: updatedCart,
+    cart: transformedCart,
     message: "Product removed from cart successfully",
   });
 });
 
 const updateQuantity = asyncHandler(async (req, res) => {
   const user = req.user;
-  const { quantity } = req.body;
-  const { productId , sizeOptionId } = req.params;
+  const { quantity , productId , sizeOptionId, varietyId } = req.body;
 
-  if (quantity <= 0) {
-    return res.status(400).json({ message: "Quantity must be greater than 0" });
+  if (quantity <= 0 || quantity > 100) {
+    return res.status(400).json({ message: "Quantity must be greater than 0 or Less than or Equal to 100" });
   }
 
   const updatedCart = await Cart.findOneAndUpdate(
     {
       user: user._id,
-     $elemMatch : {
-      product : {
-        product : productId,
-        sizeOption : sizeOptionId
-      }
-     }
+      "products.product": new mongoose.Types.ObjectId(productId),
+      "products.sizeOption": new mongoose.Types.ObjectId(sizeOptionId),
+      "products.variety": new mongoose.Types.ObjectId(varietyId),
     },
     {
       $set: { "products.$.quantity": quantity },
@@ -117,14 +110,14 @@ const updateQuantity = asyncHandler(async (req, res) => {
     {
       new: true,
     }
-  );
+  ).select("-user -__v -createdAt -updatedAt").populate("products.product","title variety").lean();
 
   if (!updatedCart) {
     return res.status(404).json({ message: "Cart or product not found" });
   }
-
+  const transformedCart = transformCartData(updatedCart.products);
   return res.status(200).json({
-    cart: updatedCart,
+    cart: transformedCart,
     message: "Quantity updated successfully",
   });
 });

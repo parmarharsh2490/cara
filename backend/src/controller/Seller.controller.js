@@ -71,5 +71,5 @@ const registerSeller = asyncHandler(async (req, res) => {
   user.save({validationBeforeSave : false})
   return res
     .status(200)
-    .json(new ApiResponse(200, seller, "Successfully updated seller details"));
+    .json(new ApiResponse(200, seller, "Successfully become seller"));
 });

@@ -1,6 +1,14 @@
 import  { useState } from "react";
 import Navigation from "../../components/shared/Navigation";
 import Footer from "../../components/shared/Footer";
+import axios from "axios";
+import apiClient from "../../services/index.ts";
+
+declare global {
+  interface Window {
+    Razorpay: any;
+  }
+}
 
 const ShoppingCart = () => {
   const [products] = useState([
@@ -32,7 +40,6 @@ const ShoppingCart = () => {
     },
   ])
   const [quantity, setQuantity] = useState<number>(1);
-
   const handleIncrement = () => {
     setQuantity((prev) => prev+1);
   };
@@ -42,7 +49,66 @@ const ShoppingCart = () => {
       setQuantity((prev) => prev-1);
     }
   };
+  const createOrder = async () => {
+    try {
+      const response = await apiClient.post('/order/create-order', {
+        amount: 500, // Amount in INR (500 INR)
+        currency: 'INR'
+      });
+      return response.data.orderId;
+    } catch (error) {
+      console.error('Error creating order:', error);
+    }
+  };
+  const handlePayment = async () => {
+    const orderId  = await createOrder();
+    console.log(orderId);
+    console.log(orderId);
+    console.log(orderId);
+    
+    const options = {
+      key: 'rzp_test_oQMGR2Jlz0WV73', // Your Razorpay Key ID
+      amount: 5000, // Amount in paise (e.g., 50000 paise = 500 INR)
+      currency: 'INR',
+      name: 'Cara',
+      description: 'Test Transaction dont worry just click it will not cut any money enter fake otp',
+      order_id : orderId,
+      // Order ID from the backend
+      handler: function (response) {
+        // Handle successful payment
+        alert('Payment Successful');
+        console.log("response");
+        console.log(response);
 
+        apiClient.post('/order/verify-payment', {
+          razorpay_order_id: response.razorpay_order_id,
+          razorpay_payment_id: response.razorpay_payment_id,
+          razorpay_signature: response.razorpay_signature,
+        }).then((res) => {
+          console.log('Server response:', res.data);
+          alert("Payment Verified Successfully");
+          // Handle server response, like showing a thank you message
+        }).catch((error) => {
+          console.error('Error verifying payment:', error);
+          // Handle errors, like showing an error message
+        });
+        console.log('Payment ID:', response.razorpay_payment_id);
+        console.log('Order ID:', response.razorpay_order_id);
+        console.log('Signature:', response.razorpay_signature);
+        // Optionally send these details to your backend for verification
+      },
+      prefill: {
+        name: 'John Doe',
+        email: 'john.doe@example.com',
+        contact: '9999999999'
+      },
+      theme: {
+        color: '#F37254'
+      }
+    };
+    const paymentObject = new window.Razorpay(options);
+    paymentObject.open();
+  };
   return (
     <>
     <Navigation/>  
@@ -176,7 +242,7 @@ const ShoppingCart = () => {
             </h2>
             <h2 className="font-bold text-left sm:text-xl text-2xl">₹944.00</h2>
           </div>
-          <div className="btn px-3 py-4 w-1/2 sm:w-full text-center cursor-pointer bg-slate-700 text-white font-semibold my-3 rounded-lg">
+          <div onClick={handlePayment} className="btn px-3 py-4 w-1/2 sm:w-full text-center cursor-pointer bg-slate-700 text-white font-semibold my-3 rounded-lg">
             CHECKOUT
           </div>
         </div>
