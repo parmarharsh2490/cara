@@ -6,11 +6,21 @@ const orderSchema = new mongoose.Schema({
         ref: "User",
         required: true
     },
+    payment : {
+        type : mongoose.Types.ObjectId,
+        ref : "Payment"
+    },
     products: [{
         product: {
             type: mongoose.Types.ObjectId,
             ref: "Product",
             required: true
+        },
+        sizeOptionId : {
+            type: mongoose.Types.ObjectId,
+        },
+        varietyId : {
+            type: mongoose.Types.ObjectId,
         },
         quantity: {
             type: Number,
