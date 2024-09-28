@@ -14,10 +14,21 @@ export const CLOUDINARY_API_KEY=process.env.CLOUDINARY_API_KEY
 export const CLOUDINARY_API_SECRET=process.env.CLOUDINARY_API_SECRET
 export const RAZORPAY_API_KEY_ID= process.env.RAZORPAY_API_KEY_ID
 export const RAZORPAY_KEY_SECRET= process.env.RAZORPAY_KEY_SECRET
-export const Razorpay_Instance = new Razorpay({
-    key_id: RAZORPAY_API_KEY_ID, 
-    key_secret: RAZORPAY_KEY_SECRET
-  });
-console.log("Razorpay Instance");
-console.log(Razorpay_Instance);
-console.log(RAZORPAY_KEY_SECRET);
+   if (!RAZORPAY_API_KEY_ID || !RAZORPAY_KEY_SECRET) {
+     console.error("Razorpay API keys are not set in the environment variables.");
+     process.exit(1);
+   }
+
+   let Razorpay_Instance;
+
+   try {
+     Razorpay_Instance = new Razorpay({
+       key_id: RAZORPAY_API_KEY_ID,
+       key_secret: RAZORPAY_KEY_SECRET
+     });
+   } catch (error) {
+     console.error("Error initializing Razorpay:", error.message);
+     process.exit(1);
+   }
+
+   export { Razorpay_Instance };
