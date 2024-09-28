@@ -1,6 +1,6 @@
 import Razorpay from 'razorpay';
 import crypto from 'crypto';
-import { RAZORPAY_API_KEY_ID, RAZORPAY_KEY_SECRET } from '../constants.js';
+import { Razorpay_Instance, RAZORPAY_KEY_SECRET } from '../constants.js';
 import Order from '../model/Order.model.js';
 import { asyncHandler } from '../utils/AsyncHandler.js';
 import ApiResponse from '../utils/ApiResponse.js';
@@ -9,10 +9,7 @@ import { Cart } from '../model/Cart.model.js';
 import ApiError from '../utils/ApiError.js';
 import mongoose from 'mongoose';
 import { Product } from '../model/Product.model.js';
-const instance = new Razorpay({
-  key_id: RAZORPAY_API_KEY_ID, 
-  key_secret: RAZORPAY_KEY_SECRET
-});
+
 
 export const createOrder = asyncHandler(async (req, res) => {
   const { amount } = req.body;
@@ -68,7 +65,7 @@ export const createOrder = asyncHandler(async (req, res) => {
       currency: "INR",
       receipt: `order_rcptid_${Date.now()}_${Math.random().toString(36).substring(7)}`,
     };
-    const razorpayOrder = await instance.orders.create(options);
+    const razorpayOrder = await Razorpay_Instance.orders.create(options);
     if (!razorpayOrder) {
       throw new ApiError(500, "Razorpay Order Creation Failed");
     }

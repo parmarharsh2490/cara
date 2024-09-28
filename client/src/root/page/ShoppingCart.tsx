@@ -1,7 +1,6 @@
 import  { useState } from "react";
 import Navigation from "../../components/shared/Navigation";
 import Footer from "../../components/shared/Footer";
-import axios from "axios";
 import apiClient from "../../services/index.ts";
 
 declare global {
@@ -40,7 +39,6 @@ const ShoppingCart = () => {
     },
   ])
   const [quantity, setQuantity] = useState<number>(1);
-  const price = 190
   const handleIncrement = () => {
     setQuantity((prev) => prev+1);
   };
@@ -80,7 +78,7 @@ const ShoppingCart = () => {
       description: 'Test Transaction dont worry just click it will not cut any money enter fake otp',
       order_id : orderId,
       // Order ID from the backend
-      handler: function (response) {
+      handler: function (response : any) {
         // Handle successful payment
         alert('Payment Successful');
         console.log("response");
