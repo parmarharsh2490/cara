@@ -1,4 +1,5 @@
 import dotenv from "dotenv";
+import Razorpay from 'razorpay';
 dotenv.config();
 export const Mongo_DB_URL = process.env.MONGODB_URL
 export const PORT = process.env.PORT;
@@ -17,3 +18,6 @@ export const Razorpay_Instance = new Razorpay({
     key_id: RAZORPAY_API_KEY_ID, 
     key_secret: RAZORPAY_KEY_SECRET
   });
+console.log("Razorpay Instance");
+console.log(Razorpay_Instance);
+console.log(RAZORPAY_KEY_SECRET);

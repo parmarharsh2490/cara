@@ -1,4 +1,3 @@
-import Razorpay from 'razorpay';
 import crypto from 'crypto';
 import { Razorpay_Instance, RAZORPAY_KEY_SECRET } from '../constants.js';
 import Order from '../model/Order.model.js';
