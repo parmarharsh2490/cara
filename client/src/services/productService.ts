@@ -28,12 +28,7 @@ const getProductDetails = async (productId : string) => {
 
 const createProduct = async (data : any) => {
   console.log(data); 
-  const response = await axios.post(`${apiClient}/products/create`,data, {
-    headers: {
-      "Access-Control-Allow-Origin": "*",
-      "Access-Control-Allow-Methods": "GET,PUT,POST,DELETE,PATCH,OPTIONS"
-    }
-  });
+  const response = await apiClient.post('/products/create',data)
   console.log(response);
   return response
 }

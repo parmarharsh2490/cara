@@ -6,6 +6,7 @@ import ApiResponse from "../utils/ApiResponse.js";
 import ApiError from "../utils/ApiError.js";
 import { uploadImage } from "../utils/Cloudinary.js";
 import { getIndexOfVarietyAndImage } from "../utils/index.js";
+import Order from "../model/Order.model.js";
 
 const getAllProducts = asyncHandler(async (req, res) => {
   const {  searchTerm,  color,  latestProduct,  skip = 0,  limit = 10,  category,  maxPrice,  minPrice,  priceHighToLow,  priceLowToHigh } = req.query;
@@ -128,7 +129,7 @@ const createProduct = asyncHandler(async (req, res) => {
 
   // Create the product
   const product = await Product.create({
-    owner: "60d5c5f6973a3b001f6473e9",
+    owner: user._id,
     title,
     description,
     category,

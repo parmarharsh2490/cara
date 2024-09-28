@@ -40,7 +40,7 @@ const ShoppingCart = () => {
     },
   ])
   const [quantity, setQuantity] = useState<number>(1);
-  const price = 90
+  const price = 190
   const handleIncrement = () => {
     setQuantity((prev) => prev+1);
   };
@@ -53,23 +53,28 @@ const ShoppingCart = () => {
   const createOrder = async () => {
     try {
       const response = await apiClient.post('/order/create-order', {
-        amount: price, // Amount in INR (500 INR)
+        amount: 1000, // Amount in INR (500 INR)
         currency: 'INR'
       });
-      return response.data.orderId;
+      console.log("orderId",response.data.data.orderId);
+      if(!response.data.data.orderId){
+        alert("Error Happened")
+      }
+      return response.data.data.orderId;
     } catch (error) {
       console.error('Error creating order:', error);
     }
   };
   const handlePayment = async () => {
     const orderId  = await createOrder();
+    if(!orderId) return
     console.log(orderId);
     console.log(orderId);
     console.log(orderId);
     
     const options = {
       key: 'rzp_test_oQMGR2Jlz0WV73', // Your Razorpay Key ID
-      amount: 9000, // Amount in paise (e.g., 50000 paise = 500 INR)
+      amount: 100000, // Amount in paise (e.g., 50000 paise = 500 INR)
       currency: 'INR',
       name: 'Cara',
       description: 'Test Transaction dont worry just click it will not cut any money enter fake otp',
@@ -82,7 +87,7 @@ const ShoppingCart = () => {
         console.log(response);
 
         apiClient.post('/order/verify-payment', {
-          amount : price,
+          amount : 100000,
           razorpay_order_id: response.razorpay_order_id,
           razorpay_payment_id: response.razorpay_payment_id,
           razorpay_signature: response.razorpay_signature,

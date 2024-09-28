@@ -21,7 +21,7 @@ const sizeOptionSchema = new mongoose.Schema({
     ],
     required: true
   },
-  stock: {
+  stock: { 
     type: Number,
     required: true,
     min: 0
@@ -31,6 +31,9 @@ const sizeOptionSchema = new mongoose.Schema({
       type: Number,
       required: true,
       min: 0
+    },
+    costPrice: {
+      type: Number,
     },
     discountedPrice: {
       type: Number,

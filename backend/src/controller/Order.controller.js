@@ -13,9 +13,6 @@ const instance = new Razorpay({
   key_id: RAZORPAY_API_KEY_ID, 
   key_secret: RAZORPAY_KEY_SECRET
 });
-console.log(RAZORPAY_API_KEY_ID);
-console.log(RAZORPAY_KEY_SECRET);
-
 
 export const createOrder = asyncHandler(async (req, res) => {
   const { amount } = req.body;
@@ -106,8 +103,9 @@ export const createOrder = asyncHandler(async (req, res) => {
 
 export const verifyOrder = asyncHandler(async (req, res) => {
   const user = req.user;
-  const { razorpay_order_id, razorpay_payment_id, razorpay_signature } = req.body;
-
+  const { amount, razorpay_order_id, razorpay_payment_id, razorpay_signature } = req.body;
+  console.log({ amount, razorpay_order_id, razorpay_payment_id, razorpay_signature });
+  
   if (!razorpay_order_id || !razorpay_payment_id || !razorpay_signature) {
     throw new ApiError(400, "Missing required payment information");
   }

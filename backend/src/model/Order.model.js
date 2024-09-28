@@ -6,9 +6,9 @@ const orderSchema = new mongoose.Schema({
         ref: "User",
         required: true
     },
-    payment : {
-        type : mongoose.Types.ObjectId,
-        ref : "Payment"
+    payment: {
+        type: mongoose.Types.ObjectId,
+        ref: "Payment"
     },
     products: [{
         product: {
@@ -16,13 +16,21 @@ const orderSchema = new mongoose.Schema({
             ref: "Product",
             required: true
         },
-        sizeOptionId : {
+        sizeOptionId: {
             type: mongoose.Types.ObjectId,
         },
-        varietyId : {
+        varietyId: {
             type: mongoose.Types.ObjectId,
         },
         quantity: {
+            type: Number,
+            required: true
+        },
+        price: {      
+            type: Number,
+            required: true
+        },
+        costPrice: {      
             type: Number,
             required: true
         }

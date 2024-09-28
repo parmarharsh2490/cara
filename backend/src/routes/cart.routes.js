@@ -5,7 +5,7 @@ const cartRouter = Router();
 
 cartRouter.get('/',getUserCart)
 cartRouter.post('/add',addToCart)
-cartRouter.patch('/remove',removeFromCart)
+cartRouter.delete('/remove',removeFromCart)
 cartRouter.patch('/update',updateQuantity)
 
 export default cartRouter

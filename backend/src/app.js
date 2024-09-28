@@ -51,3 +51,17 @@ app.use('/api/v1/wishlist', verifyJWT, wishListRouter);
 app.use('/api/v1/address', verifyJWT, addressRouter);
 
 export default app;
+
+
+// total sales : receive order  //order
+// total income : total earning  //order
+// order paid :  success order //order
+// total visitior // none
+// recent order //order
+// top products  //order
+
+// top selling categories top 3
+// payment methods
+// products rating
+// wekkly order received
+// revenue and margin process
