@@ -7,60 +7,219 @@ import ApiError from "../utils/ApiError.js";
 import { uploadImage } from "../utils/Cloudinary.js";
 import { getIndexOfVarietyAndImage } from "../utils/index.js";
 import Order from "../model/Order.model.js";
-
 const getAllProducts = asyncHandler(async (req, res) => {
-  const {  searchTerm,  color,  latestProduct,  skip = 0,  limit = 10,  category,  maxPrice,  minPrice,  priceHighToLow,  priceLowToHigh } = req.query;
-  console.log("start");
-  console.log(latestProduct);
-  
-  if (latestProduct) {
-    const products = await Product.aggregate([
-      {
-        $project: {
-          _id: 1,
-          title: 1,
-          price: { $arrayElemAt: ["$variety.sizeOptions.price", 0] },
-          imageUrl: { $arrayElemAt: ["$variety.images.imageUrl", 0] }
-        }
-      },
-      { $sort: { createdAt: 1 } },
-      { $skip: parseInt(skip) },
-      { $limit: parseInt(limit) }
-    ]);
-    return res.status(200).json({ data: products });
-  }
-  console.log("end");
+  const {
+    searchTerm,
+    color,
+    skip = 0,
+    gender,
+    limit = 10,
+    category,
+    maxPrice,
+    minPrice,
+    priceHighToLow,
+    priceLowToHigh,
+  } = req.query;
 
-  const matchConditions = [];
-  if (category) matchConditions.push({ category });
-  if (color) matchConditions.push({ color });
+  const firstMatchConditions = [];
+  const secondMatchConditions = {};
+  if(category) firstMatchConditions.push({category})
   if (searchTerm) {
-    matchConditions.push({
+    firstMatchConditions.push({
       $or: [
         { title: { $regex: searchTerm, $options: "i" } },
         { description: { $regex: searchTerm, $options: "i" } },
+        { category: { $regex: searchTerm, $options: "i" } },
       ],
     });
   }
   if (minPrice && maxPrice) {
-    matchConditions.push({ price: { $gte: minPrice, $lte: maxPrice } });
+    secondMatchConditions["variety.sizeOptions.price.discountedPrice"] = {
+      $gte: minPrice,
+      $lte: maxPrice,
+    }
+  }
+  if (color) secondMatchConditions["variety.color"]= color;
+  if (gender) firstMatchConditions.push({ gender: gender });
+  let sortOptions = {};
+  let sortDirection;
+  if (priceHighToLow) {
+    sortOptions["variety.sizeOptions.price.discountedPrice"] = -1;
+    sortDirection = "highToLow";
+  }
+  if (priceLowToHigh) {
+    sortOptions["variety.sizeOptions.price.discountedPrice"] = 1;
+    sortDirection = "lowToHigh";
+  }
+  if (!priceHighToLow && !priceLowToHigh) {
+    sortOptions.createdAt = 1;
   }
 
-  let sortOptions = {};
-  if (priceHighToLow) sortOptions.price = -1;
-  if (priceLowToHigh) sortOptions.price = 1;
-  if (!priceHighToLow && !priceLowToHigh) sortOptions.createdAt = 1;
-
+  console.log("firstCondition",firstMatchConditions);
+  console.log("secondCondition",secondMatchConditions);
+  console.log("sortOption",sortOptions);
+  console.log("sortDirection",sortDirection);
+  
   const products = await Product.aggregate([
-    { $match: { $and: matchConditions } },
-    { $sort: sortOptions },
-    { $skip: parseInt(skip) },
-    { $limit: parseInt(limit) },
-  ]);
-
-  res.status(200).json({ data: products, length: products.length });
+      {
+        $match: { $and: firstMatchConditions }
+      },
+      {
+        $unwind: { path: "$variety" }
+      },
+      {
+        $unwind: { path: "$variety.sizeOptions" }
+      },
+      {
+        $match: secondMatchConditions
+      },
+      {
+        $limit : 80
+      },
+      {
+        $group: {
+          _id: "$_id",
+          products: {
+            $push: {
+              _id: "$_id",
+              title: "$title",
+              description: "$description",
+              imageUrl: { $first: "$variety.images.imageUrl" },
+              originalPrice: "$variety.sizeOptions.price.originalPrice",
+              discountedPrice: "$variety.sizeOptions.price.discountedPrice",
+            }
+          },
+        },
+      },
+      {
+        $limit : 20
+      },
+      {
+        $project: {
+          product: {
+            $sortArray: {
+              input: "$products",
+              sortBy: {
+                "product.discountedPrice": 1,
+              },
+            },
+          },
+        },
+      },
+      {
+        $project: {
+          _id: 0,
+          product: {
+            $first: "$product",
+          },
+        },
+      },
+      {
+        $sort : {
+          "product.originalPrice" : 1
+        }
+      }
+    ])
+    const transformProductData = products.map((product) => {
+      return product.product
+    })
+    
+  res.status(200).json(new ApiResponse(200,transformProductData,"Successfully fetched products"));
 });
 
+const getLatestProducts = asyncHandler(async (req, res) => {
+  const products = await Product.aggregate([
+    {
+      $sort: {
+        createdAt: 1,
+      },
+    },
+    {
+      $limit: parseInt(10),
+      $skip: parseInt(skip),
+    },
+    {
+      $addFields: {
+        variety: {
+          $first: "$variety",
+        },
+      },
+    },
+    {
+      $addFields: {
+        sizeOption: {
+          $first: "$variety.sizeOptions",
+        },
+        image: {
+          $first: "$variety.images",
+        },
+      },
+    },
+    {
+      $project: {
+        title: 1,
+        image: "$image.imageUrl",
+        originalPrice: "$sizeOption.price.originalPrice",
+        discountedPrice: "$sizeOption.price.discountedPrice",
+      },
+    },
+  ]);
+  return res.status(200).json({ data: products });
+});
+const getTopSelledProducts = asyncHandler(async (req, res) => {
+  const products = await Order.aggregate([
+    { $unwind: { path: "$products" } },
+    {
+      $group: {
+        _id: "$products.product",
+        count: { $sum: "$products.quantity" },
+      },
+    },
+    { $sort: { count: -1 } },
+    { $limit: 10, $skip: parseInt(skip) },
+    {
+      $lookup: {
+        from: "products",
+        localField: "_id",
+        foreignField: "_id",
+        as: "product",
+      },
+    },
+    {
+      $addFields: {
+        product: { $first: "$product" },
+      },
+    },
+    {
+      $project: {
+        quantity: "$count",
+        title: "$product.title",
+        imageUrl: {
+          $first: {
+            $arrayElemAt: ["$product.variety.images.imageUrl", 0],
+          },
+        },
+        originalPrice: {
+          $first: {
+            $arrayElemAt: [
+              "$product.variety.sizeOptions.price.originalPrice",
+              0,
+            ],
+          },
+        },
+        discountedPrice: {
+          $first: {
+            $arrayElemAt: [
+              "$product.variety.sizeOptions.price.discountedPrice",
+              0,
+            ],
+          },
+        },
+      },
+    },
+  ]);
+  return res.status(200).json({ data: products });
+});
 const getProductDetails = asyncHandler(async (req, res) => {
   const { productId } = req.params;
   if (!productId || !isValidObjectId(productId)) {
