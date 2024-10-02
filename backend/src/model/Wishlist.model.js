@@ -12,15 +12,15 @@ const wishListSchema = new mongoose.Schema({
       product: {
         type: mongoose.Schema.Types.ObjectId,
         ref: "Product",
-        required: true,  // Ensure that each product entry has a product ID
+        required: true, 
       },
       sizeOptionId: {
         type: mongoose.Schema.Types.ObjectId,  // Store size option identifier
-        required: true,  // Ensure sizeOptionId is always present
+        required: true, 
       },
       varietyId: {
         type: mongoose.Schema.Types.ObjectId,  // Store variety (color) identifier
-        required: true,  // Ensure varietyId is always present
+        required: true, 
       }
     }
   ],

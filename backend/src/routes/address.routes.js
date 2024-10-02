@@ -3,9 +3,9 @@ import { createAddress, deleteAddress, getUserAddress, updateAddress } from "../
 
 const addressRouter = Router();
 
+addressRouter.get('/',getUserAddress)
 addressRouter.post('/create',createAddress)
 addressRouter.delete('/delete',deleteAddress)
 addressRouter.patch('/update',updateAddress)
-addressRouter.get('/',getUserAddress)
 
 export default addressRouter

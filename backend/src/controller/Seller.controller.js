@@ -9,7 +9,9 @@ import mongoose from "mongoose";
 export {
     getSellerDetails,
     updateSellerDetails,
-    registerSeller
+    registerSeller,
+    getDashboardDetails,
+    getAnalyticsDetails
 }
 
 const getSellerDetails = asyncHandler(async(req,res) => {
@@ -448,14 +450,3 @@ export const applyMonthByDate = (data) => {
   })
   return months;
 }
-
-const updateOrder = asyncHandler(async() => {
-  const orders = await Order.find({});
-  Promise.all(orders.map(async(order) => {
-    order.products.map(async(product) => {
-      product.costPrice = parseFloat(product.price*60/100)
-    })
-    await order.save({validationBeforeSave : false})
-  }))
-})
-updateOrder()

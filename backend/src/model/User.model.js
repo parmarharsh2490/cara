@@ -35,12 +35,14 @@ const userSchema = new mongoose.Schema(
     },
     mobileNumber: {
       type: String,
+      match: [/^\d{10}$/, 'Please provide a valid 10-digit phone number.'],
     },
     alternativeNumber: {
       type: String,
+      match: [/^\d{10}$/, 'Please provide a valid 10-digit phone number.'],
     },
     dateOfBirth: {
-      type: Date,
+      type: String,
     },
     refreshToken: {
       type: String,

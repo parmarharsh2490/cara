@@ -137,7 +137,6 @@ const verifyOtp = async (req, res) => {
     return res.status(200).json(new ApiResponse(200, null, "OTP verified successfully"));
 };
 
-  
 
 const changePassword = asyncHandler(async(req,res) => {
      const {email,oldPassword,newPassword} = req.body;
@@ -193,27 +192,42 @@ const getUserDetails = async(req,res) => {
 }
 
 const updateUserDetails = asyncHandler(async (req, res) => {
-    const userDetails = req.body;
-    console.log(userDetails);
-    
-    if (typeof userDetails !== 'object' || userDetails === null || Array.isArray(userDetails)) {
-        throw new ApiError(400, "Entry fields should be a non-null object.");
+    const { fullName, contactNumber, alternativeNumber, dateOfBirth, gender } = req.body;
+
+    const updatedFields = {};
+    if (fullName) {
+        updatedFields.name = fullName;
+    }
+    if (contactNumber) {
+        updatedFields.mobileNumber = contactNumber;
+    }
+    if (alternativeNumber) {
+        updatedFields.alternativeNumber = alternativeNumber;
+    }
+    if (dateOfBirth) {
+        updatedFields.dateOfBirth = dateOfBirth;
+    }
+    if (gender) {
+        updatedFields.gender = gender;
     }
 
+    if (Object.keys(updatedFields).length === 0) {
+        throw new ApiError(400, "No fields to update.");
+    }
+    
     const user = await User.findByIdAndUpdate(
         req.user._id, 
-        userDetails,
+        updatedFields, 
         { new: true, runValidators: true }
-    );
+    ).select("-createdAt -updatedAt -refreshToken -password");
 
     if (!user) {
         throw new ApiError(404, "User not found.");
     }
 
-    return res
-        .status(200)
-        .json(new ApiResponse(200, user, "Successfully updated user."));
+    return res.status(200).json(new ApiResponse(200, user, "Successfully updated user."));
 });
+
 
 export {
     generateAccessAndRefreshToken,

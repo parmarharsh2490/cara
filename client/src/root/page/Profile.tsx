@@ -75,6 +75,7 @@ const Profile: React.FC = () => {
       setShowPopupForm={setShowPopupForm}
       handleSubmitFunction={() => {console.log("Profile Updated")}}
       label="Edit Your Profile"
+      // onsuccess loading handleSubmit ma updateUserDetails pass 
       />
    </>
   );

@@ -11,8 +11,7 @@ export const transformedWishlist = (userWishList) => {
       );
 
       return {
-        productId : data.product._id,
-        sizeOptionId : sizeOption._id,
+        _id : data._id,
         title: data.product.title,
         image: variety?.images[0]?.imageUrl || null, 
         originalPrice: sizeOption ? sizeOption.price.originalPrice : null, 

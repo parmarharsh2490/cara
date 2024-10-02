@@ -40,7 +40,7 @@ const addToWishlist = asyncHandler(async (req, res) => {
     },
     { new: true, upsert: true }
   ).populate("products.product", "title variety");
-
+  
   const transformWish = transformedWishlist(userWishList);
   
   if (!userWishList) {
@@ -54,12 +54,9 @@ const addToWishlist = asyncHandler(async (req, res) => {
 
 const removeFromWishlist = asyncHandler(async (req, res) => {
   const user = req.user;
-  const { productId, sizeOptionId } = req.body;
-
-  if (
-    !isValidObjectId(productId) ||
-    !isValidObjectId(sizeOptionId)
-  ) {
+  const { wishlistId} = req.body;
+  
+  if (!isValidObjectId(wishlistId) ) {
     throw new ApiError(400, "ID is not valid");
   }
 
@@ -67,10 +64,7 @@ const removeFromWishlist = asyncHandler(async (req, res) => {
     { user: user._id },
     {
       $pull: {
-        products: {
-          product: new mongoose.Types.ObjectId(productId),
-          sizeOptionId: new mongoose.Types.ObjectId(sizeOptionId),
-        },
+        products: { _id: wishlistId },
       },
     },
     { new: true }
@@ -78,6 +72,7 @@ const removeFromWishlist = asyncHandler(async (req, res) => {
     .populate("products.product", "title variety")
     .lean()
     .exec();
+    
   const transformWish = transformedWishlist(userWishList);
   return res
     .status(200)
@@ -92,7 +87,8 @@ const removeFromWishlist = asyncHandler(async (req, res) => {
 
 const getUserWishlist = asyncHandler(async (req, res) => {
   const user = req.user;
-  const { skip = 0 } = req.query;
+  const { skip = 0, limit = 10 } = req.query;
+
 
   const wishlist = await Wishlist.aggregate([
     {
@@ -103,11 +99,11 @@ const getUserWishlist = asyncHandler(async (req, res) => {
     {
       $unwind: "$products",
     },
-     {
-      $skip: parseInt(skip, 10)
+    {
+      $skip: parseInt(skip)
     },
     {
-      $limit: 10
+      $limit: limit
     },
     {
       $lookup: {
@@ -157,7 +153,7 @@ const getUserWishlist = asyncHandler(async (req, res) => {
     },
     {
       $project: {
-      _id : 0,
+      _id : 1,
       title: "$product.title",
       imageUrl : "$image.imageUrl",
       discountedPrice: { $ifNull: ["$sizeOption.price.discountedPrice", null] },
@@ -169,9 +165,10 @@ const getUserWishlist = asyncHandler(async (req, res) => {
    
   ])
   
-  if (!wishlist) {
+  if (!wishlist || wishlist.length === 0) {
     throw new ApiError(404, "Wishlist not found");
   }
+  
   return res
     .status(200)
     .json(

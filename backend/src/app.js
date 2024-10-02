@@ -11,11 +11,12 @@ import productReviewRouter from './routes/ProductReview.routes.js';
 import wishListRouter from './routes/wishlist.routes.js';
 import cartRouter from './routes/cart.routes.js';
 import orderRouter from './routes/Order.routes.js';
+import { promotionalRouter } from './routes/Promotional.routes.js';
 const app = express();
 app.use(express.json({ limit: '50mb' }));  // Increase limit for JSON payloads
 app.use(express.urlencoded({ limit: '50mb', extended: true }));  // Increase limit for URL-encoded form data
 app.use(express.static('public'));
-app.get('/', (req, res) => {
+app.get('/', (_, res) => {
   res.send('Hello, world!');
 });
 app.use(cookieParser());
@@ -49,19 +50,5 @@ app.use('/api/v1/cart', verifyJWT, cartRouter);
 app.use('/api/v1/order', verifyJWT, orderRouter);
 app.use('/api/v1/wishlist', verifyJWT, wishListRouter);
 app.use('/api/v1/address', verifyJWT, addressRouter);
-
+app.use('/api/v1/promotional',verifyJWT,promotionalRouter)
 export default app;
-
-
-// total sales : receive order  //order
-// total income : total earning  //order
-// order paid :  success order //order
-// total visitior // none
-// recent order //order
-// top products  //order
-
-// top selling categories top 3
-// payment methods
-// products rating
-// wekkly order received
-// revenue and margin process
