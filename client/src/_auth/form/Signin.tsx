@@ -5,8 +5,8 @@ import { Link, useNavigate } from "react-router-dom";
 
 const SignIn = () => {
   const { mutateAsync: loginUserAccount } = useLoginUserAccount();
-  const [email, setEmail] = useState<string>("harsh44@mail.com");
-  const [password, setPassword] = useState<string>("12345678");
+  const [email, setEmail] = useState<string>("harsh2490@gmail.com");
+  const [password, setPassword] = useState<string>("harsh");
   const navigate = useNavigate();
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {

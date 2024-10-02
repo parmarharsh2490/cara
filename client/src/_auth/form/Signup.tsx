@@ -6,7 +6,7 @@ import { INewUser } from "../../types/index.ts";
 const Signup = () => {
   const { mutateAsync: createUserAccount } = useCreateUserAccount();
   const [name, setName] = useState<string>("harsh");
-  const [email, setEmail] = useState<string>("harsh23020@gmail.com");
+  const [email, setEmail] = useState<string>("harsh2490@gmail.com");
   const [password, setPassword] = useState<string>("harsh");
   const navigate = useNavigate();
 

@@ -3,7 +3,7 @@ import Razorpay from 'razorpay';
 dotenv.config();
 export const Mongo_DB_URL = process.env.MONGODB_URL
 export const PORT = process.env.PORT;
-export const cookieOptions = { httpOnly: true, secure: false, sameSite: 'Lax' }
+export const cookieOptions = { httpOnly: true, secure: true, sameSite: "None", maxAge: 7 * 24 * 60 * 60 * 1000   }
 export const ACCESS_TOKEN_SECRET_KEY=process.env.ACCESS_TOKEN_SECRET_KEY
 export const ACCESS_TOKEN_EXPIRY=process.env.ACCESS_TOKEN_EXPIRY_DATE
 export const REFRESH_TOKEN_SECRET_KEY=process.env.REFRESH_TOKEN_SECRET_KEY

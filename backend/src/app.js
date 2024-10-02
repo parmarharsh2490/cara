@@ -13,8 +13,8 @@ import cartRouter from './routes/cart.routes.js';
 import orderRouter from './routes/Order.routes.js';
 import { promotionalRouter } from './routes/Promotional.routes.js';
 const app = express();
-app.use(express.json({ limit: '50mb' }));  // Increase limit for JSON payloads
-app.use(express.urlencoded({ limit: '50mb', extended: true }));  // Increase limit for URL-encoded form data
+app.use(express.json({ limit: '50mb' }));  
+app.use(express.urlencoded({ limit: '50mb', extended: true })); 
 app.use(express.static('public'));
 app.get('/', (_, res) => {
   res.send('Hello, world!');
