@@ -1,3 +1,5 @@
+import multer from 'multer';
+
 import path from 'path';
 
 const storage = multer.diskStorage({
@@ -8,3 +10,7 @@ const storage = multer.diskStorage({
     cb(null, Date.now() + '-' + file.originalname); // Unique filename
   }
 });
+
+
+
+export const upload = multer({ storage: storage });
