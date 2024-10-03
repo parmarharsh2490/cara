@@ -48,13 +48,18 @@ app.use(cors(corsOptions));
 
 // Static file serving
 app.use(express.static(path.join(__dirname, './public')));
+const tempDir = path.join(__dirname, '../public/temp');
 
+// Create the temp directory if it doesn't exist
+if (!fs.existsSync(tempDir)) {
+  fs.mkdirSync(tempDir, { recursive: true });
+}
 // Routes
 app.get('/', (_, res) => {
   res.send('Hello, world!');
 });
 app.use('/api/v1/user', userRouter);
-app.use('/api/v1/products', productRouter);
+app.use('/api/v1/products', verifyJWT, productRouter);
 app.use('/api/v1/productReview', verifyJWT, productReviewRouter);
 app.use('/api/v1/seller', verifyJWT, sellerRouter);
 app.use('/api/v1/cart', verifyJWT, cartRouter);
