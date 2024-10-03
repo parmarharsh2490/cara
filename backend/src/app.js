@@ -50,13 +50,6 @@ app.use(cors(corsOptions));
 // Static file serving
 app.use(express.static(path.join(__dirname, './public')));
 
-// Path for temp folder inside 'public'
-const tempDir = path.join(__dirname, './public/temp');
-
-// Create the temp directory if it doesn't exist
-if (!fs.existsSync(tempDir)) {
-  fs.mkdirSync(tempDir, { recursive: true });
-}
 
 // Routes
 app.get('/', (_, res) => {
