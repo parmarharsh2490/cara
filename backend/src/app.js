@@ -48,7 +48,7 @@ const corsOptions = {
 app.use(cors(corsOptions));
 
 // Static file serving
-app.use(express.static(path.join(__dirname, './public')));
+app.use(express.static(path.join(__dirname, '../public')));
 
 
 // Routes
