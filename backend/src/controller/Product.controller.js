@@ -182,7 +182,8 @@ const createProduct = asyncHandler(async (req, res) => {
   const parsedVariety =
     typeof variety === "string" ? JSON.parse(variety) : variety;
   const user = req.user;
-
+  console.log("Start");
+  
   // Validate required fields
   if (
     [title, description, category, gender].some((entry) => entry.trim() == "")
@@ -196,6 +197,8 @@ const createProduct = asyncHandler(async (req, res) => {
   if (!files || files.length === 0) {
     throw new ApiError(400, "At least one image is required");
   }
+console.log("files",files);
+console.log("Middle");
 
   // Map images to the variety array
   parsedVariety.forEach((v) => (v.images = []));
@@ -205,7 +208,7 @@ const createProduct = asyncHandler(async (req, res) => {
       parsedVariety[index].images.push(file);
     }
   });
-
+  console.log("parsedVariety",parsedVariety);
   // const images = [];
   // for await(let file of files){
   //   const imageDetails = await uploadImage(file.path);
@@ -225,7 +228,9 @@ const createProduct = asyncHandler(async (req, res) => {
       );
     })
   );
-
+  console.log("parsedVariety",parsedVariety);
+  console.log("End");
+  
   // Create the product
   const product = await Product.create({
     owner: user._id,
