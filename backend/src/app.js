@@ -2,8 +2,6 @@ import express from 'express';
 import cookieParser from 'cookie-parser';
 import cors from 'cors';
 import path from 'path';
-import { fileURLToPath } from 'url';
-import fs from 'fs';
 
 import userRouter from './routes/user.routes.js';
 import productRouter from './routes/product.routes.js';
@@ -18,9 +16,6 @@ import { promotionalRouter } from './routes/Promotional.routes.js';
 
 const app = express();
 
-// Define __dirname in ES modules
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
 
 // Middleware
 app.use(cookieParser());
@@ -48,7 +43,7 @@ const corsOptions = {
 app.use(cors(corsOptions));
 
 // Static file serving
-app.use(express.static(path.join(__dirname, '../public')));
+app.use(express.static());
 
 
 // Routes

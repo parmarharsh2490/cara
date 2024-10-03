@@ -211,7 +211,7 @@ console.log("Middle");
     }
   });
   console.log("parsedVariety",parsedVariety);
-  res.status(200).json(new ApiResponse(200,{user,parsedVariety,files}))
+  // res.status(200).json(new ApiResponse(200,{user,parsedVariety,files}))
   // const images = [];
   // for await(let file of files){
   //   const imageDetails = await uploadImage(file.path);
