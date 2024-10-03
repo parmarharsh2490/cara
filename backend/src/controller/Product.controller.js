@@ -182,7 +182,9 @@ const createProduct = asyncHandler(async (req, res) => {
   const parsedVariety =
     typeof variety === "string" ? JSON.parse(variety) : variety;
   const user = req.user;
-  console.log("Start");
+  console.log("Start",user,title);
+  console.log(title);
+  console.log("title",title);
   
   // Validate required fields
   if (
