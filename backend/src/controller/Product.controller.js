@@ -192,7 +192,8 @@ const createProduct = asyncHandler(async (req, res) => {
 
   // Validate images
   const files = req.files;
-
+  console.log("files",files);
+  
   if (!files || files.length === 0) {
     throw new ApiError(400, "At least one image is required");
   }
@@ -216,7 +217,7 @@ const createProduct = asyncHandler(async (req, res) => {
     parsedVariety.map(async (variety) => {
       variety.images = await Promise.all(
         variety.images.map(async (file) => {
-          const { public_id, secure_url } = await uploadImage(file.path);
+          const { public_id, secure_url } = await uploadImage(`/${file.path}`);
           return {
             publicId: public_id,
             imageUrl: secure_url,
