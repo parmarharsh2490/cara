@@ -24,7 +24,9 @@ const useLoginUserAccount = () => {
 const useGetLatestProducts = () => {
     return useQuery({
         queryKey : [QUERY_KEYS.LATEST_PRODUCTS],
-        queryFn : getLatestProducts
+        queryFn : getLatestProducts,
+        staleTime : 10000000,
+        retryOnMount : false
 })
 }
 

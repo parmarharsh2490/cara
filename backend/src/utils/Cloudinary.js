@@ -17,7 +17,7 @@ export const uploadImage = async (imagePath) => {
     };
 
     try {
-        const result = await cloudinary.uploader.upload(imagePath);
+        const result = await cloudinary.uploader.upload(imagePath,options);
         unlink(imagePath, (err) => {
             if (err) throw err;
           }); 
