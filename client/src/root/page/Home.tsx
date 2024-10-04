@@ -3,7 +3,6 @@ import Navigation from '../../components/shared/Navigation'
 import ImageSlider from '../../components/shared/ImageSlider'
 import SeasonBanner from '../../components/shared/SeasonBanner'
 import ExploreCategory from '../../components/shared/ExploreCategory'
-// import NewArrival from './NewArrival'
 import PromotionBanner from '../../components/shared/PromotionBanner'
 import Footer from '../../components/shared/Footer'
 import SeasonProducts from './SeasonProducts'
@@ -12,11 +11,11 @@ import NewArrival from './NewArrival'
 const Home = () => {
   return (
     <>
-        {/* <Navigation/>
+        <Navigation/>
         <ImageSlider/> 
         <SeasonBanner/>
         <ExploreCategory/>
-        <img src="/payment_promotion.avif" className='mt-20' alt="" /> */}
+        <img src="/payment_promotion.avif" className='mt-20' alt="" />
         <NewArrival/>
        <div className='flex flex-col items-center justify-center gap-2 p-5 sm:py-10 sm:px-20'>
        <h1 className='text-2xl '>Flannel Season</h1>

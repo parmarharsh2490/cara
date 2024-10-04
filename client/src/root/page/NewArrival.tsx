@@ -2,7 +2,7 @@ import ProductList from '../../components/shared/ProductList'
 import {  useGetLatestProducts } from '../../query/queries';
 
 const NewArrival = () => {
-   const {data : products,isLoading,error,isFetching} = useGetLatestProducts();
+   const {data : products,isLoading,error} = useGetLatestProducts();
    if(error){
     return <p>Error Happened...</p>
    }
