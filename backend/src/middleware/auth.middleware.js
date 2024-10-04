@@ -4,14 +4,11 @@ import ApiError from "../utils/ApiError.js";
 import { ACCESS_TOKEN_SECRET_KEY } from "./../constants.js"
 export const verifyJWT = async(req, _, next) => {
     try {
-        console.log('Cookies: ', req.cookies);
-        console.log('Authorization Header: ', req.header('Authorization'));
         const token = req.cookies?.accessToken || req.header("Authorization")?.replace("Bearer ", "");
         if (!token) {
             throw new ApiError(401, "Unauthorized request")
         }
         const decodedToken = jwt.verify(token, ACCESS_TOKEN_SECRET_KEY);
-        // console.log(decodedToken);
         const user = await User.findById(decodedToken?.data._id).select("-password -refreshToken")
         console.log(user);
         if (!user) {         

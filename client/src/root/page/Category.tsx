@@ -2,120 +2,15 @@ import  {  useState } from "react";
 import Navigation from "../../components/shared/Navigation";
 import Filter from "../../components/shared/Filter";
 import Products from "../../components/shared/ProductList";
+
 import { useParams } from "react-router-dom";
 import { IProduct } from "@/types";
 
 const Category = () => {
-  const { category } = useParams();
-  const [products ] = useState<IProduct[]>([
-    {
-      imageUrl:
-        "https://cdn-media.powerlook.in/catalog/product/d/p/dp-939921.jpg",
-      _id: "12345678",
-      title: "Light blue cargo",
-      price: "2000",
-      discountedPrice: "1700",
-    },
-    {
-      imageUrl:
-        "https://cdn-media.powerlook.in/catalog/product/d/p/dp_1652_7.jpg",
-      _id: "12345678",
-      title: "Light blue cargo",
-      price: "2000",
-      discountedPrice: "1700",
-    },
-    {
-      imageUrl:
-        "https://cdn-media.powerlook.in/catalog/product/d/p/dp-939921.jpg",
-      _id: "12345678",
-      title: "Light blue cargo",
-      price: "2000",
-      discountedPrice: "1700",
-    },
-    {
-      imageUrl:
-        "https://cdn-media.powerlook.in/catalog/product/d/p/dp_1652_7.jpg",
-      _id: "12345678",
-      title: "Light blue cargo",
-      price: "2000",
-      discountedPrice: "1700",
-    },
-    {
-      imageUrl:
-        "https://cdn-media.powerlook.in/catalog/product/d/p/dp-939921.jpg",
-      _id: "12345678",
-      title: "Light blue cargo",
-      price: "2000",
-      discountedPrice: "1700",
-    },
-    {
-      imageUrl:
-        "https://cdn-media.powerlook.in/catalog/product/d/p/dp_1652_7.jpg",
-      _id: "12345678",
-      title: "Light blue cargo",
-      price: "2000",
-      discountedPrice: "1700",
-    },
-    {
-      imageUrl:
-        "https://cdn-media.powerlook.in/catalog/product/d/p/dp-939921.jpg",
-      _id: "12345678",
-      title: "Light blue cargo",
-      price: "2000",
-      discountedPrice: "1700",
-    },
-    {
-      imageUrl:
-        "https://cdn-media.powerlook.in/catalog/product/d/p/dp_1652_7.jpg",
-      _id: "12345678",
-      title: "Light blue cargo",
-      price: "2000",
-      discountedPrice: "1700",
-    },
-    {
-      imageUrl:
-        "https://cdn-media.powerlook.in/catalog/product/d/p/dp-939921.jpg",
-      _id: "12345678",
-      title: "Light blue cargo",
-      price: "2000",
-      discountedPrice: "1700",
-    },
-    {
-      imageUrl:
-        "https://cdn-media.powerlook.in/catalog/product/d/p/dp_1652_7.jpg",
-      _id: "12345678",
-      title: "Light blue cargo",
-      price: "2000",
-      discountedPrice: "1700",
-    },
-    {
-      imageUrl:
-        "https://cdn-media.powerlook.in/catalog/product/d/p/dp-939921.jpg",
-      _id: "12345678",
-      title: "Light blue cargo",
-      price: "2000",
-      discountedPrice: "1700",
-    },
-    {
-      imageUrl:
-        "https://cdn-media.powerlook.in/catalog/product/d/p/dp_1652_7.jpg",
-      _id: "12345678",
-      title: "Light blue cargo",
-      price: "2000",
-      discountedPrice: "1700",
-    },
-  ]);
-  // useEffect(() => {
-  //   const fetchData = async () => {
-  //     setIsLoading(true);
-  //     const response = await fetch(`/${category}`);
-  //     const data = await response.json();
-  //     (data);
-  //     setIsLoading(false);
-  //   };
-  //   fetchData();
-  // }, []);
-
+  // const {data : products,isLoading,error} = useGetAllProducts();
+  if(error){
+   return <p>Error Happened...</p>
+  }
   return (
     <>
           <Navigation />

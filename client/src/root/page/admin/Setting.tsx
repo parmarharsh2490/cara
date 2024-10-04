@@ -1,4 +1,4 @@
-import { useGetSellerDetails, useUpdateSellerDetails } from "../../../query/queries";
+import { useGetSellerDetails, useUpdateSellerDetails } from "../../../query/UserQueries.ts";
 import PopupForm from "../../../components/shared/PopupForm";
 import { IBankDetails, ISellerProfileDetails } from "@/types";
 import React, { useContext, useState } from "react";

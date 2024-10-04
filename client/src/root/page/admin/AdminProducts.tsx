@@ -1,4 +1,4 @@
-import { useDeleteProduct } from '../../../query/queries.ts';
+import { useDeleteProduct } from '../../../query/ProductQueries.ts';
 import { IProduct } from '@/types';
 import { FaEdit, FaTrash } from 'react-icons/fa'; 
 import { useNavigate } from 'react-router-dom';

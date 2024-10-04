@@ -1,5 +1,5 @@
 import { ILoginUser } from "../../types/index.ts";
-import { useLoginUserAccount } from "../../query/queries.ts";
+import { useLoginUserAccount } from "../../query/UserQueries.ts";
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 

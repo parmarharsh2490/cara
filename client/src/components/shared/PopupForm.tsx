@@ -1,4 +1,4 @@
-import { useUpdateUserDetails } from '../../query/queries';
+import { useUpdateUserDetails } from '../../query/UserQueries.ts';
 import { IPopupFormProps } from '@/types';
 import React, { useState, useEffect } from 'react';
 

@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import VarietyForm from "./VarietyForm.tsx";
 import { IVariety } from "../../types/index.ts";
-import { useCreateProduct, useUpdateProduct } from "../../query/queries.ts";
+import { useCreateProduct, useUpdateProduct } from "../../query/ProductQueries.ts";
 
 interface ProductFormProps {
   existingProduct?: {

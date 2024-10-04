@@ -1,5 +1,5 @@
 import ProductForm from "../../../components/shared/ProductForm.tsx";
-import { useGetProductDetails } from "../../../query/queries.ts";
+import { useGetProductDetails } from "../../../query/ProductQueries.ts";
 import { useParams } from "react-router-dom";
 
 const UpdateProduct = () => {

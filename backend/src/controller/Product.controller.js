@@ -69,8 +69,6 @@ const getAllProducts = asyncHandler(async (req, res) => {
   if (priceHighToLow === 'true' && priceLowToHigh === 'true') {
     throw new ApiError(400, "Conflicting price sort conditions");
   }
-  console.log("firstSortCondition",firstSortCondition);
-  console.log("SecondSortCondition",SecondSortCondition);
   
   const aggregationPipiline = [];
   if(firstMatchConditions.length !== 0){
@@ -92,6 +90,7 @@ const getAllProducts = asyncHandler(async (req, res) => {
             imageUrl: { $first: "$variety.images.imageUrl" },
             originalPrice: "$variety.sizeOptions.price.originalPrice",
             discountedPrice: "$variety.sizeOptions.price.discountedPrice",
+            createdAt : "$createdAt"
           }
         },
       },

@@ -3,7 +3,7 @@ import { Link } from "react-router-dom";
 import { AiOutlineShop } from "react-icons/ai";
 import { UserContext } from "../../context/index.tsx";
 import AlertDialog from "../ui/AlertDialog";
-import { useBecomeSeller } from "../../query/queries.ts";
+import { useBecomeSeller } from "../../query/UserQueries.ts";
 const Navigation = () => {
   const [showAlertDialog,setShowAlertDialog] = useState(false);
   const [searchValue,setSearchValue] = useState<string>("");

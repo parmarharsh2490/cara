@@ -19,7 +19,8 @@ const sizeOptionSchema = new mongoose.Schema({
       "28", "30", "32", "34", "36", "38", "40", "42", "44", "46",
       "4T", "5T", "6T", "7T", "8T", "10T", "12T"
     ],
-    required: true
+    required: true,
+    unique : true
   },
   stock: { 
     type: Number,
@@ -65,15 +66,23 @@ const varietySchema = new mongoose.Schema({
       "blue", "red", "yellow", "green", "black", "white", "gray",
       "orange", "pink", "purple", "brown", "navy", "beige", "maroon"
     ],
-    required: true
+    required: true,
+    unique : true
   },
   sizeOptions: [sizeOptionSchema]
+});
+sizeOptionSchema.pre('save', function(next) {
+  if (this.discountedPrice > this.originalPrice) {
+    return next(new Error("Discounted price cannot be higher than the original price"));
+  }
+  next();
 });
 
 const productSchema = new mongoose.Schema({
   owner: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: "User"
+    ref: "User",
+    index: true
   },
   title: {
     type: String,
@@ -83,24 +92,21 @@ const productSchema = new mongoose.Schema({
   },
   description: {
     type: String,
-    trim: true
+    trim: true,
+    index: true
   },
   category: {
     type: String,
     enum: ["tshirt", "shirt", "pant", "bottom", "jacket", "coorder"],
-    trim: true
+    trim: true,
+    index: true
   },
-  variety: [varietySchema], 
-  rating: {
-    type: Number,
-    default: 0,
-    min: 0,
-    max: 5
-  },
+  variety: [varietySchema],
   gender: {
     type: String,
     enum: ["male", "female", "child", "unisex"],
-    required: true
+    required: true,
+    index: true
   }
 }, {
   timestamps: true

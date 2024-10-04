@@ -74,8 +74,8 @@ export const getTransporter = () => {
 };
 
 const startServer = async () => {
-  // await initializeTransporter();
-  // await initializeEmailResources()
+  await initializeTransporter();
+  await initializeEmailResources()
   const PORT = process.env.PORT || 3000;
   app.listen(PORT, () => {
     console.log(`Server is running on port ${PORT}`);

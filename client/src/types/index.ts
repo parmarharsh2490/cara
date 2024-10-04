@@ -33,7 +33,7 @@ export interface IProduct {
     _id : string,
     title : string,
     discountedPrice : string,
-    price : string
+    originalPrice : string
 }
 export interface IProductAllDetails{
     _id? : string,

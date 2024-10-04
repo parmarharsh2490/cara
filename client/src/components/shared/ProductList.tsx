@@ -58,9 +58,8 @@ const ProductListSkeleton = ( ) => {
 </div>
     )
 }
-const ProductList = ({ products, isLoading = true }: { products: IProduct[], isLoading?: boolean }) => {
-    console.log(products);
-    
+const ProductList = ({ products,isLoading} : {products : IProduct[],isLoading : boolean}) => {
+  console.log(products);
   
   return (
     <>
