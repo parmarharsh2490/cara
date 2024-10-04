@@ -69,6 +69,8 @@ const getAllProducts = asyncHandler(async (req, res) => {
   if (priceHighToLow === 'true' && priceLowToHigh === 'true') {
     throw new ApiError(400, "Conflicting price sort conditions");
   }
+  console.log("firstSortCondition",firstSortCondition);
+  console.log("SecondSortCondition",SecondSortCondition);
   
   const aggregationPipiline = [];
   if(firstMatchConditions.length !== 0){
@@ -182,9 +184,6 @@ const createProduct = asyncHandler(async (req, res) => {
   const parsedVariety =
     typeof variety === "string" ? JSON.parse(variety) : variety;
   const user = req.user;
-  console.log("Start",user,title);
-  console.log(title);
-  console.log("title",title);
   
   // Validate required fields
   if (
@@ -199,8 +198,6 @@ const createProduct = asyncHandler(async (req, res) => {
   if (!files || files.length === 0) {
     throw new ApiError(400, "At least one image is required");
   }
-console.log("files",files);
-console.log("Middle");
 
   // Map images to the variety array
   parsedVariety.forEach((v) => (v.images = []));
@@ -210,7 +207,6 @@ console.log("Middle");
       parsedVariety[index].images.push(file);
     }
   });
-  console.log("parsedVariety",parsedVariety);
   // res.status(200).json(new ApiResponse(200,{user,parsedVariety,files}))
   // const images = [];
   // for await(let file of files){
@@ -231,8 +227,6 @@ console.log("Middle");
       );
     })
   );
-  console.log("parsedVariety",parsedVariety);
-  console.log("End");
   
   // Create the product
   const product = await Product.create({

@@ -54,9 +54,9 @@ const varietySchema = new mongoose.Schema({
     type: [imageSchema],
     validate: {
       validator: function (val) {
-        return val.length === 5;
+        return val.length >= 1 && val.length <= 5;
       },
-      message: 'A product must have exactly 5 images'
+      message: 'A product must have more than 1 images and maximum 5 images'
     }
   },
   color: {
