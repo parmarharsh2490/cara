@@ -9,7 +9,7 @@ const useSendPromotionalMail = () => {
     return useMutation({
         mutationFn : (data : any) => sendPromotionMail(data),
         onSuccess : (data) => {
-            alert(data)
+            console.log(data)
         }
     })
 }
@@ -18,7 +18,7 @@ const useSendContactformDetails = () => {
     return useMutation({
         mutationFn : (data) => sendContactformDetails(data),
         onSuccess : (data) => {
-            alert(data)
+            console.log(data)
         }
     })
 }
