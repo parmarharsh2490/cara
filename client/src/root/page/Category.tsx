@@ -8,7 +8,7 @@ import { useParams } from "react-router-dom";
 const Category = () => {
   const { category } = useParams();
   const [products, setProducts] = useState([]);
-  const { mutateAsync: getAllProducts, isPending, error, data } = useGetAllProducts();
+  const { mutateAsync: getAllProducts, isPending, error } = useGetAllProducts();
 
   const getProducts = async () => {
     const response = await getAllProducts({ category });
