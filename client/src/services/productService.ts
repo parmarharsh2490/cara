@@ -7,7 +7,8 @@ export {
     getProductDetails,
     updateProduct,
     deleteProduct,
-    getTopSelledProducts
+    getTopSelledProducts,
+    getAllProducts
 }
  
 const getLatestProducts = async () => {
@@ -61,4 +62,14 @@ const deleteProduct = async (productId : any) => {
   const response = await axios.delete(`${apiClient}/products/delete/${productId}`);
   console.log(response);
   return response
+}
+
+const getAllProducts = async(optinos) => {
+  console.log(optinos);
+  const respose = await apiClient.get('/products/',{
+    params : optinos
+  })
+  console.log(respose);
+  
+  return respose.data?.data
 }

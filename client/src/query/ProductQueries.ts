@@ -1,7 +1,26 @@
 import {   useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
 import { QUERY_KEYS } from "./queryKeys"
-import {createProduct, deleteProduct, getLatestProducts, getProductDetails, getTopSelledProducts, updateProduct} from "../services/productService"
+import {createProduct, deleteProduct, getAllProducts, getLatestProducts, getProductDetails, getTopSelledProducts, updateProduct} from "../services/productService"
 
+
+export {
+    useGetLatestProducts,
+    useCreateProduct,
+    useUpdateProduct,
+    useGetProductDetails,
+    useDeleteProduct,
+    useGetTopSelledProducts,
+    useGetAllProducts
+}
+
+const useGetAllProducts = () => {
+    return useMutation({
+        mutationFn : (optinos : any) => getAllProducts(optinos),
+        onSuccess : (data) => {
+            console.log("Successfully received all products",data);
+        }
+})
+}
 const useGetLatestProducts = () => {
     return useQuery({
         queryKey : [QUERY_KEYS.LATEST_PRODUCTS],
@@ -51,13 +70,4 @@ const useGetProductDetails = (data : string) => {
         queryKey : [QUERY_KEYS.PRODUCT,data],
         queryFn : () => getProductDetails(data)
     })
-}
-
-export {
-    useGetLatestProducts,
-    useCreateProduct,
-    useUpdateProduct,
-    useGetProductDetails,
-    useDeleteProduct,
-    useGetTopSelledProducts
 }

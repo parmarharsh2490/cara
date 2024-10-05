@@ -248,31 +248,31 @@ const Navigation = () => {
           <div className=" pt-4 my-2  border-t gap-3 overscroll-x-auto sm:scroll-hidden flex justify-center item-center">
             <Link
               className="sm:mx-4 ml-2 text-nowrap text-sm leading-5 text-gray-700 transition-colors duration-300 transform  hover:text-blue-600 dark:hover:text-blue-400 hover:underline md:my-0"
-              to="/shopping/t-shirts"
+              to="/shopping/tshirt"
             >
               T-shirts
             </Link>
             <Link
               className="sm:mx-4 ml-2 text-sm text-nowrap leading-5 text-gray-700 transition-colors duration-300 transform  hover:text-blue-600 whitespace-nowrap dark:hover:text-blue-400 hover:underline md:my-0"
-              to="/shopping/shirts"
+              to="/shopping/shirt"
             >
               Shirts
             </Link>
             <Link
               className="sm:mx-4 ml-2 text-sm  text-nowrap leading-5 text-gray-700 transition-colors duration-300 transform  hover:text-blue-600 dark:hover:text-blue-400 hover:underline md:my-0"
-              to="/shopping/coorders"
+              to="/shopping/coorder"
             >
               Co-Orders
             </Link>
             <Link
               className="sm:mx-4 ml-2 text-sm  text-nowrap leading-5 text-gray-700 transition-colors duration-300 transform  hover:text-blue-600 dark:hover:text-blue-400 hover:underline md:my-0"
-              to="/shopping/pants"
+              to="/shopping/pant"
             >
               Bottoms
             </Link>
             <Link
               className="sm:mx-4 ml-2 text-sm text-nowrap  leading-5 text-gray-700 transition-colors duration-300 transform  hover:text-blue-600 dark:hover:text-blue-400 hover:underline md:my-0"
-              to="/shopping/jackets"
+              to="/shopping/jacket"
             >
               Jackets
             </Link>
