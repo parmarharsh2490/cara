@@ -1,9 +1,9 @@
 import { HTMLInputTypeAttribute } from "react";
-import { ChangeEventHandler } from 'react';
+import { ChangeEventHandler } from "react";
 
 export interface IUser {
   _id: string;
-  name : string;
+  name: string;
   email: string;
   role?: "customer" | "admin";
   gender?: "male" | "female" | "child" | "unisex" | null;
@@ -13,9 +13,9 @@ export interface IUser {
 }
 
 export interface INewUser {
-  name : string;
+  name: string;
   email: string;
-  password : string
+  password: string;
 }
 
 export interface ILoginUser {
@@ -23,145 +23,160 @@ export interface ILoginUser {
   password: string;
 }
 
-
-export interface IAdminProduct extends IProduct{
-    
-}
+export interface IAdminProduct extends IProduct {}
 
 export interface IProduct {
-    imageUrl : string,
-    _id : string,
-    title : string,
-    discountedPrice : string,
-    originalPrice : string
+  imageUrl: string;
+  _id: string;
+  title: string;
+  discountedPrice: string;
+  originalPrice: string;
 }
-export interface IProductAllDetails{
-    _id? : string,
-    title : string,
-    description : string,
-    category : string,
-    rating : number,
-    variety : IVariety[],
-    gender : string
+export interface IProductAllDetails {
+  _id?: string;
+  title: string;
+  description: string;
+  category: string;
+  rating: number;
+  variety: IVariety[];
+  gender: string;
 }
 
 export interface IVariety {
-    color: string;
-    images: (string | File)[];
-    sizeOptions: ISizeOption[];
-  }
-  
+  color: string;
+  images: (string | File)[];
+  sizeOptions: ISizeOption[];
+}
+
 export interface ISizeOption {
-    size: string;
-    stock: number;
-    price: {
-      originalPrice: number;
-      discountedPrice: number;
-    };
-}
-  
-
-export interface INewArrivalProduct{
-    _id : string,
-    title : string,
-    price : {
-     discountedPrice : string,
-     price : string  
-    },
-    imageUrl : string,
+  size: string;
+  stock: number;
+  price: {
+    originalPrice: number;
+    discountedPrice: number;
+    costPrice? : number
+  };
 }
 
-export interface IFilter{
-    price : string,
-    colors : string,
-    sleeves : string
+export interface INewArrivalProduct {
+  _id: string;
+  title: string;
+  price: {
+    discountedPrice: string;
+    price: string;
+  };
+  imageUrl: string;
 }
 
-interface InputData {
-    type: HTMLInputTypeAttribute;
-    name: string;
-    label: string;
+export interface IFilter {
+  minPrice?: string;
+  maxPrice?: string;
+  color?: string;
+  gender?: string;
+  category?: string;
+  priceLowToHigh?: boolean | "";
+  priceHighToLow?: boolean | "";
+  latest?: boolean | "";
+}
+
+export interface ICartItems {
+  _id : string;
+  title: string;
+  color: string;
+  size: string;
+  price: {
+    originalPrice: number;
+    discountedPrice: number;
+  };
+  quantity: number;
+  imageUrl: string;
+}
+export interface InputData {
+  type: HTMLInputTypeAttribute;
+  name: string;
+  label: string;
 }
 
 export interface IPopupFormProps {
-    inputData: InputData[];
-    showPopupForm: boolean;
-    setShowPopupForm: (show: boolean) => void;
-    title? : String,
-    handleSubmitFunction : any
-    label  : string
+  inputData: InputData[];
+  showPopupForm: boolean;
+  setShowPopupForm: (show: boolean) => void;
+  title?: String;
+  handleSubmitFunction: any;
+  label: string;
 }
 
 export interface IRating {
-    rating: number,
-      review: string,
-      comment: string,
-      name: string,
-      date: string,
-      location: string
+  rating: number;
+  review: string;
+  comment: string;
+  name: string;
+  date: string;
+  location: string;
 }
 
 export interface IInputFieldInterface {
   label: string;
   value: string;
   name: string;
-  onChange: ChangeEventHandler<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>;
+  onChange: ChangeEventHandler<
+    HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement
+  >;
   placeholder: string;
-  options?: { option: string; idx: number }[]; 
+  options?: { option: string; idx: number }[];
   isTextArea?: boolean;
 }
 
 export interface ITransaction {
-    id: string;
-    score: number;
-    stage: string;
-    amount: string;
-    dateTime: string;
-    status: string;
-    assignedTo: string;
+  id: string;
+  score: number;
+  stage: string;
+  amount: string;
+  dateTime: string;
+  status: string;
+  assignedTo: string;
 }
 
 export interface ISellerProfileDetails {
-    name: string;
-    primaryPhone: string;
-    primaryEmail: string;
-    secondaryPhone: string;
-    secondaryEmail: string;
-    businessName: string;
-    businessAddress: string;
-    panNumber: string;
-    aadharNumber: string;
-    gstin: string;
+  name: string;
+  primaryPhone: string;
+  primaryEmail: string;
+  secondaryPhone: string;
+  secondaryEmail: string;
+  businessName: string;
+  businessAddress: string;
+  panNumber: string;
+  aadharNumber: string;
+  gstin: string;
 }
 
 export interface IBankDetails {
-    bankName: string;
-    ifscCode: string;
-    accountNumber: string;
+  bankName: string;
+  ifscCode: string;
+  accountNumber: string;
 }
 
 export interface IOrderItem {
-    image: string;
-    title: string;
-    price: number;
+  image: string;
+  title: string;
+  price: number;
 }
-  
+
 export interface IOrder {
-    id: number;
-    items: IOrderItem[];
-    totalPrice: number;
-    status: 'PLACED' | 'CONFIRMED' | 'SHIPPED' | 'DELIVERED';
+  id: number;
+  items: IOrderItem[];
+  totalPrice: number;
+  status: "PLACED" | "CONFIRMED" | "SHIPPED" | "DELIVERED";
 }
-  
 
 export interface ITransaction {
-    id: string;
-    score: number;
-    stage: string;
-    amount: string;
-    dateTime: string;
-    status: string;
-    assignedTo: string;
+  id: string;
+  score: number;
+  stage: string;
+  amount: string;
+  dateTime: string;
+  status: string;
+  assignedTo: string;
 }
 
 export interface IAddress {

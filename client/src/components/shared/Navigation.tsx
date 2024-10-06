@@ -4,13 +4,17 @@ import { AiOutlineShop } from "react-icons/ai";
 import { UserContext } from "../../context/index.tsx";
 import AlertDialog from "../ui/AlertDialog";
 import { useBecomeSeller } from "../../query/UserQueries.ts";
+import { useGetUserCart } from "../../query/CartQueries.ts";
+import { useGetUserWishlist } from "../../query/WishlistQueries.ts";
 const Navigation = () => {
   const [showAlertDialog,setShowAlertDialog] = useState(false);
   const [searchValue,setSearchValue] = useState<string>("");
-  const [toggle,setToggle] = useState<boolean>(false)
+  const [toggle,setToggle] = useState<boolean>(false);
   const toggleButton = () => {
     setToggle(!toggle);
   }
+  const {data : userCart} = useGetUserCart();
+  const {data : userWishlist} = useGetUserWishlist();
   const {user,isAuthenticated} = useContext(UserContext);
   const {mutateAsync : becomeSeller,isPending,isSuccess} = useBecomeSeller()
   const handleBecomeSellerClick = (e: React.MouseEvent<HTMLAnchorElement>) => {
@@ -207,7 +211,7 @@ const Navigation = () => {
                     </svg>
                   </Link>
                   <div className=" p-[6px] h-2 w-2 rounded-full bg-red-500 border-white absolute top-0 -right-1 flex justify-center items-center text-[10px] text-white">
-                    0
+                  {userWishlist?.length || 0}
                   </div>
                 </div>
                 <div className="relative">
@@ -230,7 +234,7 @@ const Navigation = () => {
                     </svg>
                   </Link>
                   <div className=" p-[6px] h-2 w-2 rounded-full bg-red-500 border-white absolute top-0 -right-1 flex justify-center items-center text-[10px] text-white">
-                    0
+                    {userCart?.length || 0}
                   </div>
                 </div>
                 <Link to="/profile">
@@ -260,9 +264,9 @@ const Navigation = () => {
             </Link>
             <Link
               className="sm:mx-4 ml-2 text-sm  text-nowrap leading-5 text-gray-700 transition-colors duration-300 transform  hover:text-blue-600 dark:hover:text-blue-400 hover:underline md:my-0"
-              to="/shopping/coorder"
+              to="/shopping/pant"
             >
-              Co-Orders
+              Pants
             </Link>
             <Link
               className="sm:mx-4 ml-2 text-sm  text-nowrap leading-5 text-gray-700 transition-colors duration-300 transform  hover:text-blue-600 dark:hover:text-blue-400 hover:underline md:my-0"

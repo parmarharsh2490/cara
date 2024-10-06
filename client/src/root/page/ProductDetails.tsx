@@ -1,82 +1,92 @@
-import  { useRef, useState } from 'react'
+import  { Key, useRef, useState } from 'react'
 import Navigation from '../../components/shared/Navigation';
 import Footer from '../../components/shared/Footer';
 import PromotionBanner from '../../components/shared/PromotionBanner';
 import Reviews from '../../components/shared/Reviews';
+import { useGetProductDetails } from '../../query/ProductQueries';
+import { useParams } from 'react-router-dom';
+import { ISizeOption, IVariety } from '@/types';
+import { useAddToWishlist } from '../../query/WishlistQueries';
+import { useAddToCart } from '../../query/CartQueries';
+import ProductList from '../../components/shared/ProductList';
 
 const ProductDetails = () => {
+  const {productId} = useParams();
+  const [selectedVarietyIndex,setSelectedVarietyIndex] = useState(0)
+  const [selectedSizeOptionIndex,setSelectedSizeOptionIndex] = useState(0)
+  const [selectedImageIndex,setSelectedImageIndex] = useState(0);
+  const {mutateAsync : addToWishlist} = useAddToWishlist();
+  const {mutateAsync : addToCart} = useAddToCart()
+  if(!productId){
+    return <p>Error Happened!</p>
+  }
     const productCount = useRef<HTMLInputElement>(null)
-    const [product,setProduct] = useState({
-            images : [
-            "https://cdn-media.powerlook.in/catalog/product/d/p/dp-939921.jpg",
-            "https://cdn-media.powerlook.in/catalog/product/d/p/dp_1652_7.jpg",
-            "https://cdn-media.powerlook.in/catalog/product/d/p/dp02-960521.jpg",
-            "https://cdn-media.powerlook.in/catalog/product/d/p/dp-925121.jpg",
-            "https://cdn-media.powerlook.in/catalog/product/1/-/1-dp-921921.jpg"
-            ],
-            _id : "12345678",
-            title : "Light blue cargo",
-            price : "2000",
-            discountedPrice : "1700"
-})
+    const {data : product,isLoading,isPending,isFetched,isSuccess} = useGetProductDetails(productId)
+    console.log(product);
     
 const imageClick = (indexOfImage: number) => {
-    setProduct((prev) => {
-        const updatedImages = prev.images.map((image, index) => {
-            return index === indexOfImage ? prev.images[0] : (index === 0 ? prev.images[indexOfImage] :  image)
-        });
-
-        return {
-            ...prev,
-            images: updatedImages,
-        };
-    });
+  setSelectedImageIndex(indexOfImage)
 };
-
 
   return (
     <>
-    <Navigation/>
-    <section
+    {
+      isLoading || isPending || !isFetched || !isSuccess? (
+        <p>Loading...</p>
+      ) : (
+        <>
+         <Navigation/>
+    {
+      product && (
+        <section
       id="prodetails"
       className="gap-10 p-5 sm:px-10 flex flex-col sm:flex-row w-full items-center justify-center h-[70%]"
     >
       <div className="h-full w-full sm:w-[70%] md:w-[55%] lg:w-[35%] flex items-center   flex-col-reverse md:flex-row">
-        <div className="flex gap-2 justify-center items-center flex-row md:flex-col w-full sm:w-[100%] md:w-[20%] mt-1">
-          {
-              product.images.map((image,index) => (
-                index !== 0 &&         
-                  <img
-                    src={image}
-                    onClick={() => imageClick(index)}
-                    className="hover:scale-105 duration-500 sm:w-[100%] w-[25%] bg-cover"
-                    alt="Product Thumbnail"
-                  />
-            ))
-          }
+        <div className="flex gap-2 justify-center items-center flex-row md:flex-col w-full md:w-[20%] mt-1">
+        {product.variety[selectedVarietyIndex].images.map((image: { imageUrl: string }, imageIndex: Key | null | undefined) => (
+              <img
+                key={imageIndex}
+                src={image?.imageUrl}
+                onClick={() => imageClick(imageIndex as number)}
+                className="hover:scale-105 duration-500 sm:w-[100%] w-[25%] max-w-[70px] bg-cover"
+                alt={`Product Thumbnail ${imageIndex as number + 1}`}
+                // className='w-[50px]'
+              />
+            ))}
         </div>
         <img
-          src={product.images[0]}
-          className="w-full  sm:w-[100%] h-full cursor-pointer bg-cover p-2"
+          src={product.variety[selectedVarietyIndex].images[selectedImageIndex].imageUrl}
+          className="w-full  sm:w-[100%] max-w-[70%] h-full cursor-pointer bg-cover p-2"
           alt="Main Product"
         />
       </div>
       <div className="w-full sm:w-[65%] mt-7  pt-30">
         <h6 className="text-md   md:text-2xl font-semibold my-2">Home / men-shirts</h6>
         <h4 className="sm:text-lg md:text-3xl text-2xl my-2">
-          Blue Structured Checks Oversized Shirt
+          {product.title}
         </h4>
         <div className="flex justify-start items-center">
-          <h2 className="text-2xl sm:text-base md:text-2xl my-2 font-semibold">₹899</h2>
-          <s className="mr-1 text-slate-400 mx-2 text-base">₹1099</s>
+          <h2 className="text-2xl sm:text-base md:text-2xl my-2 font-semibold">₹{product.variety[selectedVarietyIndex].sizeOptions[selectedSizeOptionIndex].price.discountedPrice}</h2>
+          <s className="mr-1 text-slate-400 mx-2 text-base">₹{product.variety[selectedVarietyIndex].sizeOptions[selectedSizeOptionIndex].price.originalPrice}</s>
           <p className="font-bold my-1 text-green-600 text-base">(18% off)</p>
         </div>
         <select className="block py-2 px-4 mb-4 bg-white border border-gray-300 focus:outline-none">
-          <option>Select Size</option>
-          <option value="xl">XL</option>
-          <option value="xxl">XXL</option>
-          <option value="small">Small</option>
-          <option value="large">Large</option>
+
+        <option key={product.variety[selectedVarietyIndex].sizeOptions[selectedSizeOptionIndex].size} value={product.variety[selectedVarietyIndex].sizeOptions[selectedSizeOptionIndex].size} >
+    {product.variety[selectedVarietyIndex].sizeOptions[selectedSizeOptionIndex].size} 
+    </option>
+          {
+  product.variety[selectedVarietyIndex].sizeOptions.map((sizeOption: ISizeOption, sizeOptionIndex: number) => (
+    sizeOptionIndex !== selectedSizeOptionIndex && <option key={sizeOption.size} onClick={() => {
+      setSelectedSizeOptionIndex(sizeOptionIndex);
+      console.log(selectedSizeOptionIndex);
+      
+    }} value={sizeOption.size}>
+    {sizeOption.size}
+    </option>
+  ))
+}
         </select>
         <input
           type="number"
@@ -85,8 +95,18 @@ const imageClick = (indexOfImage: number) => {
           min={0}
           max={999}
         />
+        <div className='flex gap-4 items-center justify-start mt-2'>
+          {
+            product.variety.map((variety: IVariety, varietyIndex: number) => (
+              <button className='bg-gray-200 rounded-lg px-4 py-2 text-blue-600' onClick={() => setSelectedVarietyIndex(varietyIndex)}>{variety.color}</button>
+            ))
+          }
+        </div>
         <div className="flex sm:my-2  left-0 bg-white sm:shadow-sm shadow-2xl p-1 gap-1 w-full z-10 fixed sm:relative bottom-0">
-          <button className="w-1/2 max-w-[200px] p-3 mx-2 gap-2 text-base sm:relative  sm:p-0 bg-white text-black border hover:bg-slate-600 duration-500 border-slate-800 hover:text-white flex justify-center items-center rounded-md font-semibold">
+          <button onClick={() => addToWishlist(
+            { productId : product._id, sizeOptionId : product.variety[selectedVarietyIndex].sizeOptions[selectedSizeOptionIndex]._id, varietyId : product.variety[selectedVarietyIndex]._id }
+            )} 
+            className="w-1/2 max-w-[200px] p-3 mx-2 gap-2 text-base sm:relative  sm:p-0 bg-white text-black border hover:bg-slate-600 duration-500 border-slate-800 hover:text-white flex justify-center items-center rounded-md font-semibold">
             <svg
               stroke="currentColor"
               fill="currentColor"
@@ -100,28 +120,33 @@ const imageClick = (indexOfImage: number) => {
             </svg>
             WISHLIST
           </button>
-          <button className="w-1/2 max-w-[200px] left-0 p-3 text-base sm:relative  sm:p-2 bg-slate-800 text-white border hover:bg-slate-600 rounded-md font-semibold duration-500 border-slate-800 hover:text-white">
+          <button onClick={() => addToCart({ productId : product._id, sizeOptionId : product.variety[selectedVarietyIndex].sizeOptions[selectedSizeOptionIndex]._id, varietyId : product.variety[selectedVarietyIndex]._id })} className="w-1/2 max-w-[200px] left-0 p-3 text-base sm:relative  sm:p-2 bg-slate-800 text-white border hover:bg-slate-600 rounded-md font-semibold duration-500 border-slate-800 hover:text-white">
             ADD TO BAG
           </button>
         </div>
         <h4 className="text-lg py-4">Product details</h4>
         <span className="leading-5 w-full">
           <p>
-            Your next go-to wardrobe piece, blue structured checks oversized
-            shirts for men, featuring a spread collar, drop shoulders, and full
+           {product.description}
           </p>
         </span>
       </div>
     </section>
+      )
+    }
     <Reviews/>
     <div className='mt-10'>
         <h1 className='text-center text-2xl sm:text-3xl sm:mb-2'>Similar Products</h1>
         <p className='sm:text-base text-sm text-slate-400 text-center mb:1 sm:mb-7'>You may also like</p>
-        {/* <ProductList products={products}/> */}
+        <ProductList products={product} isLoading={isLoading}/>
     </div>
 
     <PromotionBanner/>
-    <Footer/>
+     <Footer/>
+        </>
+      )
+    }
+
     </>
   )
 }

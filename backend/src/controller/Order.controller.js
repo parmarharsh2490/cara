@@ -12,6 +12,8 @@ import { Product } from '../model/Product.model.js';
 
 export const createOrder = asyncHandler(async (req, res) => {
   const { amount } = req.body;
+  console.log(amount);
+  
   const user = req.user;
 
   if (!amount || isNaN(amount)) {
@@ -54,7 +56,8 @@ export const createOrder = asyncHandler(async (req, res) => {
     }
 
     realAmount = Math.round(realAmount * 100) / 100;
-
+    console.log(realAmount);
+    
     if (Math.abs(realAmount - amount) > 0.01) {
       throw new ApiError(400, "Product Amount Mismatched");
     }

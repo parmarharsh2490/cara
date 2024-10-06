@@ -91,8 +91,10 @@ const removeFromCart = asyncHandler(async (req, res) => {
 
 const updateQuantity = asyncHandler(async (req, res) => {
   const user = req.user;
-  const { quantity , productId , sizeOptionId, varietyId } = req.body;
-
+  // const { quantity , productId , sizeOptionId, varietyId } = req.body;
+  const {cartProductId,quantity} = req.body;
+  console.log(cartProductId,quantity);
+  
   if (quantity <= 0 || quantity > 100) {
     return res.status(400).json({ message: "Quantity must be greater than 0 or Less than or Equal to 100" });
   }
@@ -100,9 +102,14 @@ const updateQuantity = asyncHandler(async (req, res) => {
   const updatedCart = await Cart.findOneAndUpdate(
     {
       user: user._id,
-      "products.product": new mongoose.Types.ObjectId(productId),
-      "products.sizeOption": new mongoose.Types.ObjectId(sizeOptionId),
-      "products.variety": new mongoose.Types.ObjectId(varietyId),
+      // "products.product": new mongoose.Types.ObjectId(productId),
+      // "products.sizeOption": new mongoose.Types.ObjectId(sizeOptionId),
+      // "products.variety": new mongoose.Types.ObjectId(varietyId),
+      products  :{
+        $elemMatch : {
+          _id : new mongoose.Types.ObjectId(cartProductId)
+        }
+      }
     },
     {
       $set: { "products.$.quantity": quantity },
@@ -111,6 +118,7 @@ const updateQuantity = asyncHandler(async (req, res) => {
       new: true,
     }
   ).select("-user -__v -createdAt -updatedAt").populate("products.product","title variety").lean();
+console.log(updatedCart);
 
   if (!updatedCart) {
     return res.status(404).json({ message: "Cart or product not found" });
@@ -180,7 +188,7 @@ const getUserCart = asyncHandler(async (req, res) => {
     },
     {
     $project: {
-      _id: 0,
+      _id: "$products._id",
       title: { $ifNull: ["$product.title", "Unknown Title"] },
       color: { $ifNull: ["$secvariety.color", "Unknown Color"] },
       size: { $ifNull: [{ $arrayElemAt: ["$sizeArr.size", 0] }, "Unknown Size"] },

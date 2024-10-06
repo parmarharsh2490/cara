@@ -4,25 +4,24 @@ import { FaEdit, FaTrash } from 'react-icons/fa';
 import { useNavigate } from 'react-router-dom';
 
 const products: IProduct[] = [
-  { _id : "123456789", discountedPrice : "12345", imageUrl: '/blog1.jpg', title: 'Dummy Product 1', price: "100" },
-  { _id : "123456789", discountedPrice : "12345", imageUrl: '/blog1.jpg', title: 'Dummy Product 1', price: "100" },
-  { _id : "123456789", discountedPrice : "12345", imageUrl: '/blog1.jpg', title: 'Dummy Product 1', price: "100" },
-  { _id : "123456789", discountedPrice : "12345", imageUrl: '/blog1.jpg', title: 'Dummy Product 1', price: "100" },
-  { _id : "123456789", discountedPrice : "12345", imageUrl: '/blog1.jpg', title: 'Dummy Product 1', price: "100" },
-  { _id : "123456789", discountedPrice : "12345", imageUrl: '/blog1.jpg', title: 'Dummy Product 1', price: "100" },
-  { _id : "123456789", discountedPrice : "12345", imageUrl: '/blog1.jpg', title: 'Dummy Product 1', price: "100" },
-  { _id : "123456789", discountedPrice : "12345", imageUrl: '/blog1.jpg', title: 'Dummy Product 1', price: "100" },
-  { _id : "123456789", discountedPrice : "12345", imageUrl: '/blog1.jpg', title: 'Dummy Product 1', price:"100"},
-  { _id : "123456789", discountedPrice : "12345", imageUrl: '/blog1.jpg', title: 'Dummy Product 1', price:"100"},
-  { _id : "123456789", discountedPrice : "12345", imageUrl: '/blog1.jpg', title: 'Dummy Product 1', price:"100"},
-  { _id : "123456789", discountedPrice : "12345", imageUrl: '/blog1.jpg', title: 'Dummy Product 1', price:"100"},
-  { _id : "123456789", discountedPrice : "12345", imageUrl: '/blog1.jpg', title: 'Dummy Product 1', price:"100"},
-  { _id : "123456789", discountedPrice : "12345", imageUrl: '/blog1.jpg', title: 'Dummy Product 1', price:"100"},
-  { _id : "123456789", discountedPrice : "12345", imageUrl: '/blog1.jpg', title: 'Dummy Product 1', price:"100"},
-  { _id : "123456789", discountedPrice : "12345", imageUrl: '/blog1.jpg', title: 'Dummy Product 1', price:"100"},
-  { _id : "123456789", discountedPrice : "12345", imageUrl: '/blog2.jpg', title: 'Dummy Product 2', price: "200" },
-  { _id : "123456789", discountedPrice : "12345", imageUrl: '/blog2.jpg', title: 'Dummy Product 2', price: "200" },
-  // Add more dummy products as needed
+  { _id : "123456789", discountedPrice : "12345", imageUrl: '/blog1.jpg', title: 'Dummy Product 1', originalPrice: "100" },
+  { _id : "123456789", discountedPrice : "12345", imageUrl: '/blog1.jpg', title: 'Dummy Product 1', originalPrice: "100" },
+  { _id : "123456789", discountedPrice : "12345", imageUrl: '/blog1.jpg', title: 'Dummy Product 1', originalPrice: "100" },
+  { _id : "123456789", discountedPrice : "12345", imageUrl: '/blog1.jpg', title: 'Dummy Product 1', originalPrice: "100" },
+  { _id : "123456789", discountedPrice : "12345", imageUrl: '/blog1.jpg', title: 'Dummy Product 1', originalPrice: "100" },
+  { _id : "123456789", discountedPrice : "12345", imageUrl: '/blog1.jpg', title: 'Dummy Product 1', originalPrice: "100" },
+  { _id : "123456789", discountedPrice : "12345", imageUrl: '/blog1.jpg', title: 'Dummy Product 1', originalPrice: "100" },
+  { _id : "123456789", discountedPrice : "12345", imageUrl: '/blog1.jpg', title: 'Dummy Product 1', originalPrice: "100" },
+  { _id : "123456789", discountedPrice : "12345", imageUrl: '/blog1.jpg', title: 'Dummy Product 1', originalPrice: "100"},
+  { _id : "123456789", discountedPrice : "12345", imageUrl: '/blog1.jpg', title: 'Dummy Product 1', originalPrice: "100"},
+  { _id : "123456789", discountedPrice : "12345", imageUrl: '/blog1.jpg', title: 'Dummy Product 1', originalPrice: "100"},
+  { _id : "123456789", discountedPrice : "12345", imageUrl: '/blog1.jpg', title: 'Dummy Product 1', originalPrice: "100"},
+  { _id : "123456789", discountedPrice : "12345", imageUrl: '/blog1.jpg', title: 'Dummy Product 1', originalPrice: "100"},
+  { _id : "123456789", discountedPrice : "12345", imageUrl: '/blog1.jpg', title: 'Dummy Product 1', originalPrice: "100"},
+  { _id : "123456789", discountedPrice : "12345", imageUrl: '/blog1.jpg', title: 'Dummy Product 1', originalPrice: "100"},
+  { _id : "123456789", discountedPrice : "12345", imageUrl: '/blog1.jpg', title: 'Dummy Product 1', originalPrice: "100"},
+  { _id : "123456789", discountedPrice : "12345", imageUrl: '/blog2.jpg', title: 'Dummy Product 2', originalPrice: "100" },
+  { _id : "123456789", discountedPrice : "12345", imageUrl: '/blog2.jpg', title: 'Dummy Product 2', originalPrice: "100" },
 ];
 
 const AdminProducts: React.FC = () => {
@@ -47,7 +46,7 @@ const AdminProducts: React.FC = () => {
               <tr key={index}>
                 <td className="py-2 px-4 border-b">{index + 1}</td>
                 <td className="py-2 px-4 border-b">{product.title}</td>
-                <td className="py-2 px-4 border-b">{product.price}</td>
+                <td className="py-2 px-4 border-b">{product.discountedPrice}</td>
                 <td className="py-2 px-4 border-b">
                  <div className='flex items-center justify-center'> <img src={product.imageUrl} alt={product.title} className="max-w-12 h-auto" /> </div>
                 </td>

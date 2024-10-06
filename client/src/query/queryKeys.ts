@@ -5,5 +5,7 @@ export enum QUERY_KEYS {
     "RATING"  = "rating",
     "USER" = "user",
     "SELLERDETAILS" = "sellerDetails",
-    "TOPSELLEDPRODUCTS" = "topSelledProducts"
+    "TOPSELLEDPRODUCTS" = "topSelledProducts",
+    "CART" = "cart",
+    "WISHLIST" = 'wishlist'
 }

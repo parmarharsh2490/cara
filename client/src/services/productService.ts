@@ -36,7 +36,7 @@ const getTopSelledProducts = async () => {
 }
 
 const getProductDetails = async (productId : string) => {
-   const response =  await axios.get(`${apiClient}/products/${productId}`);
+   const response =  await apiClient.get(`/products/${productId}`)
    return response.data.data
 }
 
@@ -64,12 +64,9 @@ const deleteProduct = async (productId : any) => {
   return response
 }
 
-const getAllProducts = async(optinos) => {
-  console.log(optinos);
+const getAllProducts = async(options : any) => {
   const respose = await apiClient.get('/products/',{
-    params : optinos
+    params : options
   })
-  console.log(respose);
-  
   return respose.data?.data
 }

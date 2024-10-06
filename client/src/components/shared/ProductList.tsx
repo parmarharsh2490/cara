@@ -71,11 +71,11 @@ const ProductList = ({ products,isLoading} : {products : IProduct[],isLoading : 
             <div className='grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-4 xl:grid-cols-5 gap-4 justify-items-start sm:justify-items-center lg:justify-items-start'>
               {
                 products.map((product : IProduct) => (
-                  <Product  product={product} />
+                  <Product key={product._id}  product={product} />
                 ))
               }
             </div>
-            <button className="py-[6px] px-12 text-base font-bold bg-slate-800 text-white hover:shadow-lg hover:bg-slate-900 duration-500 my-5">
+            <button className={`py-[6px] px-12 text-base font-bold bg-slate-800 text-white hover:shadow-lg hover:bg-slate-900 duration-500 my-5 ${products.length < 10 && "hidden"}`}>
               VIEW ALL PRODUCTS
             </button>
           </div>

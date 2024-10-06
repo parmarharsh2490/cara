@@ -68,6 +68,7 @@ const useGetProductDetails = (data : string) => {
     console.log("start");
     return useQuery({
         queryKey : [QUERY_KEYS.PRODUCT,data],
-        queryFn : () => getProductDetails(data)
+        queryFn : () => getProductDetails(data),
+        staleTime : 1000000
     })
 }

@@ -2,68 +2,13 @@ import { IProduct } from '@/types';
 import  { useState } from 'react'
 
 const Orders = () => {
-  const [products] = useState<IProduct[]>([
-    
-    {
-      imageUrl: "https://cdn-media.powerlook.in/catalog/product/d/p/dp-939921.jpg",
-      _id: "12345678",
-      title: "Light blue cargo",
-      price: "2000",
-      discountedPrice: "1700",
-    },
-    {
-      imageUrl: "https://cdn-media.powerlook.in/catalog/product/d/p/dp-939921.jpg",
-      _id: "12345678",
-      title: "Light blue cargo",
-      price: "2000",
-      discountedPrice: "1700",
-    },
-    {
-      imageUrl: "https://cdn-media.powerlook.in/catalog/product/d/p/dp-939921.jpg",
-      _id: "12345678",
-      title: "Light blue cargo",
-      price: "2000",
-      discountedPrice: "1700",
-    },
-    {
-      imageUrl: "https://cdn-media.powerlook.in/catalog/product/d/p/dp-939921.jpg",
-      _id: "12345678",
-      title: "Light blue cargo",
-      price: "2000",
-      discountedPrice: "1700",
-    },
-    {
-      imageUrl: "https://cdn-media.powerlook.in/catalog/product/d/p/dp-939921.jpg",
-      _id: "12345678",
-      title: "Light blue cargo",
-      price: "2000",
-      discountedPrice: "1700",
-    },
-    {
-      imageUrl: "https://cdn-media.powerlook.in/catalog/product/d/p/dp-939921.jpg",
-      _id: "12345678",
-      title: "Light blue cargo",
-      price: "2000",
-      discountedPrice: "1700",
-    },
-    {
-      imageUrl: "https://cdn-media.powerlook.in/catalog/product/d/p/dp-939921.jpg",
-      _id: "12345678",
-      title: "Light blue cargo",
-      price: "2000",
-      discountedPrice: "1700",
-    },
-    {
-      imageUrl: "https://cdn-media.powerlook.in/catalog/product/d/p/dp-939921.jpg",
-      _id: "12345678",
-      title: "Light blue cargo",
-      price: "2000",
-      discountedPrice: "1700",
-    },
-  ]);
-
+  const [products] = useState<IProduct[]>([]);
+  if(products.length==0){
+    return <p>No Orders Found...</p>
+  }
   return (
-    <div className='flex flex-col  w-full'>
+    <>
+  {products.length > 1 &&  <div className='flex flex-col  w-full'>
       <h1 className='text-2xl xl:p-3'>Your Orders</h1>
       <div className='overflow-scroll max-h-[525px]'>
         {products.map((product, index) => (
@@ -92,7 +37,8 @@ const Orders = () => {
       <div className='flex items-center justify-center'>
       <button className='md:p-3 p-2 bg-gray-500 max-w-48 border rounded-2xl'>Load More</button>
       </div>
-    </div>
+    </div>}
+    </>
   );
 };
 

@@ -36,6 +36,7 @@ const ProductForm: React.FC<ProductFormProps> = ({ existingProduct, isUpdate = f
           price: {
             originalPrice: 100,
             discountedPrice: 90,
+            costPrice : 10
           }
         },
       ],
@@ -92,6 +93,7 @@ const ProductForm: React.FC<ProductFormProps> = ({ existingProduct, isUpdate = f
       price: {
         originalPrice: 0,
         discountedPrice: 0,
+        costPrice : 0
       },
     });
     setVariety(updatedVarieties);
@@ -116,6 +118,7 @@ const ProductForm: React.FC<ProductFormProps> = ({ existingProduct, isUpdate = f
             price: {
               originalPrice: 100,
               discountedPrice: 90,
+              costPrice : 10
             },
           },
         ],
@@ -140,16 +143,10 @@ const ProductForm: React.FC<ProductFormProps> = ({ existingProduct, isUpdate = f
       if(!updateProduct){
         variety[0].images.length = 0;
       }
-    console.log("here");
-    console.log(variety);
     
     formData.append("variety", JSON.stringify(variety));
-    console.log(formData);
 
     if (isUpdate) {
-      console.log("update");
-      console.log(variety);
-      
       await updateProduct(formData);
     } else {
       await createProduct(formData);
@@ -198,7 +195,6 @@ const ProductForm: React.FC<ProductFormProps> = ({ existingProduct, isUpdate = f
               <option value="pant">Pant</option>
               <option value="bottom">Bottom</option>
               <option value="jacket">Jacket</option>
-              <option value="coorder">Co-order</option>
             </select>
           </div>
 

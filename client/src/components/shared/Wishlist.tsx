@@ -1,10 +1,9 @@
-import { IProduct } from '@/types';
 import  { useState } from 'react';
 import { GrPrevious } from "react-icons/gr";
 import { GrNext } from "react-icons/gr";
 
 const Wishlist = () => {
-    const [products] = useState<IProduct[]>([
+    const [products] = useState<any>([
         {
             imageUrl : "https://cdn-media.powerlook.in/catalog/product/d/p/dp-939921.jpg",
             _id : "12345678",
@@ -127,7 +126,7 @@ const Wishlist = () => {
                     className={`${page === 0 ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'} hidden sm:block`} 
                 />
                 <div className='max-w-[100%]justify-center gap-3 overflow-x-scroll grid grid-cols-2  lg:grid-cols-4'>
-                    {products.map((product, index) => (
+                    {products.map((product : any, index : number) => (
                         <div 
                             key={index} 
                             className={`flex flex-col  w-full shadow-lg sm:p-5 ${index >= page * 4 && index <= (page * 4) + 3 ? "" : "hidden"}`}>

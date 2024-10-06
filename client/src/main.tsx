@@ -2,7 +2,7 @@ import { createRoot } from 'react-dom/client';
 import App from './App.js';
 import { BrowserRouter } from 'react-router-dom';
 import { UserProvider } from './context/index.js';
-
+import { ReactQueryDevtools } from '@tanstack/react-query-devtools'
 import {
   QueryClient,
   QueryClientProvider,
@@ -15,6 +15,7 @@ createRoot(document.getElementById('root')!).render(
       <UserProvider>
     <App/>
       </UserProvider>
+      <ReactQueryDevtools initialIsOpen={true} />
     </QueryClientProvider>
         
   </BrowserRouter>
