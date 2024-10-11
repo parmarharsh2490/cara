@@ -12,7 +12,7 @@ const menuItems = [
 ];
 
 const SellerPage = () => {
-  const [toggle, setToggle] = useState<boolean>(true);
+  const [toggle, setToggle] = useState<boolean>(false);
   const [selected, setSelected] = useState("dashboard");
 
   const toggleButton = () => {

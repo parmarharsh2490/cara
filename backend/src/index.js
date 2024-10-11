@@ -2,7 +2,6 @@ import { connectDB } from './DB/index.js';
 import app from './app.js';
 import nodemailer from 'nodemailer';
 import { google } from 'googleapis';
-import { initializeEmailResources } from './controller/Promotional.controller.js';
 
 let transporter;
 const OAuth2 = google.auth.OAuth2;
@@ -28,7 +27,7 @@ const getAccessToken = async (oauth2Client) => {
   }
 };
 
-const createTransporter = async () => {
+export const createTransporter = async () => {
   try {
     const oauth2Client = createOAuth2Client();
     const accessToken = await getAccessToken(oauth2Client);
@@ -74,8 +73,7 @@ export const getTransporter = () => {
 };
 
 const startServer = async () => {
-  await initializeTransporter();
-  await initializeEmailResources()
+  // await initializeTransporter();
   const PORT = process.env.PORT || 3000;
   app.listen(PORT, () => {
     console.log(`Server is running on port ${PORT}`);

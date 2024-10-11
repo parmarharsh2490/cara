@@ -1,10 +1,13 @@
+import { UserContext } from "@/context/index.tsx";
 import PopupForm from "../../components/shared/PopupForm.tsx"
-import React, {   useState } from 'react';
+import React, {   useContext, useState } from 'react';
 import { Link } from 'react-router-dom';
+import { useUpdateUserDetails } from "../../query/UserQueries.ts";
 
 const Profile: React.FC = () => {
   const [showPopupForm,setShowPopupForm] = useState<boolean>(false);
-
+  const {mutateAsync : updateUserDetails,isPending} = useUpdateUserDetails()
+  const {user} = useContext(UserContext);
   const handleClick = (e: React.MouseEvent) => {
     e.stopPropagation();
   };
@@ -18,40 +21,40 @@ const Profile: React.FC = () => {
             You can edit/update your profile information by clicking on the edit profile button.
           </p>
         </div>
-        <button className="w-40 mt-5 p-1 border bg-slate-800 duration-500 border-slate-800 text-white flex justify-center items-center mx-5 sm:mx-0">
+        { !user && <button className="w-40 mt-5 p-1 border bg-slate-800 duration-500 border-slate-800 text-white flex justify-center items-center mx-5 sm:mx-0">
           <Link to={'/auth/sign-in'}>Login</Link>
-        </button>
+        </button>}
       </div>
       <div className="w-full sm:w-[70%] sm:my-5">
         <div>
           <div className="flex flex-col sm:flex-row sm:gap-0 gap-5 mt-10 w-full justify-between items-center">
             <div className="relative w-full sm:w-1/2 text-start">
               <p className="text-xs text-slate-400 font-semibold">FULL NAME</p>
-              <h1 className="sm:text-xl text-lg">jo</h1>
+              <h1 className="sm:text-xl text-lg">{user?.name || "JOE"}</h1>
             </div>
             <div className="relative w-full sm:w-1/2 text-start">
               <p className="text-xs text-slate-400 font-semibold">Email</p>
-              <h1 className="sm:text-xl text-lg">ok@gmail.com</h1>
+              <h1 className="sm:text-xl text-lg">{user?.email || "ok@gmail.com"}</h1>
             </div>
           </div>
           <div className="flex flex-col sm:flex-row sm:gap-0 gap-5 mt-10 w-full justify-between items-center">
             <div className="relative w-full sm:w-1/2 text-start">
               <p className="text-xs text-slate-400 font-semibold">PHONE NUMBER</p>
-              <h1 className="sm:text-xl text-lg">iojoijo</h1>
+              <h1 className="sm:text-xl text-lg">{user?.mobileNumber || "9923456789"}</h1>
             </div>
             <div className="relative w-full sm:w-1/2 text-start">
               <p className="text-xs text-slate-400 font-semibold">ALTERNATE NUMBER</p>
-              <h1 className="sm:text-xl text-lg">ijklo</h1>
+              <h1 className="sm:text-xl text-lg">{user.alternativeNumber || "9876543219"}</h1>
             </div>
           </div>
           <div className="flex flex-col sm:flex-row sm:gap-0 gap-5 mt-10 w-full justify-between items-center">
             <div className="relative w-full sm:w-1/2 text-start">
               <p className="text-xs text-slate-400 font-semibold">DATE OF BIRTH</p>
-              <h1 className="sm:text-xl text-lg"></h1>
+              <h1 className="sm:text-xl text-lg">{user?.dateOfBirth || "14-03-2004"}</h1>
             </div>
             <div className="relative w-full sm:w-1/2 text-start">
               <p className="text-xs text-slate-400 font-semibold">GENDER</p>
-              <h1 className="sm:text-xl text-lg">kopk</h1>
+              <h1 className="sm:text-xl text-lg">{user?.gender || "male"}</h1>
             </div>
           </div>
           <button onClick={() => setShowPopupForm(!showPopupForm)} className="w-40 mt-5 p-1 border bg-slate-800 duration-500 border-slate-800 text-white flex justify-center items-center">
@@ -69,12 +72,13 @@ const Profile: React.FC = () => {
         {type : "number",label :"alternativeNumber",name:"Alternative Number"},
         {type : "email",label :"email",name:"Email"},
         {type : "date",label :"dateOfBirth",name:"Date Of Birth"},
-        {type : "boolean",label :"gender",name:"Gender"},
+        {type : "string",label :"gender",name:"Gender"},
       ]} 
       showPopupForm={showPopupForm} 
       setShowPopupForm={setShowPopupForm}
-      handleSubmitFunction={() => {console.log("Profile Updated")}}
+      handleSubmitFunction={updateUserDetails}
       label="Edit Your Profile"
+      isLoading={isPending}
       // onsuccess loading handleSubmit ma updateUserDetails pass 
       />
    </>

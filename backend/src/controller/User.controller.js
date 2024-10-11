@@ -193,7 +193,8 @@ const getUserDetails = async(req,res) => {
 
 const updateUserDetails = asyncHandler(async (req, res) => {
     const { fullName, contactNumber, alternativeNumber, dateOfBirth, gender } = req.body;
-
+    console.log(fullName, contactNumber, alternativeNumber, dateOfBirth, gender);
+    
     const updatedFields = {};
     if (fullName) {
         updatedFields.name = fullName;

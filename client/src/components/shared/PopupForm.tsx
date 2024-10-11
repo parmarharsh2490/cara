@@ -1,45 +1,62 @@
-import { useUpdateUserDetails } from '../../query/UserQueries.ts';
 import { IPopupFormProps } from '@/types';
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 
-const PopupForm: React.FC<IPopupFormProps> = ({ inputData,label, title, showPopupForm, setShowPopupForm,handleSubmitFunction }) => {
-  const [isVisible, setIsVisible] = useState<boolean>(false);
-  const [formValues, setFormValues] = useState<{ [key: string]: string }>({});
-  const [errors, setErrors] = useState<{ [key: string]: string }>({});
-  const {mutateAsync : updateUserDetails} = useUpdateUserDetails()
-  useEffect(() => {
-    if (showPopupForm) {
-      setIsVisible(true);
-    } else {
-      setIsVisible(false);
-    }
-  }, [showPopupForm]);
+const PopupForm: React.FC<IPopupFormProps> = ({ inputData,label, title, showPopupForm, setShowPopupForm,handleSubmitFunction,isLoading }) => {
+  // const [isVisible, setIsVisible] = useState<boolean>(false);
+  const [formValues, setFormValues] = useState<{ [key: string]: string | FileList | null }>({});
+  const [errors] = useState<{ [key: string]: string }>({});
+  // useEffect(() => {
+  //   if (showPopupForm) {
+  //     setIsVisible(true);
+  //   } else {
+  //     setIsVisible(false);
+  //   }
+  // }, [showPopupForm]);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     setFormValues((prev) => ({ ...prev, [name]: value }));
-    if (value.length < 2) {
-      setErrors((prev) => ({ ...prev, [name]: `${name} must be at least 2 characters long.` }));
-    } else {
-      setErrors((prev) => ({ ...prev, [name]: '' }));
-    }
+    // if (value.length < 2) {
+    //   setErrors((prev) => ({ ...prev, [name]: `${name} must be at least 2 characters long.` }));
+    // } else {
+    //   setErrors((prev) => ({ ...prev, [name]: '' }));
+    // }
+  };
+  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name } = e.target;
+    const files = e.target.files;
+    console.log(files);
+    
+    setFormValues((prev) => ({ ...prev, [name]: files }));
+
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    console.log(formValues);
     if(label == "businessInformation" || label == "bankAccountDetails" || label == "legalInformation"){
       const data = { [label] :{...formValues}}
-      await handleSubmitFunction(data)
+      await handleSubmitFunction(data);
     }
-    if(label == "personalDetails"){
-      await updateUserDetails(formValues)
-    }
+    const formData = new FormData();
+    Object.entries(formValues).forEach(([key, value]) => {
+      console.log(key, value);
+      if (value instanceof FileList) {
+        Array.from(value).forEach((file) => {
+          formData.append(key, file);
+        });
+      } else if (value !== null) {
+        formData.append(key, value);
+      }
+    });
+    await handleSubmitFunction(formData)
+    setShowPopupForm(false)
   };
 
   return (
     <div
       className={`fixed max-h-screen overflow-scroll z-50 top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-gray-50 w-[90%] max-w-md p-4 rounded-lg shadow-lg transition-all duration-300 ${
-        isVisible
+        showPopupForm
           ? 'opacity-100 scale-100 pointer-events-auto'
           : 'opacity-0 scale-95 pointer-events-none'
       }`}
@@ -73,9 +90,9 @@ const PopupForm: React.FC<IPopupFormProps> = ({ inputData,label, title, showPopu
               type={data.type}
               name={data.label}
               id={data.label}
-              min={data.type === 'number' ? 10 : 1}
-              value={formValues[data.label] || 10}
-              onChange={handleChange}
+              // min={data.type === 'number' ? 1 : 1}
+            //  value={data.type !== "file" ? formValues[data.label] || '9876543210' : undefined}
+              onChange={data.type === "file" ? handleImageChange : handleChange}
               className="border p-2 rounded-xl bg-gray-100 outline-none focus:border-primary-600"
             />
             {errors[data.label] && (
@@ -87,7 +104,7 @@ const PopupForm: React.FC<IPopupFormProps> = ({ inputData,label, title, showPopu
           type="submit"
           className="bg-gray-700 text-white w-full p-3 mt-4 rounded-lg hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-primary-500"
         >
-          Save
+          {isLoading ? "Loading..." : "Save"}
         </button>
       </form>
     </div>

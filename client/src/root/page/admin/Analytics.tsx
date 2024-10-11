@@ -1,3 +1,4 @@
+import { useGetAnalyticsDetails } from '../../../query/AdminQueries';
 import { BsThreeDots } from 'react-icons/bs';
 import { PieChart, Pie, Cell } from 'recharts';
 import { BarChart,ComposedChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Rectangle } from 'recharts';
@@ -244,6 +245,12 @@ const ProductRatingChart = () => {
 };
 
 const Analytics = () => {
+  const {data : analyticsData,isLoading} = useGetAnalyticsDetails();
+  if(isLoading){
+    return <p>Loading...</p>
+  }
+  console.log(analyticsData);
+  
   return (
    <>
     <div className="flex flex-col w-full  items-center justify-around lg:flex-row lg:flex-wrap">

@@ -16,7 +16,7 @@ const useSendPromotionalMail = () => {
 
 const useSendContactformDetails = () => {
     return useMutation({
-        mutationFn : (data) => sendContactformDetails(data),
+        mutationFn : (data : any) => sendContactformDetails(data),
         onSuccess : (data) => {
             console.log(data)
         }

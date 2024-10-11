@@ -27,6 +27,8 @@ const getAllProducts = asyncHandler(async (req, res) => {
 
   const parsedSkip = parseInt(skip);
   const parsedLimit = parseInt(limit);
+console.log(parsedLimit);
+console.log(parsedSkip);
 
   if (isNaN(parsedLimit) || isNaN(parsedSkip) || parsedLimit < 0 || parsedSkip < 0) {
     throw new ApiError(400, "Invalid limit or skip value");
@@ -95,7 +97,6 @@ const getAllProducts = asyncHandler(async (req, res) => {
         },
       },
     },
-    { $limit: parsedLimit },
     {
       $project: {
         product: {
@@ -111,6 +112,7 @@ const getAllProducts = asyncHandler(async (req, res) => {
     { $replaceRoot: { newRoot: "$product" } },
     { $sort: SecondSortCondition },
     { $skip: parsedSkip },
+    { $limit: parsedLimit },
   ])
     const products = await Product.aggregate(aggregationPipiline);
     if(!products || products.length == 0){
@@ -154,7 +156,9 @@ const getTopSelledProducts = asyncHandler(async (req, res) => {
         },
       },
     ]);
-
+    if(!products || products?.length==0){
+      throw new ApiError(400,"Top Selled Products not found")
+    }
     res.status(200).json(new ApiResponse(200, products, "Successfully fetched top sold products"));
   } catch (error) {
     console.error("Error in getTopSelledProducts:", error);
@@ -178,6 +182,47 @@ const getProductDetails = asyncHandler(async (req, res) => {
     );
 });
 
+const getAdminProducts = asyncHandler(async(req,res) => {
+  const user = req.user;
+  let {skip} = req.query;
+  console.log(skip);
+  
+  skip = parseInt(skip)
+  if (isNaN(skip)  || skip < 0) {
+    throw new ApiError(400, "Invalid limit or skip value");
+  }
+  const products = await Product.aggregate([
+    {
+      $match: {
+        owner : new mongoose.Types.ObjectId(user._id)
+      }
+    },
+    {
+      $sort : {
+        createdAt : 1
+      }
+    },
+    {
+      $skip : skip
+    },
+    {
+      $limit : 10
+    },
+    {
+      $project: {
+        title : 1,
+        price : {$first : {$first : "$variety.sizeOptions.price.discountedPrice"}},
+       imageUrl :{$first :  {$first : "$variety.images.imageUrl"}}
+      },
+    }
+  ]);
+  if(!products || products?.length==0){
+    throw new ApiError(400,"No Products Found")
+  }
+  return res
+    .status(200)
+    .json(new ApiResponse(201, products, "Successfully get Admin Products"));
+})
 const createProduct = asyncHandler(async (req, res) => {
   let { title, description, category, variety, gender, rating = 0 } = req.body;
   const parsedVariety =
@@ -246,7 +291,7 @@ const createProduct = asyncHandler(async (req, res) => {
 const updateProduct = asyncHandler(async (req, res) => {
   const { productId } = req.params;
   let { title, description, category, variety, gender } = req.body;
-
+  
   const parsedVariety =
     typeof variety === "string" ? JSON.parse(variety) : variety;
   const user = req.user;
@@ -343,30 +388,36 @@ const deleteProduct = asyncHandler(async (req, res) => {
 
 export {
   getAllProducts,
+  getAdminProducts,
   getProductDetails,
   createProduct,
   updateProduct,
   deleteProduct,
   getTopSelledProducts
 };
+// const bb = async () => {
+//   try {
+//     const products = await Product.find({});
+    
+//     await Promise.all(products.map(async (product) => {
+//       for (const variety of product.variety) {
+//         // Check if all images have publicId
+//         variety.images = variety.images.filter(img => img.publicId);
+        
+//         for (const sizeOption of variety.sizeOptions) {
+//           console.log(sizeOption.stock);
+//           sizeOption.stock = 1000;
+//           await sizeOption.save({validateBeforeSave: false});
+//         }
+//         await variety.save({validateBeforeSave: false});
+//       }
+//       await product.save({validateBeforeSave: false});
+//     }));
 
-/// my products
-// done// 1st without query all products //not needed
-// done// 2nd lastest arrival createdAt : -1
-// done//3rd category  if(category){ matchCondtions.push({category : category}) }
-// done//4th search if(searchTerm) {matchCondtions.push({search : $regex and other in title and description})}
-// done//5th price highToLow and lowToHigh : hard
-// //6th price range $gt $lt can be use
-// done//7th color : easy
-//8th season best collection most purchase products
-
-// { tags: { $nin: [ "school" ] } },
-
-// if(ratingHighToLow){
-//     // { //1st option in aggregate
-//     //     $sort: {
-//     //       rating: 1,
-//     //     }
-//     // }
-//     // 2nd option is .sort({ rating : 1 })
+//     console.log("All products updated successfully");
+//   } catch (error) {
+//     console.error("Error updating products:", error);
 //   }
+// };
+
+// bb();

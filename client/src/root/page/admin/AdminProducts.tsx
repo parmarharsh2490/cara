@@ -1,32 +1,17 @@
-import { useDeleteProduct } from '../../../query/ProductQueries.ts';
-import { IProduct } from '@/types';
+import { useState } from 'react';
+import { useDeleteProduct, useGetAdminProducts } from '../../../query/ProductQueries.ts';
 import { FaEdit, FaTrash } from 'react-icons/fa'; 
 import { useNavigate } from 'react-router-dom';
-
-const products: IProduct[] = [
-  { _id : "123456789", discountedPrice : "12345", imageUrl: '/blog1.jpg', title: 'Dummy Product 1', originalPrice: "100" },
-  { _id : "123456789", discountedPrice : "12345", imageUrl: '/blog1.jpg', title: 'Dummy Product 1', originalPrice: "100" },
-  { _id : "123456789", discountedPrice : "12345", imageUrl: '/blog1.jpg', title: 'Dummy Product 1', originalPrice: "100" },
-  { _id : "123456789", discountedPrice : "12345", imageUrl: '/blog1.jpg', title: 'Dummy Product 1', originalPrice: "100" },
-  { _id : "123456789", discountedPrice : "12345", imageUrl: '/blog1.jpg', title: 'Dummy Product 1', originalPrice: "100" },
-  { _id : "123456789", discountedPrice : "12345", imageUrl: '/blog1.jpg', title: 'Dummy Product 1', originalPrice: "100" },
-  { _id : "123456789", discountedPrice : "12345", imageUrl: '/blog1.jpg', title: 'Dummy Product 1', originalPrice: "100" },
-  { _id : "123456789", discountedPrice : "12345", imageUrl: '/blog1.jpg', title: 'Dummy Product 1', originalPrice: "100" },
-  { _id : "123456789", discountedPrice : "12345", imageUrl: '/blog1.jpg', title: 'Dummy Product 1', originalPrice: "100"},
-  { _id : "123456789", discountedPrice : "12345", imageUrl: '/blog1.jpg', title: 'Dummy Product 1', originalPrice: "100"},
-  { _id : "123456789", discountedPrice : "12345", imageUrl: '/blog1.jpg', title: 'Dummy Product 1', originalPrice: "100"},
-  { _id : "123456789", discountedPrice : "12345", imageUrl: '/blog1.jpg', title: 'Dummy Product 1', originalPrice: "100"},
-  { _id : "123456789", discountedPrice : "12345", imageUrl: '/blog1.jpg', title: 'Dummy Product 1', originalPrice: "100"},
-  { _id : "123456789", discountedPrice : "12345", imageUrl: '/blog1.jpg', title: 'Dummy Product 1', originalPrice: "100"},
-  { _id : "123456789", discountedPrice : "12345", imageUrl: '/blog1.jpg', title: 'Dummy Product 1', originalPrice: "100"},
-  { _id : "123456789", discountedPrice : "12345", imageUrl: '/blog1.jpg', title: 'Dummy Product 1', originalPrice: "100"},
-  { _id : "123456789", discountedPrice : "12345", imageUrl: '/blog2.jpg', title: 'Dummy Product 2', originalPrice: "100" },
-  { _id : "123456789", discountedPrice : "12345", imageUrl: '/blog2.jpg', title: 'Dummy Product 2', originalPrice: "100" },
-];
 
 const AdminProducts: React.FC = () => {
   const {mutateAsync : deleteProduct} = useDeleteProduct();
   const navigate = useNavigate();
+
+  const [skip] = useState(0);
+  const {data : products,isLoading} = useGetAdminProducts(skip);
+  if(isLoading){
+    return <p>Loading...</p>
+  }
   return (
     <div className="p-4 text-center">
       <h2 className="text-2xl font-bold mb-4">All Products</h2>
@@ -42,11 +27,11 @@ const AdminProducts: React.FC = () => {
             </tr>
           </thead>
           <tbody>
-            {products.map((product, index) => (
+            {products.length !== 0 && products.map((product :any, index : number) => (
               <tr key={index}>
                 <td className="py-2 px-4 border-b">{index + 1}</td>
                 <td className="py-2 px-4 border-b">{product.title}</td>
-                <td className="py-2 px-4 border-b">{product.discountedPrice}</td>
+                <td className="py-2 px-4 border-b">{product.price}</td>
                 <td className="py-2 px-4 border-b">
                  <div className='flex items-center justify-center'> <img src={product.imageUrl} alt={product.title} className="max-w-12 h-auto" /> </div>
                 </td>

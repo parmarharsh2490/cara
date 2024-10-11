@@ -1,7 +1,7 @@
 import { IFilter } from '@/types/index';
 import  { ChangeEvent, useEffect } from 'react';
 
-const Filter = ({filters, setFilters }: {filters : IFilter,setFilters : any}) => {
+const Filter = ({filters, setFilters,setProducts }: {filters : IFilter,setFilters : any,setProducts : any}) => {
     const handleChange = (e : ChangeEvent<HTMLInputElement>) => {
         const { name, value } = e.target;
         console.log(name,value);
@@ -12,14 +12,20 @@ const Filter = ({filters, setFilters }: {filters : IFilter,setFilters : any}) =>
             let maxPrice = price[1]
             setFilters({
                 ...filters,
+                skip : 0,
                 minPrice,
                 maxPrice
             })
+    setProducts([])
+
         }else{
         setFilters({
             ...filters,
+            skip : 0,
             [name]: value
         });
+    setProducts([])
+
     }
         console.log(filters);
     };
@@ -29,6 +35,7 @@ const Filter = ({filters, setFilters }: {filters : IFilter,setFilters : any}) =>
             price: '',
             sleeves: '',
             color: '',
+            skip  : 0
         });
     };
     useEffect(() => {

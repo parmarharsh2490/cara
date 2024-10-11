@@ -24,7 +24,8 @@ const AlertDialog = ({
 }: AlertDialogProps) => {
   const navigate = useNavigate();
   if(isSuccess){
-    navigate(navigateUrl)
+    navigate(navigateUrl);
+    setIsPopupVisible(!isPopupVisible)
   }
   return (
     <>

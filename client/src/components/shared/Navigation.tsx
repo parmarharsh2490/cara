@@ -14,7 +14,7 @@ const Navigation = () => {
     setToggle(!toggle);
   }
   const {data : userCart} = useGetUserCart();
-  const {data : userWishlist} = useGetUserWishlist();
+  const {data : userWishlist} = useGetUserWishlist(0);
   const {user,isAuthenticated} = useContext(UserContext);
   const {mutateAsync : becomeSeller,isPending,isSuccess} = useBecomeSeller()
   const handleBecomeSellerClick = (e: React.MouseEvent<HTMLAnchorElement>) => {

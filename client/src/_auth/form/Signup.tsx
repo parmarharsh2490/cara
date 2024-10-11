@@ -4,7 +4,7 @@ import { useCreateUserAccount } from "../../query/UserQueries.ts";
 import { INewUser } from "../../types/index.ts";
 
 const Signup = () => {
-  const { mutateAsync: createUserAccount } = useCreateUserAccount();
+  const { mutateAsync: createUserAccount , isPending } = useCreateUserAccount();
   const [name, setName] = useState<string>("harsh");
   const [email, setEmail] = useState<string>("harsh2490@gmail.com");
   const [password, setPassword] = useState<string>("harsh");
@@ -69,7 +69,7 @@ const Signup = () => {
           </Link>
         </div>
         <button type="submit" className="bg-gray-700 p-2 text-white border rounded-lg hover:bg-gray-600 cursor-pointer">
-          Sign up
+         {isPending ?  "Loading..." :  "Sign up"}
         </button>
         <div className="flex justify-center items-center gap-1">
           <h4 className="text-gray-400">Already have an account?</h4>

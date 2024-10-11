@@ -8,14 +8,15 @@ export {
     updateProduct,
     deleteProduct,
     getTopSelledProducts,
-    getAllProducts
+    getAllProducts,
+    getAdminProducts
 }
  
-const getLatestProducts = async () => {
+const getLatestProducts = async (skip : number) => {
    const response =  await apiClient.get("/products",{
     params : {
       limit : 10,
-      skip : 0
+      skip
     }
    });
    console.log(response);
@@ -23,11 +24,11 @@ const getLatestProducts = async () => {
    return response.data.data
 }
 
-const getTopSelledProducts = async () => {
+const getTopSelledProducts = async (skip : number) => {
    const response =  await apiClient.get("/products/topProducts",{
     params : {
       limit : 10,
-      skip : 0
+      skip 
     }
    });
    console.log(response);
@@ -47,15 +48,14 @@ const createProduct = async (data : any) => {
   return response
 }
 
-const updateProduct = async (data : any) => {
-  console.log(data); 
-  const response = await axios.patch(`${apiClient}/products/update/${data.productId}`,data, {
+const updateProduct = async ({ data, productId }: { data: any; productId: string; }) => {
+  const response = await apiClient.patch(`/products/update/${productId}`, data, {
     headers: {
        'Content-Type': 'multipart/form-data'
     }
   });
   console.log(response);
-  return response
+  return response;
 }
 
 const deleteProduct = async (productId : any) => {
@@ -65,8 +65,20 @@ const deleteProduct = async (productId : any) => {
 }
 
 const getAllProducts = async(options : any) => {
-  const respose = await apiClient.get('/products/',{
+  console.log("options");
+  console.log(options);
+  
+  const response = await apiClient.get('/products/',{
     params : options
+  })
+  console.log(response.data?.data);
+  return response.data?.data
+}
+const getAdminProducts = async(skip : any) => {
+  console.log(skip);
+  
+  const respose = await apiClient.get("/products/seller",{
+    params : {skip : skip}
   })
   return respose.data?.data
 }

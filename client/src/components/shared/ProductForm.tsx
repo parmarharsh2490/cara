@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import VarietyForm from "./VarietyForm.tsx";
 import { IVariety } from "../../types/index.ts";
 import { useCreateProduct, useUpdateProduct } from "../../query/ProductQueries.ts";
+import { useParams } from "react-router-dom";
 
 interface ProductFormProps {
   existingProduct?: {
@@ -42,7 +43,7 @@ const ProductForm: React.FC<ProductFormProps> = ({ existingProduct, isUpdate = f
       ],
     },
   ]);
-
+  const {productId} = useParams()
   const { mutateAsync: createProduct, isPending: isCreating } = useCreateProduct();
   const { mutateAsync: updateProduct, isPending: isUpdating } = useUpdateProduct();
 
@@ -147,7 +148,8 @@ const ProductForm: React.FC<ProductFormProps> = ({ existingProduct, isUpdate = f
     formData.append("variety", JSON.stringify(variety));
 
     if (isUpdate) {
-      await updateProduct(formData);
+      console.log(productId);      
+      await updateProduct({data : formData,productId});
     } else {
       await createProduct(formData);
     }

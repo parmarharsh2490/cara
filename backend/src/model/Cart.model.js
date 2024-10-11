@@ -24,7 +24,12 @@ const cartSchema = mongoose.Schema(
                 type : Number,
                 required : true,
                 default : 1
-            }
+            },
+            seller: {
+                type: mongoose.Types.ObjectId,
+                ref: "User",
+                required: true
+            },
         }
     ]
     },

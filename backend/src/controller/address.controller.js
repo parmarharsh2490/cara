@@ -4,10 +4,10 @@ import ApiError from "../utils/ApiError.js";
 import Address from "../model/Address.model.js"
 const createAddress = asyncHandler(async (req, res) => {
     const user = req.user;
-    const { address, locality, landMark, city, state, postalCode, country } = req.body;
-    console.log({ address, locality, landMark, city, state, postalCode, country});
+    const { address, landMark, city, state, postalCode, country } = req.body;
+    console.log({ address, landMark, city, state, postalCode, country});
     
-    const requiredFields = [address, locality, city, state, postalCode, country,landMark];
+    const requiredFields = [address, city, state, postalCode, country,landMark];
 
     if (requiredFields.some(field => field === undefined || field === null || String(field).trim() === '')) {
         throw new ApiError(400, "All fields must be valid and not empty");
@@ -15,7 +15,7 @@ const createAddress = asyncHandler(async (req, res) => {
 
     const newAddress = await Address.findOneAndUpdate(
         { user: user._id },
-        {  address, locality, landMark, city, state, postalCode, country },
+        {  address, landMark, city, state, postalCode, country },
         { upsert: true, new: true, runValidators: true }
     ).select("-user").lean();
 
@@ -35,16 +35,16 @@ const deleteAddress = asyncHandler(async (req, res) => {
 });
 
 const updateAddress = asyncHandler(async (req, res) => {
-    const { address, locality, landMark, city, state, postalCode, country } = req.body;    
+    const { address, landMark, city, state, postalCode, country } = req.body;    
 
-    const requiredFields = [address, locality, landMark, city, state, postalCode, country];
+    const requiredFields = [address, landMark, city, state, postalCode, country];
     if (requiredFields.some(field => field === undefined || field === null || String(field).trim() === '')) {
         throw new ApiError(400, "All fields must be valid and not empty");
     }
 
     const updatedAddress = await Address.findOneAndUpdate(
         { user: req.user._id },
-        { address, locality, landMark, city, state, postalCode, country },
+        { address, landMark, city, state, postalCode, country },
         { new: true, runValidators: true }
     ).select("-user").lean();
 

@@ -6,13 +6,12 @@ import ApiResponse from '../utils/ApiResponse.js';
 import { Payment } from '../model/Payment.model.js';
 import { Cart } from '../model/Cart.model.js';
 import ApiError from '../utils/ApiError.js';
-import mongoose from 'mongoose';
+import mongoose, { isValidObjectId } from 'mongoose';
 import { Product } from '../model/Product.model.js';
 
 
 export const createOrder = asyncHandler(async (req, res) => {
   const { amount } = req.body;
-  console.log(amount);
   
   const user = req.user;
 
@@ -40,14 +39,16 @@ export const createOrder = asyncHandler(async (req, res) => {
       if (selectedSizeOption.stock < quantity) {
         throw new ApiError(400, `Not enough stock for product: ${product.title}`);
       }
-
+      
       realAmount += parseFloat(selectedSizeOption.price.discountedPrice) * quantity;
       cartProducts.push({
         product: product._id,
+        seller : product.seller || user._id,
         varietyId: variety,
         sizeOptionId: sizeOption,
+        costPrice : selectedSizeOption?.price?.costPrice || selectedSizeOption?.price?.originalPrice,
         quantity,
-        price: selectedSizeOption.price.discountedPrice
+        price: selectedSizeOption.price.discountedPrice,
       });
 
       // Reserve stock
@@ -56,7 +57,6 @@ export const createOrder = asyncHandler(async (req, res) => {
     }
 
     realAmount = Math.round(realAmount * 100) / 100;
-    console.log(realAmount);
     
     if (Math.abs(realAmount - amount) > 0.01) {
       throw new ApiError(400, "Product Amount Mismatched");
@@ -103,7 +103,6 @@ export const createOrder = asyncHandler(async (req, res) => {
 export const verifyOrder = asyncHandler(async (req, res) => {
   const user = req.user;
   const { amount, razorpay_order_id, razorpay_payment_id, razorpay_signature } = req.body;
-  console.log({ amount, razorpay_order_id, razorpay_payment_id, razorpay_signature });
   
   if (!razorpay_order_id || !razorpay_payment_id || !razorpay_signature) {
     throw new ApiError(400, "Missing required payment information");
@@ -171,15 +170,10 @@ export const verifyOrder = asyncHandler(async (req, res) => {
 
 export const getUserOrders = asyncHandler(async (req, res) => {
   const user = req.user;
-  let { skip = 0, limit = 10 } = req.query;
+  let { skip = 0 } = req.query;
   skip = parseInt(skip);
-  limit = parseInt(limit);
   if (isNaN(skip) || skip < 0) {
     return res.status(400).json(new ApiResponse(400, null, "Invalid skip value"));
-  }
-
-  if (isNaN(limit) || limit <= 0) {
-    return res.status(400).json(new ApiResponse(400, null, "Invalid limit value"));
   }
 
   const orders = await Order.aggregate([
@@ -199,10 +193,10 @@ export const getUserOrders = asyncHandler(async (req, res) => {
       },
     },
     {
-      $skip: skip,
+      $skip: parseInt(skip),
     },
     {
-      $limit: limit, 
+      $limit: parseInt(5), 
     },
     {
       $lookup: {
@@ -215,7 +209,12 @@ export const getUserOrders = asyncHandler(async (req, res) => {
     {
       $addFields: {
         product: { $first: "$product" },
-        variety: {
+       
+      },
+    },
+  {
+    $addFields: {
+       variety: {
           $first: {
             $filter: {
               input: "$product.variety",
@@ -224,7 +223,11 @@ export const getUserOrders = asyncHandler(async (req, res) => {
             },
           },
         },
-        sizeOption: {
+    }
+  },
+  {
+    $addFields: {
+       sizeOption: {
           $first: {
             $filter: {
               input: "$variety.sizeOptions",
@@ -234,8 +237,8 @@ export const getUserOrders = asyncHandler(async (req, res) => {
           },
         },
         image: { $first: "$variety.images" },
-      },
-    },
+    }
+  },
     {
       $project: {
         title: "$product.title",
@@ -245,6 +248,9 @@ export const getUserOrders = asyncHandler(async (req, res) => {
         imageUrl: "$image.imageUrl",
         paymentId: "$products.payment",
         price: "$products.price",
+        status : "$products.status",
+        paymentId : "$payment",
+        orderDate : "$orderDate",
         createdAt: 1,
       },
     },
@@ -254,3 +260,126 @@ export const getUserOrders = asyncHandler(async (req, res) => {
   }
   return res.status(200).json(new ApiResponse(200, orders, "Successfully retrieved user orders"));
 });
+
+export const getAdminOrders = asyncHandler(async(req,res) => {
+  const user = req.user;
+  let { skip = 0 } = req.query;
+  skip = parseInt(skip);
+  if (isNaN(skip) || skip < 0) {
+    throw new ApiError(400,"Invalid Skip value");
+  }
+  if(user.role !== "admin"){
+    throw new ApiError(400,"User is not Admin");
+  }
+  const orders = await Order.aggregate([
+    {
+      $unwind: {
+        path: "$products",
+      },
+    },
+    {
+      $sort: {
+        createdAt: 1,
+      },
+    },
+    {
+      $skip: parseInt(skip),
+    },
+    {
+      $limit: 1,
+    },
+    {
+      $lookup: {
+        from: "products",
+        localField: "products.product",
+        foreignField: "_id",
+        as: "product",
+      },
+    },
+    {
+      $addFields: {
+        product: {
+          $first: "$product",
+        },
+      },
+    },
+    {
+      $addFields: {
+        variety: {
+          $first: {
+            $filter: {
+              input: "$product.variety",
+              as: "vary",
+              cond: {
+                $eq: [
+                  "$$vary._id",
+                  "$products.varietyId",
+                ],
+              },
+            },
+          },
+        },
+      },
+    },
+    {
+      $addFields: {
+        images: {
+          $first: "$variety.images",
+        },
+      },
+    },
+    {
+      $match: {
+        "products.seller": new mongoose.Types.ObjectId(user._id)
+      },
+    },
+  {
+    $project: {
+      _id : "$products._id",
+      title : "$product.title",
+      quantity : "$products.quantity",
+      price : "$products.price",
+      status : "$products.status",
+      imageUrl : "$images.imageUrl"
+    }
+  }
+  ]);
+  if(!orders || orders.length==0){
+    throw new ApiError(400,"No Orders Found!");
+  }
+  return res.status(200).json(new ApiResponse(200, orders, "Successfully retrieved seller orders"));
+})
+
+
+export const updateOrderStatus = asyncHandler(async(req,res) => {
+  const {orderId,status} = req.body;
+  if(!orderId || !isValidObjectId(orderId) || !status){
+    throw new ApiError(400,"Fields are not valid")
+  }
+  
+  const order = await Order.findOne(
+    {"products._id" : orderId}
+  )
+  order.products.map(async(order) => {
+    if(order._id.equals(new mongoose.Types.ObjectId(orderId))){
+      if(!order.seller.equals(new mongoose.Types.ObjectId(req.user._id))){
+        throw new ApiError(403,"User is not authorized")
+      }
+      order.status = status;
+      await order.save({validateBeforeSave : false})
+    }
+  })
+  await order.save({validateBeforeSave : false});
+  return res.status(200).json(new ApiResponse(200,order,"Successfully updated order status"))
+})
+// const bb = async() => {
+//   const orders = await Order.find({});
+//   Promise.all(orders.map(async(order) => {
+//     order.products.map((product) => {
+//       product.orderDate = "28-10-2024";
+//     })
+    
+//     await order.save({validationBeforeSave : false})
+//   }))
+// }
+// bb()

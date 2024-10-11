@@ -138,8 +138,11 @@ const VarietyForm: React.FC<VarietyFormProps> = ({
         />
         {/* Preview images */}
         <div className="mt-2 grid grid-cols-2 md:grid-cols-5 gap-2">
-          {variety.images.map((image, imgIndex) => (
-            <img key={imgIndex} src={typeof image === 'string' ? image : URL.createObjectURL(image)} alt={`Variety ${index} Image ${imgIndex}`} className="w-full h-[75%] bg-cover rounded-lg" />
+          {variety.images.map((image : any, imgIndex) => (
+            <img key={imgIndex} 
+            src={typeof image === "string" ? image : image?.imageUrl ? image?.imageUrl : URL.createObjectURL(image)}
+            // src={image?.imageUrl ? image?.imageUrl : image || URL.createObjectURL(image)}
+            className="w-full h-[75%] bg-cover rounded-lg" />
           ))}
         </div>
       </div>

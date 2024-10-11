@@ -1,17 +1,16 @@
-
-import Navigation from '../../components/shared/Navigation'
-import ImageSlider from '../../components/shared/ImageSlider'
-import SeasonBanner from '../../components/shared/SeasonBanner'
-import ExploreCategory from '../../components/shared/ExploreCategory'
-import PromotionBanner from '../../components/shared/PromotionBanner'
-import Footer from '../../components/shared/Footer'
-import SeasonProducts from './SeasonProducts'
-import NewArrival from './NewArrival'
+import Navigation from "../../components/shared/Navigation";
+import ImageSlider from "../../components/shared/ImageSlider";
+import SeasonBanner from "../../components/shared/SeasonBanner";
+import ExploreCategory from "../../components/shared/ExploreCategory";
+import PromotionBanner from "../../components/shared/PromotionBanner";
+import Footer from "../../components/shared/Footer";
+import SeasonProducts from "./SeasonProducts";
+import NewArrival from "./NewArrival";
 
 const Home = () => {
   return (
     <>
-        <Navigation/>
+      <Navigation/>
         <ImageSlider/> 
         <SeasonBanner/>
         <ExploreCategory/>
@@ -26,7 +25,7 @@ const Home = () => {
         <PromotionBanner/>
         <Footer/>
     </>
-  )
-}
+  );
+};
 
 export default Home;

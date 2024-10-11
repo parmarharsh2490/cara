@@ -11,10 +11,6 @@ const addressSchema = new mongoose.Schema(
       type: String,
       required: true,
     },
-    locality: {
-      type: String,
-      required: true,
-    },
     landMark: {
       type: String,
     },

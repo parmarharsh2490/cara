@@ -1,10 +1,11 @@
-import { addToWishlist, getUserWishlist } from "../services/WishlistServices"
+import { addToWishlist, getUserWishlist, removeFromWishlist } from "../services/WishlistServices"
 import { useMutation, useQuery } from "@tanstack/react-query"
 import { QUERY_KEYS } from "./queryKeys"
 
 export {
     useAddToWishlist,
-    useGetUserWishlist
+    useGetUserWishlist,
+    useRemoveFromWishlist
 }
 
 const useAddToWishlist = () => {
@@ -15,13 +16,23 @@ const useAddToWishlist = () => {
         }
     })
 }
-const useGetUserWishlist = () => {
-    return useQuery({
-        queryFn : getUserWishlist,
-        queryKey : [QUERY_KEYS.WISHLIST],
-        staleTime : Infinity,
-        retryOnMount : false,
-        refetchOnMount : false,
-        retry : false
+const useRemoveFromWishlist = () => {
+    return useMutation({
+        mutationFn : (data : any) => removeFromWishlist(data),
+        onSuccess : () => {
+            alert("Successfully remove from wishlist")
+        }
     })
 }
+
+const useGetUserWishlist = (skip: number) => {
+    return useQuery({
+      queryKey: [QUERY_KEYS.WISHLIST, skip],
+      queryFn: () => getUserWishlist(skip),
+      staleTime: Infinity,
+      retryOnMount: false,
+      refetchOnMount: false,
+      retry: false,
+      placeholderData : true,
+    });
+};

@@ -87,7 +87,7 @@ const removeFromWishlist = asyncHandler(async (req, res) => {
 
 const getUserWishlist = asyncHandler(async (req, res) => {
   const user = req.user;
-  const { skip = 0, limit = 10 } = req.query;
+  const { skip = 0} = req.query;
 
 
   const wishlist = await Wishlist.aggregate([
@@ -103,7 +103,7 @@ const getUserWishlist = asyncHandler(async (req, res) => {
       $skip: parseInt(skip)
     },
     {
-      $limit: limit
+      $limit: parseInt(4)
     },
     {
       $lookup: {

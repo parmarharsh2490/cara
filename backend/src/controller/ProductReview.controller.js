@@ -136,84 +136,129 @@ const deleteProductReview = asyncHandler(async (req, res) => {
 
 const getAverageProductReview = asyncHandler(async (req, res) => {
   const { productId } = req.params;
+  const {skip}  =req.query;
+  const parsedSkip = parseInt(skip);
+  console.log(skip);
+  console.log(skip);
+  
+  if (isNaN(parsedSkip) || parsedSkip < 0) {
+    throw new ApiError(400, "Invalid  skip value");
+  }
   if (!productId || !isValidObjectId(productId)) {
     throw new ApiError(400, "Invalid product ID");
   }
 
-  const averageRating = await ProductReview.aggregate([
+  const ratingData = await ProductReview.aggregate([
     {
-        $match: {
-            product: new mongoose.Types.ObjectId(productId)
-        }
+      $match: {
+        product: { $eq: new mongoose.Types.ObjectId(productId) }
+      }
     },
     {
+      $lookup: {
+        from: "users",
+        localField: "user",
+        foreignField: "_id",
+        as: "user"
+      }
+    },
+    {
+      $sort : {
+        createdAt : 1
+      }
+    },
+    {
+      $skip : parsedSkip
+    },
+    {
+      $limit : 1
+    },
+      {
         $group: {
-            _id: "$ratingStar",
-            count: { $sum: 1 },
-            reviews: {
-                $push: {
-                    title: "$reviewTitle",
-                    description: "$reviewDescription",
-                    image: "$reviewImage"
-                }
+          _id: "$ratingStar",
+          count: { $sum: 1 },
+          reviews: {
+            $push: {
+              _id : "$_id",
+              title: "$reviewTitle",
+              description: "$reviewDescription",
+              image: "$reviewImage",
+              rating : "$ratingStar",
+              user : {$first : "$user.name"},
+              date : { "$dateToString": { "format": "%d-%m-%Y", "date": "$createdAt" } }
             }
+          }
         }
-    },
-    {
+      },
+      {
         $group: {
-            _id: null,
-            totalUserCount: { $sum: "$count" },
-            weightedSum: { $sum: { $multiply: ["$_id", "$count"] } },
-            ratingData: { 
-                $push: { 
-                    rating: "$_id",
-                    count: "$count"
-                }
-            },
-            allReviews: { $push: { rating: "$_id", reviews: "$reviews" } }
+          _id: null,
+          totalUserCount: { $sum: "$count" },
+          weightedSum: {
+            $sum: { $multiply: ["$_id", "$count"] }
+          },
+          ratingStar: {
+            $push: {
+              k: { $toString: "$_id" },
+              v: "$count"
+            }
+          },
+          allReviews: {
+            $push: {
+              rating: "$_id",
+              reviews: "$reviews"
+            }
+          }
         }
-    },
-    {
+      },
+      {
         $project: {
-            _id: 0,
-            totalUserCount: 1,
-            averageRating: {
-                $round: [{ $divide: ["$weightedSum", "$totalUserCount"] }, 2] 
-            },
-            ratingData: {
-                $map: {
-                    input: { $sortArray: { input: "$ratingData", sortBy: { rating: -1 } } },
-                    as: "rd",
-                    in: {
-                        rating: "$$rd.rating",
-                        count: "$$rd.count",
-                        percentage: { 
-                            $round: [
-                                { $multiply: [{ $divide: ["$$rd.count", "$totalUserCount"] }, 100] }, 
-                                2
-                            ]
-                        }
-                    }
-                }
-            },
-            reviews: {
-                $reduce: {
-                    input: "$allReviews",
-                    initialValue: [],
-                    in: { $concatArrays: ["$$value", "$$this.reviews"] }
-                }
+          _id: 0,
+          totalUserCount: 1,
+          averageRating: {
+            $round: [
+              {
+                $divide: [
+                  "$weightedSum",
+                  "$totalUserCount"
+                ]
+              },
+              2
+            ]
+          },
+          // Add default rating data for ratings 1 to 5
+          ratingStar: {
+            $arrayToObject: {
+              $concatArrays: [
+                [
+                  { k: "1", v: 0 },
+                  { k: "2", v: 0 },
+                  { k: "3", v: 0 },
+                  { k: "4", v: 0 },
+                  { k: "5", v: 0 }
+                ],
+                "$ratingStar"
+              ]
             }
+          },
+          reviews: {
+            $reduce: {
+              input: "$allReviews",
+              initialValue: [],
+              in: {
+                $concatArrays: [
+                  "$$value",
+                  "$$this.reviews"
+                ]
+              }
+            }
+          }
         }
-    }
-])
+      }
+    ]    
+  )
 
-  const userRatings = await ProductReview.find(
-    {
-      product : productId
-    }
-  ).select("-createdAt -product").populate("user","name")
-  const transformReview = transformProductReviewData(userRatings)
-return res.status(200).json(new ApiResponse(200, averageRating, "Average rating retrieved successfully"));
+return res.status(200).json(new ApiResponse(200, ratingData, "Average rating retrieved successfully"));
 });
 
 export {
@@ -222,3 +267,14 @@ export {
   deleteProductReview,
   getAverageProductReview,
 };
+
+
+// const gg = async() => {
+//   const reviews = await ProductReview.find({});
+//   Promise.all(reviews.map(async(review) => {
+//     review.product = new mongoose.Types.ObjectId("67026a53d773e78c8a6fe68c");
+//     await review.save({validateBeforeSave : false})
+//   }))
+// }
+
+// gg()

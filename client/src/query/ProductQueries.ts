@@ -1,6 +1,6 @@
 import {   useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
 import { QUERY_KEYS } from "./queryKeys"
-import {createProduct, deleteProduct, getAllProducts, getLatestProducts, getProductDetails, getTopSelledProducts, updateProduct} from "../services/productService"
+import {createProduct, deleteProduct, getAdminProducts, getAllProducts, getLatestProducts, getProductDetails, getTopSelledProducts, updateProduct} from "../services/productService"
 
 
 export {
@@ -10,29 +10,40 @@ export {
     useGetProductDetails,
     useDeleteProduct,
     useGetTopSelledProducts,
-    useGetAllProducts
+    useGetAllProducts,
+    useGetAdminProducts
 }
 
-const useGetAllProducts = () => {
-    return useMutation({
-        mutationFn : (optinos : any) => getAllProducts(optinos),
-        onSuccess : (data) => {
-            console.log("Successfully received all products",data);
-        }
-})
-}
-const useGetLatestProducts = () => {
+const useGetAdminProducts = (skip : number) => {
     return useQuery({
-        queryKey : [QUERY_KEYS.LATEST_PRODUCTS],
-        queryFn : getLatestProducts,
-        staleTime : 10000000,
-        retryOnMount : false
+        queryKey : [QUERY_KEYS.ADMINPRODUCTS,skip],
+        queryFn : () => getAdminProducts(skip),
 })
 }
-const useGetTopSelledProducts = () => {
+const useGetAllProducts = (options : any) => {
+    console.log(options);
+    
+    return useQuery({
+        queryKey : [QUERY_KEYS.PRODUCTS,{...options}],
+        enabled: options.enabled,
+        queryFn : () => getAllProducts(options),
+        retry : false,
+        retryOnMount : false,
+        refetchOnWindowFocus : false
+})
+}
+const useGetLatestProducts = (skip : number) => {
+    return useQuery({
+        queryKey : [QUERY_KEYS.LATEST_PRODUCTS,skip],
+        queryFn : () => getLatestProducts(skip),
+        staleTime : 10000000,
+        retryOnMount : false,
+})
+}
+const useGetTopSelledProducts = (skip : number) => {
     return useQuery({
         queryKey : [QUERY_KEYS.TOPSELLEDPRODUCTS],
-        queryFn : getTopSelledProducts,
+        queryFn : () =>getTopSelledProducts(skip),
         staleTime : 10000000,
         retryOnMount : false
 })
@@ -47,7 +58,7 @@ const useCreateProduct = () => {
 const useUpdateProduct = () => {
     const queryClient = useQueryClient();
     return useMutation({
-        mutationFn : (data : any) => updateProduct(data),
+        mutationFn : ({ data, productId }: { data: any, productId: any }) => updateProduct({data, productId}),
         onSuccess : (data) => {
             queryClient.invalidateQueries( { queryKey : [QUERY_KEYS.PRODUCT,data?.data?._id]});
         }

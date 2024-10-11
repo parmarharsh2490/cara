@@ -7,5 +7,11 @@ export enum QUERY_KEYS {
     "SELLERDETAILS" = "sellerDetails",
     "TOPSELLEDPRODUCTS" = "topSelledProducts",
     "CART" = "cart",
-    "WISHLIST" = 'wishlist'
+    "WISHLIST" = 'wishlist',
+    "DASHBOARD" = "dashboard",
+    "ANALYTICS" = "Analytics",
+    "ORDERS" = "orders",
+    "ADDRESS"= "address",
+    "ADMINPRODUCTS" = "adminProducts",
+    "PRODUCTREVIEW" = "productReview"
 }

@@ -77,6 +77,7 @@ export interface IFilter {
   priceLowToHigh?: boolean | "";
   priceHighToLow?: boolean | "";
   latest?: boolean | "";
+  skip : number
 }
 
 export interface ICartItems {
@@ -104,6 +105,7 @@ export interface IPopupFormProps {
   title?: String;
   handleSubmitFunction: any;
   label: string;
+  isLoading: boolean
 }
 
 export interface IRating {

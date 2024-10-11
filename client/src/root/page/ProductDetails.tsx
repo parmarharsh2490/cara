@@ -1,14 +1,46 @@
-import  { Key, useRef, useState } from 'react'
+import  { Key, useEffect, useRef, useState } from 'react'
 import Navigation from '../../components/shared/Navigation';
 import Footer from '../../components/shared/Footer';
 import PromotionBanner from '../../components/shared/PromotionBanner';
 import Reviews from '../../components/shared/Reviews';
-import { useGetProductDetails } from '../../query/ProductQueries';
+import { useGetAllProducts, useGetProductDetails } from '../../query/ProductQueries';
 import { useParams } from 'react-router-dom';
 import { ISizeOption, IVariety } from '@/types';
 import { useAddToWishlist } from '../../query/WishlistQueries';
 import { useAddToCart } from '../../query/CartQueries';
 import ProductList from '../../components/shared/ProductList';
+
+
+const ProductSkeleton = () => {
+  return (
+    <div className='h-full'>
+    <section id="prodetails" className="p-5 sm:px-10 flex flex-col sm:flex-row w-full  items-center h-[70%]">
+        <div className='h-full w-full sm:w-[35%] flex justify-center items-center sm:gap-2 flex-col-reverse sm:flex-row '>
+            <div className='flex gap-1 justify-center items-center flex-row sm:flex-col w-full sm:w-[20%] mt-1'>
+                <div className='w-[24%] sm:w-full bg-slate-200 animate-pulse h-[5.7rem] ' />
+                <div className='h-[5.7rem] w-[24%] bg-slate-200 animate-pulse sm:w-full' />
+                <div className='h-[5.7rem] w-[24%] bg-slate-200 animate-pulse sm:w-full' />
+                <div className='h-[5.7rem] bg-slate-200 animate-pulse w-[24%] sm:w-full  ' />
+            </div>
+            <div className='w-full h-[350px]  sm:w-80 sm:h-[420px] bg-slate-200 animate-pulse'></div>
+        </div>
+        <div className=" w-full sm:w-[65%] mt-7 sm:px-12 pt-30">
+            <h6 className="text-xl font-semibold my-2 h-5 w-28 bg-slate-200 animate-pulse rounded-md"></h6>
+            <h4 className="text-3xl my-2  h-7 w-40 bg-slate-200 animate-pulse rounded-md"></h4>
+            <h2 className="text-2xl my-2  h-7 w-24 bg-slate-200 animate-pulse rounded-md"></h2>
+            <div className="block py-2 px-4 mb-4 border border-gray-300 focus:outline-none  h-7 w-32 bg-slate-200 animate-pulse rounded-md">
+            </div>
+            <div className="focus:outline-none w-14 border border-1 mr-3 p-2  h-5 bg-slate-200 animate-pulse rounded-md inline-block" />
+            <button className=' sm:w-1/4 p-2  hover:bg-slate-600  duration-500  
+  h-10 w-44 bg-slate-200 animate-pulse rounded-md
+'></button>
+            <h4 className="text-2xl py-4  h-7 w-32 bg-slate-200 animate-pulse rounded-md my-3"></h4>
+            <div className="min-h-[100px] max-w-[400px] bg-slate-200 animate-pulse rounded-md"></div>
+        </div>
+    </section>
+</div>
+  );
+};
 
 const ProductDetails = () => {
   const {productId} = useParams();
@@ -16,13 +48,36 @@ const ProductDetails = () => {
   const [selectedSizeOptionIndex,setSelectedSizeOptionIndex] = useState(0)
   const [selectedImageIndex,setSelectedImageIndex] = useState(0);
   const {mutateAsync : addToWishlist} = useAddToWishlist();
-  const {mutateAsync : addToCart} = useAddToCart()
+  const {mutateAsync : addToCart} = useAddToCart();
+  const [products,setProducts] = useState<any>([]);
+  
   if(!productId){
     return <p>Error Happened!</p>
   }
-    const productCount = useRef<HTMLInputElement>(null)
-    const {data : product,isLoading,isPending,isFetched,isSuccess} = useGetProductDetails(productId)
+    const productCount = useRef<HTMLInputElement>(null);
+    const {data : product,isLoading,isPending,isFetched,isSuccess} = useGetProductDetails(productId);
+    const [options,setOptions] = useState({category : product?.category,enabled : !!product?.category,skip : 0});
+    const {data : similarProducts,error,isLoading : isProductLoading} = useGetAllProducts(options);
+    useEffect(() => {
+      if (product?.category) {
+        setOptions(prev => ({
+          ...prev,
+          category: product.category,
+          enabled: true
+        }));
+      }
+    }, [product]);
+    
+  useEffect(() => {
+    if (similarProducts) {
+      setProducts((prev: any) => [...prev, ...similarProducts]);
+    }
+  }, [similarProducts]);
     console.log(product);
+    const loadMore  = () => {
+      setOptions((prev) => ({...prev,enabled : !!product?.category, skip: prev.skip + 10}))
+    } 
+    
     
 const imageClick = (indexOfImage: number) => {
   setSelectedImageIndex(indexOfImage)
@@ -32,7 +87,7 @@ const imageClick = (indexOfImage: number) => {
     <>
     {
       isLoading || isPending || !isFetched || !isSuccess? (
-        <p>Loading...</p>
+        <ProductSkeleton/>
       ) : (
         <>
          <Navigation/>
@@ -120,7 +175,7 @@ const imageClick = (indexOfImage: number) => {
             </svg>
             WISHLIST
           </button>
-          <button onClick={() => addToCart({ productId : product._id, sizeOptionId : product.variety[selectedVarietyIndex].sizeOptions[selectedSizeOptionIndex]._id, varietyId : product.variety[selectedVarietyIndex]._id })} className="w-1/2 max-w-[200px] left-0 p-3 text-base sm:relative  sm:p-2 bg-slate-800 text-white border hover:bg-slate-600 rounded-md font-semibold duration-500 border-slate-800 hover:text-white">
+          <button onClick={() => addToCart({ productId : product._id, sizeOptionId : product.variety[selectedVarietyIndex].sizeOptions[selectedSizeOptionIndex]._id, varietyId : product.variety[selectedVarietyIndex]._id,quatity : productCount.current?.value || 1 })} className="w-1/2 max-w-[200px] left-0 p-3 text-base sm:relative  sm:p-2 bg-slate-800 text-white border hover:bg-slate-600 rounded-md font-semibold duration-500 border-slate-800 hover:text-white">
             ADD TO BAG
           </button>
         </div>
@@ -138,7 +193,7 @@ const imageClick = (indexOfImage: number) => {
     <div className='mt-10'>
         <h1 className='text-center text-2xl sm:text-3xl sm:mb-2'>Similar Products</h1>
         <p className='sm:text-base text-sm text-slate-400 text-center mb:1 sm:mb-7'>You may also like</p>
-        <ProductList products={product} isLoading={isLoading}/>
+        <ProductList loadMore={loadMore} products={products} buttonLoading={isProductLoading} isError={!!error} productLoading={products?.length === 0}/>
     </div>
 
     <PromotionBanner/>

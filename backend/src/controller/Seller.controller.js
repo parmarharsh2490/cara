@@ -81,7 +81,6 @@ const registerSeller = asyncHandler(async (req, res) => {
 
 const getDashboardDetails = asyncHandler(async (req, res) => {
   const user = req.user;
-  console.log(user);
   if (!user) {
     throw new ApiError(401, "User not found");
   }
@@ -204,7 +203,7 @@ const getDashboardDetails = asyncHandler(async (req, res) => {
                 imageUrl: "$image.imageUrl",
                 price:
                   "$sizeOption.price.discountedPrice",
-                title: "$product.title",
+                title:{$first :  "$product.title"},
                 totalTimeSelled: 1,
               },
             },
@@ -215,15 +214,8 @@ const getDashboardDetails = asyncHandler(async (req, res) => {
               $limit: 5,
             },
           ],
-          weekReport: [
-            {
-              $match: {
-                createdAt: {
-                  $gt: new Date("2024-09-15"),
-                  $lt: new Date("2024-09-23"),
-                },
-              },
-            },
+          yearReport: [
+            
             {
               $group: {
                 _id: {
@@ -232,11 +224,23 @@ const getDashboardDetails = asyncHandler(async (req, res) => {
                     date: "$createdAt",
                   },
                 },
-                count: { $sum: 1 },
+                orders: { $sum: 1 },
               },
             },
             { $sort: { _id: 1 } },
           ],
+        },
+      },
+      {
+        $project: {
+          orderStatistics: { 
+            $ifNull: [
+              { $arrayElemAt: ["$orderStatistics", 0] },
+              { totalSales: 0, totalEarning: 0, totalOrders: 0 }
+            ]
+          },
+          topProducts: { $ifNull: ["$topProducts", []] },
+          yearReport: { $ifNull: ["$yearReport", []] },
         },
       },
     ]
@@ -244,14 +248,19 @@ const getDashboardDetails = asyncHandler(async (req, res) => {
   if (!dashboardReport) {
     throw new ApiError(400, "Dashboard Report Failed");
   }
+  
+  const formatedYearReport = applyMonthByDate(dashboardReport[0].yearReport);
+  console.log("formatedYearReport");
+  console.log(formatedYearReport);
+  dashboardReport[0].yearReport = formatedYearReport;
+  
   return res
     .status(200)
-    .json(new ApiResponse(200, dashboardReport, "Successfully get Dashboard Report"));
+    .json(new ApiResponse(200, dashboardReport[0], "Successfully get Dashboard Report"));
 });
 
 const getAnalyticsDetails = asyncHandler(async (req,res) => {
   const user = req.user;
-  console.log(user);
   if (!user) {
     throw new ApiError(401, "User not found");
   }
@@ -391,62 +400,41 @@ const getAnalyticsDetails = asyncHandler(async (req,res) => {
   .json(new ApiResponse(200, analyticsReport, "Successfully get analyticsReport Report"));
 })
 
-
 export const applyMonthByDate = (data) => {
-  const createMonth = (monthDate) => {
-    let month;
-    if(monthDate == 1){
-      return "JANUARY"
-    }
-    else if(monthDate == 2){
-      return "FEBRUARY"
-    }
-    else if(monthDate == 3){
-      return "MARCH"
-    }
-    else if(monthDate == 4){
-      return "APRIL"
-    }
-    else if(monthDate == 5){
-      return "MAY"
-    }
-    else if(monthDate == 6){
-      return "JUNE"
-    }
-    else if(monthDate == 7){
-      return "JULY"
-    }
-    else if(monthDate == 8){
-      return "AUGUST"
-    }
-    else if(monthDate == 9){
-      return "SEPTEMBER"
-    }
-    else if(monthDate == 10){
-      return "OCTOBER"
-    }
-    else if(monthDate == 11){
-      return "NOVEMBER"
-    }
-    return "DECEMBER"
-  };
-  let months = {
-    JANUARY : 0,
-    FEBRUARY : 0,
-    MARCH : 0,
-    APRIL : 0,
-    MAY : 0,
-    JUNE : 0,
-    JULY : 0,
-    AUGUST : 0,
-    SEPTEMBER : 0,
-    OCTOBER : 0,
-    NOVEMBER : 0,
-    DECEMBER : 0,
-  }
-  data.map((data) => {
-    let month = createMonth(data.month);
-    months = {...months,[month] : data.orders}
-  })
-  return months;
-}
+  const monthNames = ['JAN', 'FEB', 'MAR', 'APR', 'MAY', 'JUN', 'JUL', 'AUG', 'SEP', 'OCT', 'NOV', 'DEC'];
+
+  // Initialize months with default values
+  const months = monthNames.reduce((acc, month) => ({ ...acc, [month]: 0 }), {});
+
+  // If no data, return the default months with 0 values
+  console.log("data");
+  console.log(data);
+  if (!data.length) return monthNames.map(name => ({ name, value: 0 }));
+  
+  data.forEach((date) => {
+    console.log(date._id.slice(8, 10));
+    
+    const monthIndex = parseInt(date._id.slice(8, 10), 10) - 1; 
+    months[monthNames[monthIndex]] += date.orders; 
+  });
+
+  return monthNames.map(name => ({ name, value: months[name] }));
+};
+
+
+// const bb = async () => {
+//   const orders = await Order.find({});
+  
+//   await Promise.all(orders.map(async (order, index) => {
+//     if (index < 5) {
+//       await Order.updateOne(
+//         { _id: order._id },
+//         { createdAt: "2024-08-09T06:13:46.186+00:00" },
+//         { timestamps: false }  // Disable automatic timestamps for this update
+//       );
+//       console.log(`Updated order ${order._id} ${order.createdAt}createdAt: 2024-09-10T06:13:46.186+00:00`);
+//     }
+//   }));
+// };
+
+// bb();

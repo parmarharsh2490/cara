@@ -37,7 +37,7 @@ const ShoppingCart = () => {
     if(!orderId) return
     
     const options = {
-      key: process.env.RAZORPAY_API_KEY,
+      key: import.meta.env.RAZORPAY_API_KEY,
       amount: totalCartAmount,
       currency: 'INR',
       name: 'Cara',
@@ -74,9 +74,12 @@ const ShoppingCart = () => {
       <div className="left sm:p-10 w-full sm:w-[70%]">
         <div className="flex justify-between items-center sm:mb-0 mb-5">
           <h1 className="font-semibold text-base sm:text-xl">Shopping cart</h1>
-          <h1 className="text-base sm:text-lg">Total: ₹1299.00</h1>
+          <h1 className="text-base sm:text-lg">Total: ₹{totalCartAmount}</h1>
         </div>
         {
+          products.length === 0 ? (
+            <h1 className="text-3xl text-center m-5">No Products Found</h1>
+          ) : 
           products.map((product : ICartItems,index : number) => (
             <div key={index} className="w-full flex justify-start items-start sm:items-center h-auto sm:h-40 p-1 border rounded-sm my-3">
             <img

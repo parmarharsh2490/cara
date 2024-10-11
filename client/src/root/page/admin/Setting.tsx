@@ -9,8 +9,8 @@ import { fieldMappings, getPopupLabelByLabel } from "../../../utils/labelHelpers
 const Settings: React.FC = () => {
     const [popupContent, setPopupContent] = useState({ popupTitle: "", popupLabel: "" });
     const [showPopupForm, setShowPopupForm] = useState<boolean>(false);
-    const { data: sellerDetail, isLoading, isPending } = useGetSellerDetails();
-    const { mutateAsync: updateSellerDetails } = useUpdateSellerDetails();
+    const { data: sellerDetail, isLoading } = useGetSellerDetails();
+    const { mutateAsync: updateSellerDetails,isPending } = useUpdateSellerDetails();
     const { user } = useContext(UserContext);
 
     const [popupFields, setPopupFields] = useState<{ type: string; label: string; name: string }[]>([]);
@@ -40,7 +40,7 @@ const Settings: React.FC = () => {
 
     return (
         <>
-            {isLoading || isPending ? (
+            {isLoading ? (
                 <div className="w-full h-full flex items-center justify-center">
                 <img src="/spinner.svg" width={150} />
                 </div>
@@ -66,6 +66,7 @@ const Settings: React.FC = () => {
             )}
             {showPopupForm && (
                 <PopupForm
+                isLoading={isPending}
                     handleSubmitFunction={updateSellerDetails}
                     title={popupContent.popupTitle}
                     inputData={popupFields}

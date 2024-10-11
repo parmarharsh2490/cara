@@ -2,9 +2,12 @@ import { ILoginUser } from "../../types/index.ts";
 import { useLoginUserAccount } from "../../query/UserQueries.ts";
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
+import { useToast } from "@/hooks/use-toast.ts";
 
 const SignIn = () => {
-  const { mutateAsync: loginUserAccount } = useLoginUserAccount();
+  const {toast} = useToast();
+  const { mutateAsync: loginUserAccount,isPending,error } = useLoginUserAccount();
+
   const [email, setEmail] = useState<string>("harsh2490@gmail.com");
   const [password, setPassword] = useState<string>("harsh");
   const navigate = useNavigate();
@@ -14,6 +17,17 @@ const SignIn = () => {
     const user : ILoginUser = {  email, password };
     try {
       await loginUserAccount(user);
+      if(error){
+        toast({
+          title: "Failed",
+          description: "Friday, February 10, 2023 at 5:57 PM",
+        })
+        return
+      }
+      toast({
+        title: "Success",
+        description: "Friday, February 10, 2023 at 5:57 PM",
+      })
       navigate('/')
     } catch (error) {
       console.error("Error creating user account:", error);
@@ -55,8 +69,8 @@ const SignIn = () => {
             Forgot password?
           </Link>
         </div>
-        <button type="submit" className="bg-gray-700 p-2 text-white border rounded-lg hover:bg-gray-600 cursor-pointer">
-          Sign in
+        <button  type="submit" className="bg-gray-700 p-2 text-white border rounded-lg hover:bg-gray-600 cursor-pointer">
+          {isPending ? "Loading..." : "Sign In"}
         </button>
         <div className="flex justify-center items-center gap-1">
           <h4 className="text-gray-400">Don't have an account?</h4>

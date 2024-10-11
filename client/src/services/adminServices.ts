@@ -3,7 +3,9 @@ import apiClient from "./index";
 export {
     getSellerDetails,
     updateSellerDetails,
-    becomeSeller
+    becomeSeller,
+    getDashboardDetails,
+    getAnalyticsDetails
 }
 
 const getSellerDetails = async () => {
@@ -37,4 +39,13 @@ const becomeSeller = async () => {
         console.log(error);
         throw error
     }
+}
+
+const getDashboardDetails = async() => {
+    const respose  = await apiClient.get('/seller/dashboard');
+    return respose.data.data
+}
+const getAnalyticsDetails = async() => {
+    const respose  = await apiClient.get('/seller/analytics');
+    return respose.data.data
 }

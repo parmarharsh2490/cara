@@ -1,7 +1,9 @@
 import Navigation from '../../components/shared/Navigation';
 import Footer from '../../components/shared/Footer';
 import { MapPin, Mail, Phone, Clock } from 'lucide-react';
-import React from 'react';
+import React, { useContext, useState } from 'react';
+import { UserContext } from '../../context';
+import { useSendContactformDetails } from '@/query/PromotionalQueries';
 
 const ContactItem = ({ icon, text } : {icon : any, text : string}) => (
   <li className="py-3 flex items-center list-none">
@@ -29,6 +31,16 @@ const PeopleCard = ({ imageSrc, name, position, phone, email } : IPeopleCard) =>
 );
 
 const Contact = () => {
+  const {user} = useContext(UserContext);
+  const [name,setName] = useState("");
+  const [email,setEmail] = useState("");
+  const [subject,setSubject] = useState("");
+  const [message,setMessage] = useState("");
+  const {mutateAsync : sendContactFormDetails} = useSendContactformDetails();
+  const handleSubmit = (e : any) => {
+    e.preventDefault();
+    sendContactFormDetails({name: name || user?.name, email : email || user?.email, message, subject})
+  }
   return (
     <>
       <Navigation />
@@ -66,13 +78,13 @@ const Contact = () => {
         </div>
       </section>
       <section id="form-details" className="flex flex-col sm:flex-row justify-between p-5 m-2 sm:m-16 sm:p-5 border border-slate-300 rounded-xl">
-        <form className="flex flex-col gap-4 w-full sm:w-[65%]">
+        <form onSubmit={handleSubmit} className="flex flex-col gap-4 w-full sm:w-[65%]">
           <span className="text-base my-3">LEAVE A MESSAGE</span>
           <h2 className="font-bold text-3xl my-3">We Love To Hear From You.</h2>
-          <input type="text" placeholder="Your Name" className="w-full py-3 px-4 border border-slate-300 rounded-xl" />
-          <input type="email" placeholder="Your E-mail" className="w-full py-3 px-4 border border-slate-300 rounded-xl" />
-          <input type="text" placeholder="Subject" className="w-full py-3 px-4 border border-slate-300 rounded-xl" />
-          <textarea cols={30} rows={10} placeholder="Your Message" className="w-full py-3 px-4 border border-slate-300 rounded-xl"></textarea>
+          <input type="text" placeholder="Your Name" className="w-full py-3 px-4 border border-slate-300 rounded-xl" value={user?.name || name} onChange={(e) => setName(e.target.value)}/>
+          <input type="email" placeholder="Your E-mail" className="w-full py-3 px-4 border border-slate-300 rounded-xl" value={user?.email || email} onChange={(e) => setEmail(e.target.value)}/>
+          <input type="text" placeholder="Subject" className="w-full py-3 px-4 border border-slate-300 rounded-xl" value={subject} onChange={(e) => setSubject(e.target.value)}/>
+          <textarea cols={30} rows={10} placeholder="Your Message" className="w-full py-3 px-4 border border-slate-300 rounded-xl" value={message} onChange={(e) => setMessage(e.target.value)}></textarea>
           <button className="w-1/3 p-2 bg-slate-800 text-white border border-slate-800 hover:bg-slate-600 hover:text-white duration-500 my-5">Submit</button>
         </form>
         <div className="people">

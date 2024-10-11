@@ -16,6 +16,11 @@ const orderSchema = new mongoose.Schema({
             ref: "Product",
             required: true
         },
+        seller: {
+            type: mongoose.Types.ObjectId,
+            ref: "User",
+            required: true
+        },
         sizeOptionId: {
             type: mongoose.Types.ObjectId,
         },
@@ -33,9 +38,17 @@ const orderSchema = new mongoose.Schema({
         costPrice: {      
             type: Number,
             required: true
+        },
+        orderDate : {
+            type : String
+        },
+        status: {
+            type: String,
+            enum: ["success", "failed", "processing"],
+            default: "processing"
         }
     }],
-    status: {
+    overallStatus: { 
         type: String,
         enum: ["success", "failed", "processing"],
         default: "processing"
