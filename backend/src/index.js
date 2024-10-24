@@ -7,14 +7,21 @@ const redis = new Redis({
   port: process.env.REDIS_PORT,
   password: process.env.REDIS_PASSWORD
 })
+console.log(host,port,password);
 
 redis.on("connect",() => {
   console.log("Redis is Successfully Connected");
 })
-redis.on("close",() => {
+
+redis.on("close", () => {
   console.log("Redis Connection is Closed");
-  client.disconnect();
-})
+  redis.disconnect(); // Corrected the variable name
+});
+
+redis.on("error", (err) => {
+  console.error("Redis connection error:", err);
+  redis.disconnect(); // Ensure the connection is closed on error
+});
 
 const startServer = async () => {
   // await initializeTransporter();
