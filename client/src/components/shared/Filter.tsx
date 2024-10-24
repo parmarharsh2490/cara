@@ -1,7 +1,7 @@
 import { IFilter } from '@/types/index';
 import  { ChangeEvent, useEffect } from 'react';
 
-const Filter = ({filters, setFilters,setProducts }: {filters : IFilter,setFilters : any,setProducts : any}) => {
+const Filter = ({filters, setFilters,setProducts }: {filters : IFilter,setFilters : any,setProducts? : any}) => {
     const handleChange = (e : ChangeEvent<HTMLInputElement>) => {
         const { name, value } = e.target;
         console.log(name,value);

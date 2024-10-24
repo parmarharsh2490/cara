@@ -2,8 +2,9 @@ import { FormEvent, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useCreateUserAccount } from "../../query/UserQueries.ts";
 import { INewUser } from "../../types/index.ts";
+import AuthFormSignupButton from "./AuthFormSignupButton.tsx";
 
-const Signup = () => {
+const SignIn = () => {
   const { mutateAsync: createUserAccount , isPending } = useCreateUserAccount();
   const [name, setName] = useState<string>("harsh");
   const [email, setEmail] = useState<string>("harsh2490@gmail.com");
@@ -68,9 +69,7 @@ const Signup = () => {
             Forgot password?
           </Link>
         </div>
-        <button type="submit" className="bg-gray-700 p-2 text-white border rounded-lg hover:bg-gray-600 cursor-pointer">
-         {isPending ?  "Loading..." :  "Sign up"}
-        </button>
+        <AuthFormSignupButton isPending={isPending} signIn={false}/>
         <div className="flex justify-center items-center gap-1">
           <h4 className="text-gray-400">Already have an account?</h4>
           <Link to="/auth/sign-in" className="font-semibold text-xs sm:text-md hover:underline">
@@ -82,4 +81,4 @@ const Signup = () => {
   );
 };
 
-export default Signup;
+export default SignIn;

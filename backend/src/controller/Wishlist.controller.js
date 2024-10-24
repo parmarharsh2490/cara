@@ -5,6 +5,7 @@ import { Wishlist } from "../model/Wishlist.model.js";
 import ApiError from "../utils/ApiError.js";
 import mongoose from "mongoose";
 import { transformedWishlist } from "../utils/TransformUserWishlist.js";
+import { redis } from "../index.js";
 
 const addToWishlist = asyncHandler(async (req, res) => {
   const user = req.user;
@@ -41,12 +42,14 @@ const addToWishlist = asyncHandler(async (req, res) => {
     { new: true, upsert: true }
   ).populate("products.product", "title variety");
   
-  const transformWish = transformedWishlist(userWishList);
-  
   if (!userWishList) {
     throw new ApiError(400, transformWish, "Already in wishlist");
   }
 
+  const transformWish = transformedWishlist(userWishList);
+  
+  //await redis.del(`wishlist:${user._id}`)
+  await redis.lpush(`wishlist:${user._id}`,JSON.stringify(transformWish))
   return res
     .status(200)
     .json(new ApiResponse(200, transformWish, "Wishlist updated successfully"));
@@ -74,6 +77,7 @@ const removeFromWishlist = asyncHandler(async (req, res) => {
     .exec();
     
   const transformWish = transformedWishlist(userWishList);
+  await redis.del(`wishlist:${user._id}`)
   return res
     .status(200)
     .json(
@@ -87,9 +91,19 @@ const removeFromWishlist = asyncHandler(async (req, res) => {
 
 const getUserWishlist = asyncHandler(async (req, res) => {
   const user = req.user;
-  const { skip = 0} = req.query;
-
-
+  let { skip = 0} = req.query;
+  skip = parseInt(skip);
+  const cachedWishlist = await redis.lrange(`wishlist:${user._id}`,skip,skip+4);
+  if(cachedWishlist && cachedWishlist.length>0){
+    const data = cachedWishlist.map((wishlist) => {
+      return JSON.parse(wishlist)
+    })
+    return res
+    .status(200)
+    .json(
+      new ApiResponse(200, data, "Successfully retrieved user wishlist")
+    );
+  }
   const wishlist = await Wishlist.aggregate([
     {
       $match: {
@@ -98,6 +112,11 @@ const getUserWishlist = asyncHandler(async (req, res) => {
     },
     {
       $unwind: "$products",
+    },
+    {
+      $sort : {
+        createdAt : 1
+      }
     },
     {
       $skip: parseInt(skip)
@@ -168,7 +187,7 @@ const getUserWishlist = asyncHandler(async (req, res) => {
   if (!wishlist || wishlist.length === 0) {
     throw new ApiError(404, "Wishlist not found");
   }
-  
+  await redis.rpush(`wishlist:${user._id}`, ...wishlist.map((wishlist)=>JSON.stringify(wishlist)));
   return res
     .status(200)
     .json(

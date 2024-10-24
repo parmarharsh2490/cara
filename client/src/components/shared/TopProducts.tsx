@@ -43,7 +43,7 @@ const TopProducts = ({ topProducts }: { topProducts: any }) => {
                 {product.price}
               </td>
               <td className="text-xs sm:text-sm md:text-sm p-2 text-center">
-                4.8
+               {product.averageRating}
               </td>
             </tr>
           )))}

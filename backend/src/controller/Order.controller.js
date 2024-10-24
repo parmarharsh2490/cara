@@ -8,6 +8,7 @@ import { Cart } from '../model/Cart.model.js';
 import ApiError from '../utils/ApiError.js';
 import mongoose, { isValidObjectId } from 'mongoose';
 import { Product } from '../model/Product.model.js';
+import { redis } from '../index.js';
 
 
 export const createOrder = asyncHandler(async (req, res) => {
@@ -18,6 +19,7 @@ export const createOrder = asyncHandler(async (req, res) => {
   if (!amount || isNaN(amount)) {
     throw new ApiError(400, "Invalid amount provided");
   }
+console.log("amount",amount);
 
   const session = await mongoose.startSession();
   session.startTransaction();
@@ -103,7 +105,8 @@ export const createOrder = asyncHandler(async (req, res) => {
 export const verifyOrder = asyncHandler(async (req, res) => {
   const user = req.user;
   const { amount, razorpay_order_id, razorpay_payment_id, razorpay_signature } = req.body;
-  
+  console.log("amount",amount);
+
   if (!razorpay_order_id || !razorpay_payment_id || !razorpay_signature) {
     throw new ApiError(400, "Missing required payment information");
   }
@@ -120,7 +123,7 @@ export const verifyOrder = asyncHandler(async (req, res) => {
     if (!payment) {
       throw new ApiError(404, "Payment not found");
     }
-
+    await redis.del(`cart:${user._id}`)
     const order = await Order.findOne({ payment: payment._id, user: user._id }).session(session);
     if (!order) {
       throw new ApiError(404, "Order not found");
@@ -172,6 +175,15 @@ export const getUserOrders = asyncHandler(async (req, res) => {
   const user = req.user;
   let { skip = 0 } = req.query;
   skip = parseInt(skip);
+  const cachedOrderList = await redis.lrange(`order:${user._id}`,skip,skip+4);
+  
+  if(cachedOrderList && cachedOrderList.length > 0){
+    console.log("cached data");
+    const data = cachedOrderList.map((order) => {
+      return JSON.parse(order)
+    })
+    return res.status(200).json(new ApiResponse(200,data,"Successfully fetch user cart"))
+  }
   if (isNaN(skip) || skip < 0) {
     return res.status(400).json(new ApiResponse(400, null, "Invalid skip value"));
   }
@@ -258,15 +270,25 @@ export const getUserOrders = asyncHandler(async (req, res) => {
   if(!orders || orders.length==0){
     return res.status(404).json(new ApiResponse(404, null, "No orders found for this user"));
   }
+  await redis.rpush(`order:${user._id}`,...orders.map((order) =>JSON.stringify(order)))
+  await redis.expire(`order:${user._id}`,600)
   return res.status(200).json(new ApiResponse(200, orders, "Successfully retrieved user orders"));
 });
 
 export const getAdminOrders = asyncHandler(async(req,res) => {
   const user = req.user;
-  let { skip = 0 } = req.query;
-  skip = parseInt(skip);
+  let { pageParam = 0 } = req.query;
+  const skip = parseInt(pageParam*10);
+  console.log(skip)
   if (isNaN(skip) || skip < 0) {
     throw new ApiError(400,"Invalid Skip value");
+  }
+  const cachedOrderList = await redis.lrange(`order:${user._id}`, skip, skip + 9);
+  if(cachedOrderList && cachedOrderList.length > 0){
+    const data = cachedOrderList.map((order) => {
+      return JSON.parse(order)
+    })
+    return res.status(200).json(new ApiResponse(200,data,"Successfully fetch user cart"))
   }
   if(user.role !== "admin"){
     throw new ApiError(400,"User is not Admin");
@@ -286,7 +308,7 @@ export const getAdminOrders = asyncHandler(async(req,res) => {
       $skip: parseInt(skip),
     },
     {
-      $limit: 1,
+      $limit: 10,
     },
     {
       $lookup: {
@@ -344,15 +366,20 @@ export const getAdminOrders = asyncHandler(async(req,res) => {
     }
   }
   ]);
+  console.log(orders)
   if(!orders || orders.length==0){
     throw new ApiError(400,"No Orders Found!");
   }
+
+  await redis.rpush(`adminOrder:${user._id}`,...orders.map((order) =>JSON.stringify(order)))
+  await redis.expire(`adminOrder:${user._id}`,600)
+
   return res.status(200).json(new ApiResponse(200, orders, "Successfully retrieved seller orders"));
 })
 
-
 export const updateOrderStatus = asyncHandler(async(req,res) => {
   const {orderId,status} = req.body;
+  const user = req.user;
   if(!orderId || !isValidObjectId(orderId) || !status){
     throw new ApiError(400,"Fields are not valid")
   }
@@ -369,17 +396,8 @@ export const updateOrderStatus = asyncHandler(async(req,res) => {
       await order.save({validateBeforeSave : false})
     }
   })
+  await redis.del(`adminOrder:${user._id}`);
+  await redis.del(`sellerDashboardReport:${user._id}`);
   await order.save({validateBeforeSave : false});
   return res.status(200).json(new ApiResponse(200,order,"Successfully updated order status"))
 })
-// const bb = async() => {
-//   const orders = await Order.find({});
-//   Promise.all(orders.map(async(order) => {
-//     order.products.map((product) => {
-//       product.orderDate = "28-10-2024";
-//     })
-    
-//     await order.save({validationBeforeSave : false})
-//   }))
-// }
-// bb()

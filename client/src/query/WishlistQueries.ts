@@ -34,5 +34,6 @@ const useGetUserWishlist = (skip: number) => {
       refetchOnMount: false,
       retry: false,
       placeholderData : true,
+      refetchOnWindowFocus : false
     });
 };

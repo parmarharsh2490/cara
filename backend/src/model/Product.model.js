@@ -20,7 +20,6 @@ const sizeOptionSchema = new mongoose.Schema({
       "4T", "5T", "6T", "7T", "8T", "10T", "12T"
     ],
     required: true,
-    unique : true
   },
   stock: { 
     type: Number,
@@ -67,7 +66,6 @@ const varietySchema = new mongoose.Schema({
       "orange", "pink", "purple", "brown", "navy", "beige", "maroon"
     ],
     required: true,
-    unique : true
   },
   sizeOptions: [sizeOptionSchema]
 });

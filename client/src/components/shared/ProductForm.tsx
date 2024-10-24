@@ -3,6 +3,7 @@ import VarietyForm from "./VarietyForm.tsx";
 import { IVariety } from "../../types/index.ts";
 import { useCreateProduct, useUpdateProduct } from "../../query/ProductQueries.ts";
 import { useParams } from "react-router-dom";
+import { useToast } from "@/hooks/use-toast.ts";
 
 interface ProductFormProps {
   existingProduct?: {
@@ -44,9 +45,9 @@ const ProductForm: React.FC<ProductFormProps> = ({ existingProduct, isUpdate = f
     },
   ]);
   const {productId} = useParams()
-  const { mutateAsync: createProduct, isPending: isCreating } = useCreateProduct();
+  const { mutateAsync: createProduct, isPending: isCreating  } = useCreateProduct();
   const { mutateAsync: updateProduct, isPending: isUpdating } = useUpdateProduct();
-
+  const {toast} = useToast()
   useEffect(() => {
     if (existingProduct) {
       setTitle(existingProduct.title);
@@ -67,7 +68,7 @@ const ProductForm: React.FC<ProductFormProps> = ({ existingProduct, isUpdate = f
         } else if (name === "stock") {
           updatedVarieties[index].sizeOptions[sizeOptionIndex].stock = Number(value);
         }
-    } else if (name === "originalPrice" || name === "discountedPrice") {
+    } else if (name === "originalPrice" || name === "discountedPrice" || name === "costPrice") {
       if (typeof sizeOptionIndex === "number") {
         updatedVarieties[index].sizeOptions[sizeOptionIndex].price[name] = Number(value);
       }
@@ -147,11 +148,26 @@ const ProductForm: React.FC<ProductFormProps> = ({ existingProduct, isUpdate = f
     
     formData.append("variety", JSON.stringify(variety));
 
-    if (isUpdate) {
-      console.log(productId);      
-      await updateProduct({data : formData,productId});
-    } else {
-      await createProduct(formData);
+    try {
+      if (isUpdate) {
+        await updateProduct({ data: formData, productId });
+        toast({
+          title: "Success",
+          description: "Successfully updated Product"
+        });
+      } else {
+        await createProduct(formData);
+        toast({
+          title: "Success",
+          description: "Successfully created Product"
+        });
+      }
+    } catch (error) {
+      toast({
+        title: "Failed",
+        description: isUpdate ? "Failed updating Product" : "Failed creating Product",
+        variant: "destructive"
+      });
     }
   };
 
@@ -233,10 +249,13 @@ const ProductForm: React.FC<ProductFormProps> = ({ existingProduct, isUpdate = f
         <div className="text-center">
           <button
             type="submit"
-            className="w-full min-w-24 max-w-24 bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-6 rounded-lg shadow focus:ring-4 focus:ring-blue-300"
+            className="w-full min-w-28 max-w-28 bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-6 rounded-lg shadow focus:ring-4 focus:ring-blue-300"
           >
             {isCreating || isUpdating ? (
-              <img src="/spinner.svg" height={24} width={24} className="mx-auto"/>
+              <div className="flex items-center justify-center gap-3">
+                <img src="/spinner.svg" height={24} width={24} className="mx-auto"/>
+                {isUpdate ? "Updating" : "Creating"}
+              </div>
             ) : isUpdate ? "Update" : "Submit"}
           </button>
         </div>

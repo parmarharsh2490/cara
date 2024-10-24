@@ -3,10 +3,11 @@ import { useLoginUserAccount } from "../../query/UserQueries.ts";
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast.ts";
+import AuthFormSignupButton from "./AuthFormSignupButton.tsx";
 
 const SignIn = () => {
   const {toast} = useToast();
-  const { mutateAsync: loginUserAccount,isPending,error } = useLoginUserAccount();
+  const { mutateAsync: loginUserAccount,isPending } = useLoginUserAccount();
 
   const [email, setEmail] = useState<string>("harsh2490@gmail.com");
   const [password, setPassword] = useState<string>("harsh");
@@ -17,20 +18,16 @@ const SignIn = () => {
     const user : ILoginUser = {  email, password };
     try {
       await loginUserAccount(user);
-      if(error){
-        toast({
-          title: "Failed",
-          description: "Friday, February 10, 2023 at 5:57 PM",
-        })
-        return
-      }
       toast({
         title: "Success",
-        description: "Friday, February 10, 2023 at 5:57 PM",
-      })
+        description: "Successfully Logged In",
+      });
       navigate('/')
     } catch (error) {
-      console.error("Error creating user account:", error);
+      toast({
+        title: "Failed",
+        description: "Login Error,Please Try Again",
+      })
     }
   };
   return (
@@ -69,9 +66,7 @@ const SignIn = () => {
             Forgot password?
           </Link>
         </div>
-        <button  type="submit" className="bg-gray-700 p-2 text-white border rounded-lg hover:bg-gray-600 cursor-pointer">
-          {isPending ? "Loading..." : "Sign In"}
-        </button>
+        <AuthFormSignupButton isPending={isPending} signIn={true}></AuthFormSignupButton>
         <div className="flex justify-center items-center gap-1">
           <h4 className="text-gray-400">Don't have an account?</h4>
           <Link to="/auth/sign-up" className="font-semibold text-xs sm:text-md hover:underline">

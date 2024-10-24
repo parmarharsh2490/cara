@@ -3,9 +3,11 @@ import { ICartItems } from "@/types";
 export const countTotalCartAmount = (cartProducts : ICartItems[]) => {
     let totalCartAmount = 0;
     let totalCartDiscount = 0;
+    
+    
     cartProducts.map((cartProduct) => {
-        totalCartDiscount+=cartProduct.price.originalPrice * cartProduct.quantity;
-        totalCartAmount+=cartProduct.price.discountedPrice * cartProduct.quantity;
+        totalCartDiscount+=cartProduct.originalPrice * cartProduct.quantity;
+        totalCartAmount+=cartProduct.discountedPrice * cartProduct.quantity;
     })
     let totalMrp = totalCartAmount + totalCartDiscount
     return {totalCartAmount,totalCartDiscount,totalMrp}

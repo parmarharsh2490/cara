@@ -32,20 +32,28 @@ const useGetAllProducts = (options : any) => {
         refetchOnWindowFocus : false
 })
 }
-const useGetLatestProducts = (skip : number) => {
+const useGetLatestProducts = (pageParam : number) => {
     return useQuery({
-        queryKey : [QUERY_KEYS.LATEST_PRODUCTS,skip],
-        queryFn : () => getLatestProducts(skip),
-        staleTime : 10000000,
-        retryOnMount : false,
+        queryKey : [QUERY_KEYS.LATEST_PRODUCTS,pageParam],
+        queryFn : () => getLatestProducts(pageParam),
+        staleTime: Infinity,
+      retryOnMount: false,
+      refetchOnMount: false,
+      retry: false,
+      placeholderData : true,
+      refetchOnWindowFocus : false
 })
 }
 const useGetTopSelledProducts = (skip : number) => {
     return useQuery({
         queryKey : [QUERY_KEYS.TOPSELLEDPRODUCTS],
         queryFn : () =>getTopSelledProducts(skip),
-        staleTime : 10000000,
-        retryOnMount : false
+        staleTime: Infinity,
+      retryOnMount: false,
+      refetchOnMount: false,
+      retry: false,
+      placeholderData : true,
+      refetchOnWindowFocus : false
 })
 }
 

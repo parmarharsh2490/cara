@@ -1,4 +1,4 @@
-import { createTransporter, getTransporter } from "../index.js";
+import { createTransporter, getTransporter } from "../utils/email.js";
 import { Promotional } from "../model/PromotionalEmail.model.js";
 import ApiError from "../utils/ApiError.js";
 import ApiResponse from "../utils/ApiResponse.js";

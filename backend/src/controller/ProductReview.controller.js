@@ -5,6 +5,7 @@ import { uploadImage } from "../utils/Cloudinary.js";
 import { ProductReview } from "../model/ProductReview.model.js";
 import ApiResponse from "../utils/ApiResponse.js";
 import { transformProductReviewData } from "../utils/TransformReviewData.js";
+import { redis } from "../index.js";
 
 const createProductReview = asyncHandler(async (req, res) => {
   const user = req.user;
@@ -57,7 +58,9 @@ const createProductReview = asyncHandler(async (req, res) => {
     throw new ApiError(500, "Failed to create review");
   }
   review.name = user.name;
-  const transformReview = transformProductReviewData(review)
+  const transformReview = transformProductReviewData(review);
+  // await redis.del(`review:${productId}`)
+  await redis.lpush(`review:${productId}`,JSON.stringify(transformReview))
   return res.status(201).json(new ApiResponse(201, transformReview, "Review created successfully"));
 });
 
@@ -100,6 +103,7 @@ const updateProductReview = asyncHandler(async (req, res) => {
   await existingProductReview.save({ validationBeforeSave: false });
   existingProductReview.name = user.name;
   const transformReview = transformProductReviewData(existingProductReview)
+  await redis.del(`review:${productId}`)
   return res
     .status(200)
     .json(
@@ -129,6 +133,7 @@ const deleteProductReview = asyncHandler(async (req, res) => {
   }
 
   await ProductReview.findByIdAndDelete(productReviewId);
+  await redis.del(`review:${productId}`)
   return res
     .status(204)
     .json(new ApiResponse(204, null, "ProductReview successfully deleted"));
@@ -136,11 +141,19 @@ const deleteProductReview = asyncHandler(async (req, res) => {
 
 const getAverageProductReview = asyncHandler(async (req, res) => {
   const { productId } = req.params;
-  const {skip}  =req.query;
+  const {skip=0}  =req.query;
   const parsedSkip = parseInt(skip);
-  console.log(skip);
-  console.log(skip);
   
+  const cachedProductReviewList = await redis.lrange(`review:${productId}`,parsedSkip,parsedSkip+5);
+  console.log(cachedProductReviewList);
+  
+  if(cachedProductReviewList && cachedProductReviewList.length > 0){
+    console.log("cached data");
+    const data = cachedProductReviewList.map((review) => {
+      return JSON.parse(review)
+    })
+    return res.status(200).json(new ApiResponse(200,data,"Successfully fetch user cart"))
+  }  
   if (isNaN(parsedSkip) || parsedSkip < 0) {
     throw new ApiError(400, "Invalid  skip value");
   }
@@ -171,7 +184,7 @@ const getAverageProductReview = asyncHandler(async (req, res) => {
       $skip : parsedSkip
     },
     {
-      $limit : 1
+      $limit : 5
     },
       {
         $group: {
@@ -257,7 +270,10 @@ const getAverageProductReview = asyncHandler(async (req, res) => {
       }
     ]    
   )
-
+  
+  const reviewsToCache = ratingData[0].reviews.map((review) => JSON.stringify(review));
+  await redis.rpush(`review:${productId}`, ...reviewsToCache);
+  await redis.expire(`review:${productId}`,600);
 return res.status(200).json(new ApiResponse(200, ratingData, "Average rating retrieved successfully"));
 });
 
@@ -267,14 +283,3 @@ export {
   deleteProductReview,
   getAverageProductReview,
 };
-
-
-// const gg = async() => {
-//   const reviews = await ProductReview.find({});
-//   Promise.all(reviews.map(async(review) => {
-//     review.product = new mongoose.Types.ObjectId("67026a53d773e78c8a6fe68c");
-//     await review.save({validateBeforeSave : false})
-//   }))
-// }
-
-// gg()

@@ -42,10 +42,10 @@ const corsOptions = {
 
 app.use(cors(corsOptions));
 
-// Static file serving
-const __dirname = path.resolve();
-// Static file serving
-app.use(express.static(path.join(__dirname, 'public'))); // Adjust the path as needed
+// // Static file serving
+// const __dirname = path.resolve();
+// // Static file serving
+// app.use(express.static(path.join(__dirname, 'public'))); // Adjust the path as needed
 
 
 

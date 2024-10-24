@@ -17,8 +17,11 @@ const updateQuantity = async(data : any) => {
     return response.data.data
 }
 
-const removeFromCart = async(data : any) => {
-    const response = await apiClient.delete('/cart/remove',data);
+const removeFromCart = async({ productId, sizeOptionId, varietyId } : any) => {
+    console.log({ productId, sizeOptionId, varietyId });
+    const response = await apiClient.delete('/cart/remove', {
+        params: { productId, sizeOptionId, varietyId },
+      });
     return response.data.data
 }
 

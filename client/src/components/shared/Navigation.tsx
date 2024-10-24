@@ -1,5 +1,5 @@
 import {  useContext, useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { AiOutlineShop } from "react-icons/ai";
 import { UserContext } from "../../context/index.tsx";
 import AlertDialog from "../ui/AlertDialog";
@@ -9,6 +9,11 @@ import { useGetUserWishlist } from "../../query/WishlistQueries.ts";
 const Navigation = () => {
   const [showAlertDialog,setShowAlertDialog] = useState(false);
   const [searchValue,setSearchValue] = useState<string>("");
+  const navigate = useNavigate();
+  const handleSearchValueSubmit = (e: { preventDefault: () => void; }) => {
+    e.preventDefault();
+    navigate(`/shopping/${searchValue}`)
+  }
   const [toggle,setToggle] = useState<boolean>(false);
   const toggleButton = () => {
     setToggle(!toggle);
@@ -54,6 +59,7 @@ const Navigation = () => {
                         ></path>
                       </svg>
                     </span>
+                      <form className="w-full" onSubmit={handleSearchValueSubmit}>
                     <input
                       type="text"
                       className="w-full xl:w-80 md:w-52  sm:w-full py-2 pl-10  pr-4 text-gray-700 bg-white focus:border-slate-400 focus:outline-none sm:border rounded-md"
@@ -61,6 +67,7 @@ const Navigation = () => {
                       value={searchValue}
                       onChange={(e) => setSearchValue(e.target.value)}
                     />
+                    </form>
                   </div>
                 </div>
               </div>

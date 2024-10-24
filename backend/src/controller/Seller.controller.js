@@ -1,3 +1,4 @@
+import { redis } from "../index.js";
 import Order from "../model/Order.model.js";
 import { Payment } from "../model/Payment.model.js";
 import { Product } from "../model/Product.model.js";
@@ -19,10 +20,18 @@ const getSellerDetails = asyncHandler(async(req,res) => {
     if(!user){
         throw new ApiError(401,"User not found");
     }
-    const seller = await Seller.find({user : user._id}).populate("bankAccountDetails"); 
+    const cachedSeller = await redis.get(`sellerDetails:${user._id}`);
+    if(cachedSeller){
+      return res
+      .status(200)
+      .json(new ApiResponse(200,JSON.parse(cachedSeller),"Successfully get user")) 
+    }
+    const seller = await Seller.findOne({user : user._id}).populate("bankAccountDetails"); 
     if(!seller){
         throw new ApiError(400,"Seller Details not found")
     }
+    await redis.set(`sellerDetails:${user._id}`,JSON.stringify(seller))
+    await redis.expire(`sellerDetails:${user._id}`,600)
     return res
     .status(200)
     .json(new ApiResponse(200,seller,"Successfully get user")) 
@@ -35,7 +44,7 @@ const updateSellerDetails = asyncHandler(async (req, res) => {
   }
   const  {businessInformation,bankAccountDetails,legalInformation}  = req.body;
   if(!businessInformation && !legalInformation && !bankAccountDetails){
-    throw new ApiError(401, "Updated Fields not found");
+    throw new ApiError(400, "Updated Fields not found");
   }
 
   let seller = await Seller.findOne({ user: user._id }).populate("bankAccountDetails");
@@ -51,8 +60,10 @@ const updateSellerDetails = asyncHandler(async (req, res) => {
   if(bankAccountDetails){
     seller.bankAccountDetails = {...bankAccountDetails}
   }    
-    
   await seller.save({validationBeforeSave : false});
+  // await redis.del(`sellerDetails:${user._id}`)
+  await redis.set(`sellerDetails:${user._id}`,seller)
+  await redis.expire(`sellerDetails:${user._id}`,600)
   return res
     .status(200)
     .json(new ApiResponse(200, seller, "Successfully updated seller details"));
@@ -61,7 +72,6 @@ const updateSellerDetails = asyncHandler(async (req, res) => {
 
 const registerSeller = asyncHandler(async (req, res) => {
   const user = req.user;
-  console.log(user);
   if (!user) {
     throw new ApiError(401, "User not found");
   }
@@ -86,6 +96,12 @@ const getDashboardDetails = asyncHandler(async (req, res) => {
   }
   if(user.role !== "admin"){
     throw new ApiError(401, "User is not Admin");
+  }
+  const cachedDashboardReport = await redis.get(`sellerDashboardReport:${user._id}`);
+  if(cachedDashboardReport){
+    return res
+    .status(200)
+    .json(new ApiResponse(200,JSON.parse(cachedDashboardReport),"Successfully get user")) 
   }
   const dashboardReport = await Order.aggregate(
     [
@@ -119,7 +135,7 @@ const getDashboardDetails = asyncHandler(async (req, res) => {
           orderStatistics: [
             {
               $group: {
-                _id: "$status",
+                _id: "$products.status",
                 orders: {
                   $sum: 1,
                 },
@@ -156,7 +172,7 @@ const getDashboardDetails = asyncHandler(async (req, res) => {
                   $sum: "$orders",
                 },
               },
-            },
+            }
           ],
           topProducts: [
             {
@@ -165,46 +181,42 @@ const getDashboardDetails = asyncHandler(async (req, res) => {
                 totalTimeSelled: {
                   $sum: 1,
                 },
-                product: { $push: "$product" },
+                product: { $first: "$product" },
+              },
+            },
+            {
+              $lookup: {
+                from: "productreviews",
+                localField: "_id",
+                foreignField: "product",
+                as: "reviews"
+              }
+            },
+            {
+              $addFields: {
+                averageRating: {
+                  $avg: "$reviews.ratingStar"
+                }
+              }
+            },
+            {
+              $addFields: {
+                variety: { $first: "$product.variety" },
               },
             },
             {
               $addFields: {
-                variety: {
-                  $arrayElemAt: [
-                    "$product.variety",
-                    0,
-                  ],
-                },
-              },
-            },
-            {
-              $addFields: {
-                variety: {
-                  $first: "$variety",
-                },
-              },
-            },
-            {
-              $addFields: {
-                image: {
-                  $arrayElemAt: [
-                    "$variety.images",
-                    0,
-                  ],
-                },
-                sizeOption: {
-                  $first: "$variety.sizeOptions",
-                },
+                image: { $arrayElemAt: ["$variety.images", 0] },
+                sizeOption: { $first: "$variety.sizeOptions" },
               },
             },
             {
               $project: {
                 imageUrl: "$image.imageUrl",
-                price:
-                  "$sizeOption.price.discountedPrice",
-                title:{$first :  "$product.title"},
+                price: "$sizeOption.price.discountedPrice",
+                title: "$product.title",
                 totalTimeSelled: 1,
+                averageRating: 1,
               },
             },
             {
@@ -214,13 +226,13 @@ const getDashboardDetails = asyncHandler(async (req, res) => {
               $limit: 5,
             },
           ],
-          yearReport: [
+           yearReport: [
             
             {
               $group: {
                 _id: {
                   $dateToString: {
-                    format: "%Y-%m-%d",
+                    format: "%Y-%m",
                     date: "$createdAt",
                   },
                 },
@@ -250,10 +262,10 @@ const getDashboardDetails = asyncHandler(async (req, res) => {
   }
   
   const formatedYearReport = applyMonthByDate(dashboardReport[0].yearReport);
-  console.log("formatedYearReport");
   console.log(formatedYearReport);
   dashboardReport[0].yearReport = formatedYearReport;
-  
+  await redis.set(`sellerDashboardReport:${user._id}`,JSON.stringify(dashboardReport[0]));
+  await redis.expire(`sellerDashboardReport:${user._id}`,600);
   return res
     .status(200)
     .json(new ApiResponse(200, dashboardReport[0], "Successfully get Dashboard Report"));
@@ -266,6 +278,12 @@ const getAnalyticsDetails = asyncHandler(async (req,res) => {
   }
   if(user.role !== "admin"){
     throw new ApiError(401, "User is not Admin");
+  }
+  const cachedAnalyticsReport = await redis.get(`sellerAnalyticsReport:${user._id}`);
+  if(cachedAnalyticsReport){
+    return res
+    .status(200)
+    .json(new ApiResponse(200,JSON.parse(cachedAnalyticsReport),"Successfully get user")) 
   }
   const analyticsReport = await Order.aggregate(
     [
@@ -395,6 +413,9 @@ const getAnalyticsDetails = asyncHandler(async (req,res) => {
       },
     ]
   )
+  await redis.set(`sellerAnalyticsReport:${user._id}`,JSON.stringify(analyticsReport));
+  await redis.expire(`sellerAnalyticsReport:${user._id}`,600);
+
   return res
   .status(200)
   .json(new ApiResponse(200, analyticsReport, "Successfully get analyticsReport Report"));
@@ -403,38 +424,14 @@ const getAnalyticsDetails = asyncHandler(async (req,res) => {
 export const applyMonthByDate = (data) => {
   const monthNames = ['JAN', 'FEB', 'MAR', 'APR', 'MAY', 'JUN', 'JUL', 'AUG', 'SEP', 'OCT', 'NOV', 'DEC'];
 
-  // Initialize months with default values
   const months = monthNames.reduce((acc, month) => ({ ...acc, [month]: 0 }), {});
 
-  // If no data, return the default months with 0 values
-  console.log("data");
-  console.log(data);
   if (!data.length) return monthNames.map(name => ({ name, value: 0 }));
   
   data.forEach((date) => {
-    console.log(date._id.slice(8, 10));
-    
-    const monthIndex = parseInt(date._id.slice(8, 10), 10) - 1; 
+    const monthIndex = date._id.slice(5); 
     months[monthNames[monthIndex]] += date.orders; 
   });
 
   return monthNames.map(name => ({ name, value: months[name] }));
 };
-
-
-// const bb = async () => {
-//   const orders = await Order.find({});
-  
-//   await Promise.all(orders.map(async (order, index) => {
-//     if (index < 5) {
-//       await Order.updateOne(
-//         { _id: order._id },
-//         { createdAt: "2024-08-09T06:13:46.186+00:00" },
-//         { timestamps: false }  // Disable automatic timestamps for this update
-//       );
-//       console.log(`Updated order ${order._id} ${order.createdAt}createdAt: 2024-09-10T06:13:46.186+00:00`);
-//     }
-//   }));
-// };
-
-// bb();

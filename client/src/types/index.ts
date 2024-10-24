@@ -77,7 +77,6 @@ export interface IFilter {
   priceLowToHigh?: boolean | "";
   priceHighToLow?: boolean | "";
   latest?: boolean | "";
-  skip : number
 }
 
 export interface ICartItems {
@@ -85,12 +84,12 @@ export interface ICartItems {
   title: string;
   color: string;
   size: string;
-  price: {
     originalPrice: number;
     discountedPrice: number;
-  };
   quantity: number;
   imageUrl: string;
+  varietyId : string,
+  sizeOptionId : string
 }
 export interface InputData {
   type: HTMLInputTypeAttribute;

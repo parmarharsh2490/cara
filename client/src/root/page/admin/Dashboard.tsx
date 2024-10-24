@@ -94,8 +94,8 @@ const DashboardSkeleton = () => {
       
    </div>
   </main>
-  <div className='w-full flex gap-4'>
-  <div className="recent-orders-chart flex-1 bg-white rounded-lg shadow-md sm:p-5 animate-pulse w-1/2">
+  <div className='w-full flex flex-col lg:flex-row gap-4'>
+  <div className="recent-orders-chart flex-1  bg-white rounded-lg shadow-md sm:p-5 animate-pulse w-full lg:w-1/2">
       {/* Header Skeleton */}
       <div className="flex items-center justify-between mb-0 p-2">
         {/* Title Skeleton */}

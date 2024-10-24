@@ -103,7 +103,7 @@ const ProductListSkeleton = ( ) => {
 </div>
     )
 }
-const ProductList = ({loadMore, products,isError,productLoading,buttonLoading} : {products : IProduct[],buttonLoading : boolean,productLoading : boolean,isError : boolean,loadMore : any}) => {
+const ProductList = ({loadMore, products,isError,productLoading,buttonLoading} : {products :any,buttonLoading : boolean,productLoading : boolean,isError : boolean,loadMore : any}) => {
   return (
     <>
     {
@@ -114,7 +114,7 @@ const ProductList = ({loadMore, products,isError,productLoading,buttonLoading} :
             <div className='grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-4 xl:grid-cols-5 gap-4 justify-items-start sm:justify-items-center lg:justify-items-start'>
               {
                products.length === 0 && isError ? (
-                <h1 className='text-3xl m-3  whitespace-nowrap'>No Products Found!</h1>
+                <h1 className='text-3xl text-center w-full whitespace-nowrap'>No Products Found!</h1>
                ) : (
                  products.map((product : IProduct) => (
                   <Product key={product._id}  product={product} />

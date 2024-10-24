@@ -10,8 +10,10 @@ const getUserOrders = async(skip : number) => {
     const response = await apiClient.get(`/order?skip=${skip}`);
     return response.data.data
 }
-const getSellerOrders = async(skip : number) => {
-    const response = await apiClient.get(`/order/seller?skip=${skip}`);
+const getSellerOrders = async(pageParam=0) => {
+    console.log("In Service",pageParam);
+    
+    const response = await apiClient.get(`/order/seller?pageParam=${pageParam}`);
     return response.data.data
 }
 const updateOrderStatus = async(data : any) => {

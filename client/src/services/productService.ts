@@ -12,15 +12,12 @@ export {
     getAdminProducts
 }
  
-const getLatestProducts = async (skip : number) => {
+const getLatestProducts = async (pageParam : number) => {
    const response =  await apiClient.get("/products",{
     params : {
-      limit : 10,
-      skip
+      pageParam
     }
    });
-   console.log(response);
-   console.log(response.data.data);
    return response.data.data
 }
 

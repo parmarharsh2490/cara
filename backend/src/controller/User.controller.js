@@ -4,8 +4,8 @@ import User from "../model/User.model.js";
 import ApiError from "../utils/ApiError.js";
 import ApiResponse from "../utils/ApiResponse.js";
 import { asyncHandler } from "../utils/AsyncHandler.js"
-import { getTransporter } from "../index.js";
 import otpGenerator from "otp-generator"
+import { getTransporter } from "../utils/email.js";
 
 
 

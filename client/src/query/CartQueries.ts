@@ -44,10 +44,11 @@ const useUpdateQuantity = () => {
 };
 
 const useRemoveFromCart = () => {
+    const queryClient = useQueryClient()
     return useMutation({
-        mutationFn : (data) => removeFromCart(data),
+        mutationFn : ({ productId, sizeOptionId, varietyId } : {productId : any, sizeOptionId : any, varietyId : any}) => removeFromCart({ productId, sizeOptionId, varietyId }),
         onSuccess : () => {
-            alert("Successfully Added to Cart")
+            queryClient.invalidateQueries({queryKey :[QUERY_KEYS.CART]})
         }
     })
 }

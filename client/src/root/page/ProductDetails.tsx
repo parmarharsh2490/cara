@@ -4,11 +4,12 @@ import Footer from '../../components/shared/Footer';
 import PromotionBanner from '../../components/shared/PromotionBanner';
 import Reviews from '../../components/shared/Reviews';
 import { useGetAllProducts, useGetProductDetails } from '../../query/ProductQueries';
-import { useParams } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import { ISizeOption, IVariety } from '@/types';
 import { useAddToWishlist } from '../../query/WishlistQueries';
 import { useAddToCart } from '../../query/CartQueries';
 import ProductList from '../../components/shared/ProductList';
+import { useToast } from '@/hooks/use-toast';
 
 
 const ProductSkeleton = () => {
@@ -43,6 +44,7 @@ const ProductSkeleton = () => {
 };
 
 const ProductDetails = () => {
+  const {toast} = useToast();
   const {productId} = useParams();
   const [selectedVarietyIndex,setSelectedVarietyIndex] = useState(0)
   const [selectedSizeOptionIndex,setSelectedSizeOptionIndex] = useState(0)
@@ -54,6 +56,7 @@ const ProductDetails = () => {
   if(!productId){
     return <p>Error Happened!</p>
   }
+  const navigate = useNavigate();
     const productCount = useRef<HTMLInputElement>(null);
     const {data : product,isLoading,isPending,isFetched,isSuccess} = useGetProductDetails(productId);
     const [options,setOptions] = useState({category : product?.category,enabled : !!product?.category,skip : 0});
@@ -78,11 +81,22 @@ const ProductDetails = () => {
       setOptions((prev) => ({...prev,enabled : !!product?.category, skip: prev.skip + 10}))
     } 
     
-    
+const handleAddToCart = async({productId,sizeOptionId,varietyId,quantity} : {productId : any,sizeOptionId: any,varietyId: any,quantity : any}) => {
+  console.log(productId);
+  try {
+    if(product.isAlreadyInCart){
+      navigate('/checkout/cart')
+      return
+    }
+    await addToCart({ productId,sizeOptionId,varietyId,quantity});  
+   toast({title : "Success",description : "Successfully Added to Cart",variant : "cart"}) 
+  } catch (error) {
+  toast({title : "Failed",description : "Failed to Add to Cart",variant : "destructive"})   
+  }
+}
 const imageClick = (indexOfImage: number) => {
   setSelectedImageIndex(indexOfImage)
 };
-
   return (
     <>
     {
@@ -175,8 +189,10 @@ const imageClick = (indexOfImage: number) => {
             </svg>
             WISHLIST
           </button>
-          <button onClick={() => addToCart({ productId : product._id, sizeOptionId : product.variety[selectedVarietyIndex].sizeOptions[selectedSizeOptionIndex]._id, varietyId : product.variety[selectedVarietyIndex]._id,quatity : productCount.current?.value || 1 })} className="w-1/2 max-w-[200px] left-0 p-3 text-base sm:relative  sm:p-2 bg-slate-800 text-white border hover:bg-slate-600 rounded-md font-semibold duration-500 border-slate-800 hover:text-white">
-            ADD TO BAG
+          <button 
+          onClick={() => handleAddToCart({ productId: product._id, sizeOptionId: product.variety[selectedVarietyIndex].sizeOptions[selectedSizeOptionIndex]._id, varietyId: product.variety[selectedVarietyIndex]._id, quantity: productCount.current?.value || 1 })}
+          className="w-1/2 max-w-[200px] left-0 p-3 text-base sm:relative  sm:p-2 bg-slate-800 text-white border hover:bg-slate-600 rounded-md font-semibold duration-500 border-slate-800 hover:text-white">
+            {product.isAlreadyInCart ? "Go To Cart" : "ADD TO BAG"}
           </button>
         </div>
         <h4 className="text-lg py-4">Product details</h4>
@@ -189,6 +205,7 @@ const imageClick = (indexOfImage: number) => {
     </section>
       )
     }
+    {/* <Reviews/> */}
     <Reviews/>
     <div className='mt-10'>
         <h1 className='text-center text-2xl sm:text-3xl sm:mb-2'>Similar Products</h1>

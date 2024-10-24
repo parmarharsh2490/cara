@@ -4,7 +4,8 @@ const cartSchema = mongoose.Schema(
     {
         user : {
             type : mongoose.Types.ObjectId,
-            ref : "User"
+            ref : "User",
+            required : true
         },
         products : [
         {
@@ -25,7 +26,7 @@ const cartSchema = mongoose.Schema(
                 required : true,
                 default : 1
             },
-            seller: {
+            seller : {
                 type: mongoose.Types.ObjectId,
                 ref: "User",
                 required: true

@@ -54,14 +54,14 @@ const App = () => {
           <Route path="/analytics" element={<Analytics />} />
         </Route>
         
-         <Route index element={<Home />} />  
-         <Route path="/seller" element={<SellerPage />} />
+        <Route path="/seller" element={<SellerPage />} />
+          <Route index element={<Home />} />  
         <Route path="/blog" element={<Blog />} />
         <Route path="/about" element={<About />} />
-        <Route path="/contact" element={<Contact />} /> 
-        <Route path="/checkout/cart" element={<Cart />} />
+        <Route path="/contact" element={<Contact />} />  
+        <Route path="/checkout/cart" element={<Cart />} />  
         <Route path="/product/:productId" element={<ProductDetails />} />
-        <Route path="/shopping/:category" element={<Category />} />  
+        <Route path="/shopping/:category" element={<Category />} />
         
         {/* Catch-all route */}
         <Route path="*" element={<Blog />} />

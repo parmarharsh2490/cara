@@ -1,9 +1,19 @@
 import { useState } from "react"
 import { useSendPromotionalMail } from "../../query/PromotionalQueries"
+import { useToast } from "@/hooks/use-toast";
 
 const PromotionBanner = () => {
   const [email,setEmail] = useState("");
-  const {mutateAsync : sendPromotionMail} = useSendPromotionalMail()
+  const {toast}  = useToast()
+  const {mutateAsync : sendPromotionMail} = useSendPromotionalMail();
+  const handleOnClick = () => {
+    sendPromotionMail({email});
+    toast({
+      title : "Success",
+      description : "Successfully Signup to Promotional Mail",
+      variant : "promotion"
+    })
+  }
   return (
     <div className='py-10 text-center px-3 gap-3 sm:gap-0  items-center flex flex-col md:flex-row justify-around bg-gradient-to-r from-purple-700 via-red-500 to-yellow-300 text-white'>
         <div className="flex flex-col sm:mb-3 md:m-0">
@@ -12,7 +22,7 @@ const PromotionBanner = () => {
         </div>
         <div className="flex w-auto gap-2">
             <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} className="outline-none text-black rounded-md py-2 px-2 md:py-3 md:px-5" placeholder='Your Email Address'/>
-            <button onClick={() => sendPromotionMail({email})} className="border rounded-lg border-white p-3 font-thin">Sign Up</button>
+            <button onClick={handleOnClick} className="border rounded-lg border-white p-3 font-thin">Sign Up</button>
         </div>
     </div>
   )

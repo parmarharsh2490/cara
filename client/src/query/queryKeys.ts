@@ -11,6 +11,7 @@ export enum QUERY_KEYS {
     "DASHBOARD" = "dashboard",
     "ANALYTICS" = "Analytics",
     "ORDERS" = "orders",
+    "SELLERORDERS" = "sellerOrders",
     "ADDRESS"= "address",
     "ADMINPRODUCTS" = "adminProducts",
     "PRODUCTREVIEW" = "productReview"

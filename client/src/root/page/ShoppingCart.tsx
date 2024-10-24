@@ -1,9 +1,10 @@
 import Navigation from "../../components/shared/Navigation";
 import Footer from "../../components/shared/Footer";
-import apiClient from "../../services/index.ts";
-import { useGetUserCart, useUpdateQuantity } from "../../query/CartQueries.ts";
+import { useGetUserCart, useRemoveFromCart, useUpdateQuantity } from "../../query/CartQueries.ts";
 import { ICartItems } from "../../types/index.ts";
 import { totalDiscount,countTotalCartAmount } from "../../utils/cartPriceHelper.ts";
+import { useCreateOrder, usePaymentHandler } from "../../query/order.query.ts";
+import { useToast } from "@/hooks/use-toast.ts";
 
 declare global {
   interface Window {
@@ -12,28 +13,19 @@ declare global {
 }
 
 const ShoppingCart = () => {
+  const {toast} = useToast()
   const {data : products,isLoading} = useGetUserCart()
   const {mutateAsync : updateQuantity} = useUpdateQuantity();
+  const {mutateAsync : createOrder,isPending:isOrderCreating} = useCreateOrder()
+  const {mutateAsync : paymentHandler,isSuccess:isPaymentSuccess} = usePaymentHandler();
+  const {mutateAsync : removeProductFromCart} = useRemoveFromCart()
   if(isLoading){
     return <p>Loading...</p>
   }
   const {totalCartAmount,totalCartDiscount,totalMrp} = countTotalCartAmount(products)
-  const createOrder = async () => {
-    try {
-      const response = await apiClient.post('/order/create-order', {
-        amount: totalCartAmount,
-        currency: 'INR'
-      });
-      if(!response.data.data.orderId){
-        alert("Error Happened")
-      }
-      return response.data.data.orderId;
-    } catch (error) {
-      console.error('Error creating order:', error);
-    }
-  };
+ 
   const handlePayment = async () => {
-    const orderId  = await createOrder();
+    const orderId  = await createOrder(totalCartAmount);
     if(!orderId) return
     
     const options = {
@@ -43,17 +35,21 @@ const ShoppingCart = () => {
       name: 'Cara',
       description: 'Test Transaction dont worry just click it will not cut any money enter fake otp',
       order_id : orderId,
-      handler: function (response : any) {
-        apiClient.post('/order/verify-payment', {
-          amount : totalCartAmount,
-          razorpay_order_id: response.razorpay_order_id,
-          razorpay_payment_id: response.razorpay_payment_id,
-          razorpay_signature: response.razorpay_signature,
-        }).then(() => {
-          alert("Payment Verified Successfully");
-        }).catch((error) => {
-          console.error('Error verifying payment:', error);
-        });
+      handler: async(response: any) => {
+        try {
+          await paymentHandler({paymentResponse : response, totalCartAmount}),
+          toast({
+            title : "Success",
+            description : "Successfully Placed Order",
+            variant : "OrderStatusChange"
+          })
+        } catch (error) {
+          toast({
+            title : "Fail",
+            description : "Failed to  Placed Order",
+            variant : "destructive"
+          })
+        }
       },
       prefill: {
         name: 'John Doe',
@@ -66,7 +62,33 @@ const ShoppingCart = () => {
     };
     const paymentObject = new window.Razorpay(options);
     paymentObject.open();
+    if(isPaymentSuccess){
+      toast({
+        title: "Success",
+        description: "Successfully Logged In",
+      })
+    }
   };
+  const handleRemoveFromCart = async({productId, varietyId, sizeOptionId}: {productId: string, varietyId: string, sizeOptionId: string}) => {
+    try {
+      console.log({productId,varietyId,sizeOptionId});
+      
+      await removeProductFromCart({productId,varietyId,sizeOptionId});
+      toast({
+        title : "Success",
+        description : "Successfully Removed From Cart",
+        variant : "cart"
+      })
+    } catch (error) {
+      console.log(error);
+      toast({
+        title : "Failed",
+        description : "Failed to Remove From Cart",
+        variant : "destructive"
+      })
+    }
+
+  }
   return (
     <>
     <Navigation/>  
@@ -122,20 +144,20 @@ const ShoppingCart = () => {
                 <div className="right w-full flex flex-row justify-start items-center gap-3 sm:gap-0 sm:flex-col sm:w-[20%]">
                   <div className="flex items-center justify-center gap-3">
                   <h1 className="font-semibold text-sm sm:text-xl my-1 sm:my-0">
-                    ₹{product.price.discountedPrice}
+                    ₹{product.discountedPrice}
                   </h1>
                   <h1 className="font-semibold text-sm sm:text-xl my-1 sm:my-0 text-slate-400 line-through">
-                  ₹{product.price.originalPrice}
+                  ₹{product.originalPrice}
                   </h1>
                   </div>
                   <h3 className="inline-block text-base sm:text-md font-semibold text-green-600">
-                    {totalDiscount(product.price.discountedPrice,product.price.originalPrice)}%
+                    {totalDiscount(product.discountedPrice,product.originalPrice)}%
                   </h3>
                 </div>
               </div>
               <div className="lower h-[20%] w-full">
                 <div className="flex h-full w-full justify-start items-center p-1 sm:p-3 sm:py-4">
-                  <div className="remove text-slate-400 text-sm pr-7 font-semibold cursor-pointer border-r-2">
+                  <div onClick={() => handleRemoveFromCart({productId : product._id,varietyId : product.varietyId,sizeOptionId : product.sizeOptionId})} className="remove text-slate-400 text-sm pr-7 font-semibold cursor-pointer border-r-2">
                     REMOVE
                   </div>
                   <div className="move text-red-500 text-sm pl-7 font-semibold cursor-pointer">
@@ -212,7 +234,10 @@ const ShoppingCart = () => {
             <h2 className="font-bold text-left sm:text-xl text-2xl">₹{totalCartAmount}</h2>
           </div>
           <div onClick={handlePayment} className="btn px-3 py-4 w-1/2 sm:w-full text-center cursor-pointer bg-slate-700 text-white font-semibold my-3 rounded-lg">
-            CHECKOUT
+           {isOrderCreating ?   <div className="flex items-center justify-center gap-3">
+          <img width={20} src="/Loader.svg" alt="Loading..." />
+          Loading
+        </div> :  "CHECKOUT"}
           </div>
         </div>
       </div>
