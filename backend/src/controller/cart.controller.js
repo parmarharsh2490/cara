@@ -11,11 +11,8 @@ export { addToCart, removeFromCart, updateQuantity, getUserCart };
 const addToCart = asyncHandler(async (req, res) => {
     const user = req.user;
     const { productId, sizeOptionId,varietyId,quantity = 1 } = req.body;
-  console.log({ productId, sizeOptionId,varietyId,quantity  });
-  console.log("here1");
-  console.log(user);
-  
-    // Step 1: Check if the item already exists in the cart
+
+  // Step 1: Check if the item already exists in the cart
     const existingCart = await Cart.findOne({
       user: user._id,
       products: {
@@ -26,8 +23,6 @@ const addToCart = asyncHandler(async (req, res) => {
         },
       },
     });
-  console.log("here2");
-  console.log(existingCart);
     if (existingCart) {
       return res.status(400).json(new ApiResponse(400,"Product is Already in Cart"))
     }
@@ -50,7 +45,6 @@ const addToCart = asyncHandler(async (req, res) => {
         new: true,
       }
     ).select("-user -__v -createdAt -updatedAt").populate("products.product","title variety").lean();
-    console.log(newCart);
     
     const transformedCart = transformCartData(newCart.products);
     await redis.set(`cart:${user._id}`,JSON.stringify(transformCartData))
@@ -63,28 +57,24 @@ const addToCart = asyncHandler(async (req, res) => {
   
 
 const removeFromCart = asyncHandler(async (req, res) => {
-  const { productId, sizeOptionId, varietyId } = req.query;
-  console.log({ productId, sizeOptionId, varietyId });
+  const { cartProductId } = req.query;
   
-  if (!productId || !isValidObjectId(productId) ||!sizeOptionId || !isValidObjectId(sizeOptionId) || !varietyId || !isValidObjectId(varietyId)) {
-    throw new ApiError(400, "ProductId is invalid");
+  if (!cartProductId || !isValidObjectId(cartProductId)) {
+    throw new ApiError(400, "CartProductId is invalid");
   }
   const user = req.user;
-console.log("Removing From Cart",{ productId, sizeOptionId, varietyId });
 
   const updatedCart = await Cart.findOneAndUpdate(
     {
       user: user._id,
-      "products.product": new mongoose.Types.ObjectId(productId),
-      "products.sizeOption": new mongoose.Types.ObjectId(sizeOptionId),
-      "products.variety": new mongoose.Types.ObjectId(varietyId),
+      // "products.product": new mongoose.Types.ObjectId(productId),
+      // "products.sizeOption": new mongoose.Types.ObjectId(sizeOptionId),
+      // "products.variety": new mongoose.Types.ObjectId(varietyId),
     },
     {
       $pull: {
         products: {
-          product : productId,
-          sizeOption: sizeOptionId,
-          variety : varietyId
+          _id : new mongoose.Types.ObjectId(cartProductId)
         },
       },
     },
@@ -92,7 +82,6 @@ console.log("Removing From Cart",{ productId, sizeOptionId, varietyId });
       new: true,
     }
   ).populate("products.product", "title variety");
-  console.log(updatedCart);
   
   if (!updatedCart || updatedCart.products.length === 0) {
     return res
@@ -111,9 +100,7 @@ console.log("Removing From Cart",{ productId, sizeOptionId, varietyId });
 
 const updateQuantity = asyncHandler(async (req, res) => {
   const user = req.user;
-  // const { quantity , productId , sizeOptionId, varietyId } = req.body;
   const {cartProductId,quantity} = req.body;
-  console.log(cartProductId,quantity);
   
   if (quantity <= 0 || quantity > 100) {
     return res.status(400).json({ message: "Quantity must be greater than 0 or Less than or Equal to 100" });
@@ -125,7 +112,7 @@ const updateQuantity = asyncHandler(async (req, res) => {
       // "products.product": new mongoose.Types.ObjectId(productId),
       // "products.sizeOption": new mongoose.Types.ObjectId(sizeOptionId),
       // "products.variety": new mongoose.Types.ObjectId(varietyId),
-      products  :{
+      products : {
         $elemMatch : {
           _id : new mongoose.Types.ObjectId(cartProductId)
         }
@@ -138,7 +125,6 @@ const updateQuantity = asyncHandler(async (req, res) => {
       new: true,
     }
   ).select("-user -__v -createdAt -updatedAt").populate("products.product","title variety").lean();
-console.log(updatedCart);
 
   if (!updatedCart) {
     return res.status(404).json({ message: "Cart or product not found" });
@@ -214,7 +200,8 @@ const getUserCart = asyncHandler(async (req, res) => {
     },
     {
     $project: {
-      _id: "$product._id",
+      _id: "$products._id",
+      productId : "$product._id",
       title: { $ifNull: ["$product.title", "Unknown Title"] },
       color: { $ifNull: ["$secvariety.color", "Unknown Color"] },
       size: { $ifNull: [{ $arrayElemAt: ["$sizeArr.size", 0] }, "Unknown Size"] },
@@ -223,7 +210,16 @@ const getUserCart = asyncHandler(async (req, res) => {
       quantity: { $ifNull: ["$products.quantity", 0] },
       imageUrl: { $ifNull: ["$image.imageUrl", "default_image_url"] },
       varietyId : "$secvariety._id",
-      sizeOptionId : { $arrayElemAt: ["$sizeArr._id",0] }
+      sizeOptionId : { $arrayElemAt: ["$sizeArr._id",0] },
+      inStock : {
+        $cond : {
+          if : {
+            $gt : [{$arrayElemAt : ["$sizeArr.stock",0]},"$products.quantity"]
+          },
+          then : true,
+          else :false
+        }
+      }
     }
   } 
   ])

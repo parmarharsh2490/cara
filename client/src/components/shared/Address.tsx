@@ -17,15 +17,19 @@ const AddressField: React.FC<AddressFieldProps> = ({ label, value }) => (
   </div>
 );
 
+enum IAddressAction{
+  "create",
+  "update"
+}
 const Address: React.FC = () => {
   const [showPopupForm, setShowPopupForm] = useState(false);
   const {data : address,isLoading} = useGetUserAddress();
   const {user}  =useContext(UserContext);
-  const [action,setAction] = useState("create");
+  const [action,setAction] = useState<IAddressAction>(IAddressAction.create);
   const {mutateAsync : createUserAddress,isPending : isCreatingUserAddress}  = useCreateUserAddress();
   const {mutateAsync : updateUserAddress,isPending : isUpdatingUserAddress}  = useCreateUserAddress();
   const handleAddressSubmitFunction = async(data : any) => {
-    if(action === "create"){
+    if(action === IAddressAction.create){
       createUserAddress(data)
     }else{ 
       updateUserAddress(data)
@@ -75,12 +79,12 @@ const Address: React.FC = () => {
            {address ? <p 
            onClick={() => {
             setShowPopupForm(!showPopupForm)
-            setAction("update")
+            setAction(IAddressAction.update)
            }
            }>Update address</p> : <p
            onClick={() => {
             setShowPopupForm(!showPopupForm)
-            setAction("create")
+            setAction(IAddressAction.create)
            }
            }
            >Add new address</p>}
@@ -115,7 +119,7 @@ const Address: React.FC = () => {
           { type: "string", label: "country", name: "Country" },
           { type: "number", label: "contactNumber", name: "Contact Number" },
         ]}
-        isLoading={isCreatingUserAddress || isUpdatingUserAddress}
+        isLoading={action === IAddressAction.create ? isCreatingUserAddress : isUpdatingUserAddress}
         showPopupForm={showPopupForm}
         setShowPopupForm={setShowPopupForm} 
         label={"Add Your Address"}

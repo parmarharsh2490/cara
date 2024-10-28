@@ -6,6 +6,6 @@ export  const transformProductReviewData = (data) => {
         reviewTitle : data.reviewTitle, 
         reviewDescription : data.reviewDescription,
         reviewImageUrl : data.reviewImage.imageUrl,
-        updatedAt : data.updatedAt
+        product : data.product,
     }
 }

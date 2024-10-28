@@ -242,20 +242,20 @@ const getProductDetails = asyncHandler(async (req, res) => {
   if (!productId || !isValidObjectId(productId)) {
     throw new ApiError(400, "ProductId is invalid");
   }
-  const cachedProductDetails = await redis.get(`product:${productId}`);
-  if (cachedProductDetails) {
-    console.log(cachedProductDetails);
+  // const cachedProductDetails = await redis.get(`product:${productId}`);
+  // if (cachedProductDetails) {
+  //   console.log(cachedProductDetails);
     
-    return res
-      .status(200)
-      .json(
-        new ApiResponse(
-          200,
-          JSON.parse(cachedProductDetails),
-          "Successfully retrieved product details"
-        )
-      );
-  }
+  //   return res
+  //     .status(200)
+  //     .json(
+  //       new ApiResponse(
+  //         200,
+  //         JSON.parse(cachedProductDetails),
+  //         "Successfully retrieved product details"
+  //       )
+  //     );
+  // }
   const product = await Product.findById(productId).populate("owner").lean();
   const cart = await Cart.findOne({user : req.user._id});
   console.log(product._id);
@@ -265,8 +265,8 @@ const getProductDetails = asyncHandler(async (req, res) => {
   if (!product) {
     throw new ApiError(404, "Product not found");
   }
-  await redis.set(`product:${productId}`, JSON.stringify(product));
-  await redis.expire(`product:${productId}`,600)
+  // await redis.set(`product:${productId}`, JSON.stringify(product));
+  // await redis.expire(`product:${productId}`,600)
   return res
     .status(200)
     .json(

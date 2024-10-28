@@ -75,7 +75,6 @@ const Category: React.FC = () => {
           params: { 
             ...filters, 
             pageParam: pageParam,
-            limit: 12 // Add a reasonable limit
           }
         });
         return {
@@ -94,7 +93,6 @@ const Category: React.FC = () => {
 
   // Reset query when filters change
   useEffect(() => {
-    console.log("Refetching")
     refetch();
   }, [filters, refetch]);
 
@@ -178,7 +176,6 @@ const Category: React.FC = () => {
           {/* Infinite scroll trigger */}
           {!isLoading && !error && hasNextPage && (
             <div ref={ref} className="h-20 flex items-center justify-center">
-              {isFetchingNextPage && <div>Loading more...</div>}
             </div>
           )}
         </div>

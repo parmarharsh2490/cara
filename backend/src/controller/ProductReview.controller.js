@@ -14,6 +14,7 @@ const createProductReview = asyncHandler(async (req, res) => {
     throw new ApiError(400, "ProductId is not valid");
   }
   const { ratingStar, reviewTitle, reviewDescription } = req.body;
+  
   const file = req.file;
 
   if (!ratingStar || !reviewTitle || !reviewDescription) {
@@ -59,7 +60,7 @@ const createProductReview = asyncHandler(async (req, res) => {
   }
   review.name = user.name;
   const transformReview = transformProductReviewData(review);
-  // await redis.del(`review:${productId}`)
+  await redis.del(`review:${productId}`)
   await redis.lpush(`review:${productId}`,JSON.stringify(transformReview))
   return res.status(201).json(new ApiResponse(201, transformReview, "Review created successfully"));
 });
@@ -83,7 +84,7 @@ const updateProductReview = asyncHandler(async (req, res) => {
   const existingProductReview = await ProductReview.findOne({
     user: user._id,
     product: productId,
-  }).select('-user -product -updatedAt');
+  }).select('-user -updatedAt');
   if (!existingProductReview) {
     throw new ApiError(404, "Product Review not found");
   }
@@ -133,7 +134,7 @@ const deleteProductReview = asyncHandler(async (req, res) => {
   }
 
   await ProductReview.findByIdAndDelete(productReviewId);
-  await redis.del(`review:${productId}`)
+  await redis.del(`review:${productReviewId}`)
   return res
     .status(204)
     .json(new ApiResponse(204, null, "ProductReview successfully deleted"));
@@ -141,11 +142,10 @@ const deleteProductReview = asyncHandler(async (req, res) => {
 
 const getAverageProductReview = asyncHandler(async (req, res) => {
   const { productId } = req.params;
-  const {skip=0}  =req.query;
-  const parsedSkip = parseInt(skip);
+  const {pageParam=0}  =req.query;
+  const parsedSkip = parseInt(pageParam*5);
   
   const cachedProductReviewList = await redis.lrange(`review:${productId}`,parsedSkip,parsedSkip+5);
-  console.log(cachedProductReviewList);
   
   if(cachedProductReviewList && cachedProductReviewList.length > 0){
     console.log("cached data");
@@ -176,101 +176,104 @@ const getAverageProductReview = asyncHandler(async (req, res) => {
       }
     },
     {
-      $sort : {
-        createdAt : 1
+      $sort: {
+        createdAt: 1
       }
     },
     {
-      $skip : parsedSkip
+      $group: {
+        _id: "$ratingStar",
+        count: { $sum: 1 },
+        reviews: {
+          $push: {
+            _id: "$_id",
+            title: "$reviewTitle",
+            description: "$reviewDescription",
+            image: "$reviewImage",
+            rating: "$ratingStar",
+            user: { $first: "$user.name" },
+            date: { "$dateToString": { "format": "%d-%m-%Y", "date": "$createdAt" } }
+          }
+        }
+      }
     },
     {
-      $limit : 5
+      $group: {
+        _id: null,
+        totalUserCount: { $sum: "$count" },
+        weightedSum: {
+          $sum: { $multiply: ["$_id", "$count"] }
+        },
+        ratingStar: {
+          $push: {
+            k: { $toString: "$_id" },
+            v: "$count"
+          }
+        },
+        allReviews: {
+          $push: {
+            rating: "$_id",
+            reviews: "$reviews"
+          }
+        }
+      }
     },
-      {
-        $group: {
-          _id: "$ratingStar",
-          count: { $sum: 1 },
-          reviews: {
-            $push: {
-              _id : "$_id",
-              title: "$reviewTitle",
-              description: "$reviewDescription",
-              image: "$reviewImage",
-              rating : "$ratingStar",
-              user : {$first : "$user.name"},
-              date : { "$dateToString": { "format": "%d-%m-%Y", "date": "$createdAt" } }
-            }
-          }
-        }
-      },
-      {
-        $group: {
-          _id: null,
-          totalUserCount: { $sum: "$count" },
-          weightedSum: {
-            $sum: { $multiply: ["$_id", "$count"] }
-          },
-          ratingStar: {
-            $push: {
-              k: { $toString: "$_id" },
-              v: "$count"
-            }
-          },
-          allReviews: {
-            $push: {
-              rating: "$_id",
-              reviews: "$reviews"
-            }
-          }
-        }
-      },
-      {
-        $project: {
-          _id: 0,
-          totalUserCount: 1,
-          averageRating: {
-            $round: [
-              {
-                $divide: [
-                  "$weightedSum",
-                  "$totalUserCount"
-                ]
-              },
-              2
+    {
+      $project: {
+        _id: 0,
+        totalUserCount: 1,
+        averageRating: {
+          $round: [
+            {
+              $divide: [
+                "$weightedSum",
+                "$totalUserCount"
+              ]
+            },
+            2
+          ]
+        },
+        // Add default rating data for ratings 1 to 5
+        ratingStar: {
+          $arrayToObject: {
+            $concatArrays: [
+              [
+                { k: "1", v: 0 },
+                { k: "2", v: 0 },
+                { k: "3", v: 0 },
+                { k: "4", v: 0 },
+                { k: "5", v: 0 }
+              ],
+              "$ratingStar"
             ]
-          },
-          // Add default rating data for ratings 1 to 5
-          ratingStar: {
-            $arrayToObject: {
+          }
+        },
+        reviews: {
+          $reduce: {
+            input: "$allReviews",
+            initialValue: [],
+            in: {
               $concatArrays: [
-                [
-                  { k: "1", v: 0 },
-                  { k: "2", v: 0 },
-                  { k: "3", v: 0 },
-                  { k: "4", v: 0 },
-                  { k: "5", v: 0 }
-                ],
-                "$ratingStar"
+                "$$value",
+                "$$this.reviews"
               ]
             }
-          },
-          reviews: {
-            $reduce: {
-              input: "$allReviews",
-              initialValue: [],
-              in: {
-                $concatArrays: [
-                  "$$value",
-                  "$$this.reviews"
-                ]
-              }
-            }
           }
         }
       }
-    ]    
-  )
+    },
+    {
+      $addFields: {
+        reviews: {
+          $slice : ["$reviews",parsedSkip,parsedSkip+5]
+        }
+      }
+    }
+  ]);
   
+  if(!ratingData || ratingData?.length === 0 || (parsedSkip>0 && ratingData[0].reviews && ratingData[0].reviews.length === 0)){
+    throw new ApiError(400,"No Rating Data Found")
+  }
   const reviewsToCache = ratingData[0].reviews.map((review) => JSON.stringify(review));
   await redis.rpush(`review:${productId}`, ...reviewsToCache);
   await redis.expire(`review:${productId}`,600);

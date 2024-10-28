@@ -8,12 +8,11 @@ import TopProducts from '../../../components/shared/TopProducts';
 interface MetricCardProps {
   title: string;
   value: string | number;
-  change: number;
   icon: React.ReactNode;
   color: string;
 }
 
-const MetricCard: React.FC<MetricCardProps> = ({ title, value, change, icon, color }) => (
+const MetricCard: React.FC<MetricCardProps> = ({ title, value, icon, color }) => (
   <div className="bg-white lg:gap-6 gap-4 rounded-lg shadow-md p-6 flex">
     <div className="flex justify-between items-center mb-4">
       <div className={`p-3 rounded-lg ${color}`} aria-hidden="true">
@@ -23,14 +22,6 @@ const MetricCard: React.FC<MetricCardProps> = ({ title, value, change, icon, col
     <div>
       <h3 className="text-gray-500 text-sm font-medium whitespace-nowrap">{title}</h3>
       <p className="text-2xl font-semibold mt-1">{value}</p>
-    </div>
-    <div className="flex items-center">
-      <span className={`text-sm font-semibold ${change >= 0 ? 'text-green-500' : 'text-red-500'}`}>
-        {change >= 0 ? <TrendingUp size={16} /> : <TrendingDown size={16} />}
-      </span>
-      <span className={`ml-1 text-sm font-semibold ${change >= 0 ? 'text-green-500' : 'text-red-500'}`}>
-        {Math.abs(change)}%
-      </span>
     </div>
     <div className="mt-4">
       <div className="h-2 bg-gray-200 rounded-full">
@@ -178,28 +169,24 @@ const Dashboard: React.FC = () => {
           <MetricCard
             title="Total Sales"
             value={dashboardData.orderStatistics.totalSales}
-            change={1.56}
             icon={<ShoppingBag className="text-white" size={24} />}
             color="bg-green-500"
           />
           <MetricCard
             title="Total Income"
             value={dashboardData.orderStatistics.totalEarning}
-            change={-1.56}
             icon={<DollarSign className="text-white" size={24} />}
             color="bg-orange-500"
           />
           <MetricCard
             title="Orders Paid"
             value={dashboardData.orderStatistics.totalOrders}
-            change={0}
             icon={<FileText className="text-white" size={24} />}
             color="bg-gray-400"
           />
           <MetricCard
             title="Total Visitor"
             value="34,945"
-            change={1.56}
             icon={<Users className="text-white" size={24} />}
             color="bg-blue-500"
           />

@@ -31,7 +31,9 @@ const useUpdateQuantity = () => {
             console.log(previousCart);
             queryClient.setQueryData([QUERY_KEYS.CART],(products : ICartItems[]) => {
                 products.map((product) => {
-                    product.quantity = data.quantity;
+                    if(product._id === data.cartProductId){
+                        product.quantity = data.quantity;
+                    }
                     return product
                 })
             })
@@ -46,8 +48,11 @@ const useUpdateQuantity = () => {
 const useRemoveFromCart = () => {
     const queryClient = useQueryClient()
     return useMutation({
-        mutationFn : ({ productId, sizeOptionId, varietyId } : {productId : any, sizeOptionId : any, varietyId : any}) => removeFromCart({ productId, sizeOptionId, varietyId }),
+        mutationFn : (cartProductId : string) => removeFromCart(cartProductId),
         onSuccess : () => {
+            queryClient.invalidateQueries({queryKey :[QUERY_KEYS.CART]})
+        },
+        onError : () => {
             queryClient.invalidateQueries({queryKey :[QUERY_KEYS.CART]})
         }
     })
@@ -58,6 +63,9 @@ const useAddToCart = () => {
     return useMutation({
         mutationFn : (data : any) => addToCart(data),
         onSuccess : () => {
+            queryClient.invalidateQueries({ queryKey : [QUERY_KEYS.CART]})
+        },
+        onError : () => {
             queryClient.invalidateQueries({ queryKey : [QUERY_KEYS.CART]})
         }
     })

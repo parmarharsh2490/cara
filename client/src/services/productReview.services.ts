@@ -6,19 +6,22 @@ export {
     updateProductReview,
     deleteProductReview
 }
-const getProductReview = async (productId: string, skip: number) => {
-    const response = await apiClient.get(`/productReview/${productId}?skip=${skip}`);
+const getProductReview = async ({productId, pageParam}) => {
+    const response = await apiClient.get(`/productReview/${productId}?pageParam=${pageParam}`);
     return response.data.data[0];
 };
 const createProductReview = async (data: any, productId: any) => {
     console.warn(data);
     console.log(productId);
     
-    const response = await apiClient.post(`/productReview/create/${data.productId}`,data.data)
+    const response = await apiClient.post(`/productReview/create/${productId}`,data)
     return response.data.data;
 };
-const updateProductReview = async (data : any) => {
-    const response = await apiClient.post("/productReview/update",data)
+const updateProductReview = async ({productId, data} : {data : any,productId: any}) => {
+    console.log(data);
+    console.log(productId);
+    
+    const response = await apiClient.patch(`/productReview/update/${productId}`,data)
     return response.data.data;
 };
 const deleteProductReview = async (data : any) => {

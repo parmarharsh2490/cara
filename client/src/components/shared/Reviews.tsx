@@ -4,63 +4,101 @@ import { useCreateProductReview, useDeleteProductReview, useGetProductReview, us
 import { StarIcon } from "../icons/StarIcon";
 import { VerifiedBuyerIcon } from "../icons/VerifiedBuyerIcon";
 import PopupForm from "./PopupForm";
-import AlertDialog from "../ui/AlertDialog";
 import { MdDelete } from "react-icons/md";
 import { FaEdit } from "react-icons/fa";
-
+import { useInfiniteQuery } from "@tanstack/react-query";
+import { QUERY_KEYS } from "@/query/queryKeys";
+import { getProductReview } from "@/services/productReview.services";
+import { useToast } from "@/hooks/use-toast";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog"
 const Reviews: React.FC = () => {
   const { productId } = useParams<{ productId: string }>();
-  const [showPopupForm, setShowPopupForm] = useState(false);
-  const [reviews, setReviews] = useState<any>([]);
-  const [skip, setSkip] = useState(0);
-  const [action, setAction] = useState("create");
-  // const [selectedReview, setSelectedReview] = useState(null);
-
-  const { mutateAsync: createProductReview, isPending: loadingCreatingProductReview } = useCreateProductReview();
-  const { mutateAsync: updateProductReview } = useUpdateProductReview();
-  const { data: newReviews, isLoading, isFetched, error } = useGetProductReview(productId || "", skip);
-
-  useEffect(() => {
-    console.log(newReviews);
-    console.log(newReviews);
-    
-    if (newReviews?.reviews && newReviews.reviews.length > 0) {
-      setReviews((prevReviews: any) => ({
-        ...newReviews,
-        reviews: [...(prevReviews.reviews || []), ...newReviews.reviews]
-      }));
-    }
-  }, [newReviews]);
-
   if (!productId) return <p className="text-red-500">Error: Product ID not found!</p>;
-  if (isLoading && !isFetched) return <p className="text-gray-500">Loading...</p>;
-
-  const handleReviewAction = async (data: any) => {
-    if (action === "create") {
-      await createProductReview({ data, productId });
-    } else {
-      await updateProductReview({ ...data, productId });
-    }
-    setShowPopupForm(false);
-    // setSelectedReview(null);
-  };
-
-  const handleEditReview = (review: any) => {
+  const [showPopupForm, setShowPopupForm] = useState(false);
+  const [action, setAction] = useState("create");
+  const {toast} = useToast();
+  const { mutateAsync: createProductReview, isPending: creatingProductReview } = useCreateProductReview();
+  const { mutateAsync: updateProductReview, isPending: updatingProductReview } = useUpdateProductReview();
+  const {data : reviews,fetchNextPage,isLoading,isFetching,isFetchingNextPage,error} = useInfiniteQuery<any[]>({
+    queryKey : [QUERY_KEYS.PRODUCTREVIEW,productId],
+    queryFn : ({pageParam =0}) => getProductReview({productId,pageParam}),
+    initialPageParam : 0,
+    enabled : !!productId,
+    retry :false,
+    refetchOnMount : false,
+    refetchOnWindowFocus : false,
+    getNextPageParam : (lastPageParam, allPages, lastPage: any) => {
+      return lastPage+1
+    },
+  })
+  if (isLoading && !isFetching) return <p className="text-gray-500">Loading...</p>;
+  const handleEditReview = () => {
     setAction("edit");
-    console.log(review);
-    
-    // setSelectedReview(review);
     setShowPopupForm(true);
   };
+  const handlePopupFormSubmit = async(data: any) => {
+    if(action === "create"){
+      try {
+        await createProductReview({ data, productId })
+        toast({
+          title : "Success",
+          description : "Successfully Added Product Review",
+          variant : "productReview"
+        })
+      } catch (error) {
+        console.log(error);
+        toast({
+          title : "Failed",
+          description : "Failed To Add Product Review",
+          variant : "destructive"
+        })
+      }
+    }else{
+    try {
+      await updateProductReview({ data, productId });
+      console.log("here after success");
+      
+      toast({
+        title : "Success",
+        description : "Successfully Updated Product Review",
+        variant : "productReview"
+      })
+    } catch (error) {
+      console.log(error);
+      toast({
+        title : "Failed",
+        description : "Failed To Update Product Review",
+        variant : "destructive"
+      })
+    }
+  }
 
+  }
   const loadMore = () => {
-    setSkip((prevSkip) => prevSkip + 1);
+    fetchNextPage()
   };
-
-  const ratingStar = reviews?.ratingStar || {};
-  const totalUserCount = reviews?.totalUserCount || 0;
-  const averageRating = reviews?.averageRating || 0;
-  const reviewList = reviews?.reviews || [];
+  console.log(reviews);
+  
+  const ratingStar = reviews?.pages[0]?.ratingStar || {};
+  const totalUserCount = reviews?.pages[0]?.totalUserCount || 0;
+  const averageRating = reviews?.pages[0]?.averageRating || 0;
+  const reviewList = reviews?.pages.reduce<any[]>((acc, page) => {
+    console.log(acc);
+console.log(page);
+    
+    return [...acc, ...(page?.reviews || [])];
+  }, []);
+console.log(reviewList);
 
   return (
     <div className="p-5 sm:p-10 flex flex-col sm:flex-row gap-4 mt-5 sm:mt-10">
@@ -69,11 +107,12 @@ const Reviews: React.FC = () => {
         totalUserCount={totalUserCount} 
         ratingStar={ratingStar} 
       />
-      <CustomerReviews 
+      <CustomerReviews
+      setAction={setAction} 
         loadMore={loadMore}
         error={error}
         isLoading={isLoading}
-        reviews={reviewList}
+        reviews={reviewList || []}
         setShowPopupForm={setShowPopupForm}
         showPopupForm={showPopupForm}
         onEditReview={handleEditReview}
@@ -90,8 +129,8 @@ const Reviews: React.FC = () => {
             { type: "string", label: "reviewDescription", name: "Review Description" }
           ]}
           label="Product Review"
-          isLoading={loadingCreatingProductReview}
-          handleSubmitFunction={handleReviewAction}
+          isLoading={action === "create" ? creatingProductReview : updatingProductReview}
+          handleSubmitFunction={handlePopupFormSubmit}
         />
       )}
     </div>
@@ -151,14 +190,18 @@ const CustomerReviews: React.FC<{
   setShowPopupForm: React.Dispatch<React.SetStateAction<boolean>>,
   showPopupForm: boolean,
   onEditReview: (review: any) => void
-}> = ({ loadMore, error, isLoading, reviews, setShowPopupForm, showPopupForm, onEditReview }) => (
+}> = ({ loadMore, setAction,error, isLoading, reviews, setShowPopupForm, showPopupForm, onEditReview }) => (
   <div className="w-full sm:w-[70%]">
     <div className="flex items-center justify-between mb-5 sm:mb-10">
       <h1 className="text-xl sm:text-3xl font-semibold">
         Customer Reviews
       </h1>
       <button 
-        onClick={() => setShowPopupForm(!showPopupForm)} 
+        onClick={() => {
+          setShowPopupForm(!showPopupForm);
+          setAction("create")
+        }
+        } 
         className="cursor-pointer py-4 text-white px-2 bg-red-600 rounded-md w-full max-w-48 text-xs font-bold hover:shadow-xl hover:shadow-red-100 duration-500 text-center"
       >
         WRITE A PRODUCT REVIEW
@@ -176,9 +219,10 @@ const CustomerReviews: React.FC<{
         ))}
         <button 
           onClick={loadMore} 
-          className={`py-[6px] px-12 text-base font-bold bg-slate-800 text-white hover:shadow-lg hover:bg-slate-900 duration-500 my-5 ${reviews.length < 1 && "hidden"}`}
+          disabled={reviews.length < 5}
+          className={" max-w-sm my-auto mx-auto py-[6px] px-12 text-base font-bold bg-slate-800 text-white hover:shadow-lg hover:bg-slate-900 duration-500"}
         >
-          {error ? "No More Reviews Found" : isLoading ? "Loading..." : "VIEW ALL REVIEWS"}
+          {error || reviews.length < 5 ? "No More Reviews Found" : isLoading ? "Loading..." : "VIEW ALL REVIEWS"}
         </button>
       </div>
     ) : (
@@ -191,9 +235,27 @@ const ReviewCard: React.FC<{
   review: any,
   onEdit: () => void
 }> = ({ review, onEdit }) => {
-  const { mutateAsync: deleteProductReview, isPending, isSuccess } = useDeleteProductReview();
+  const {productId} = useParams();
+  const { mutateAsync: deleteProductReview, isPending, isSuccess } = useDeleteProductReview(productId);
   const [isPopupVisible, setIsPopupVisible] = useState(false);
-
+  const {toast}  = useToast()
+  const handleDeleteReview = async() => {
+   try {
+     await deleteProductReview(review?._id);
+     toast({
+      title : "Success",
+      description : "Successfully Deleted Product Review",
+      variant : "productReview"
+    })
+   } catch (error) {
+    console.log(error);
+    toast({
+      title : "Failed",
+      description : "Failed To Delete Product Review",
+      variant : "destructive"
+    })
+   }
+  }
   return (
     <div className="flex justify-between items-start border-b-2 pb-3">
       <div className="flex-grow">
@@ -221,17 +283,32 @@ const ReviewCard: React.FC<{
       )}
       <div className="flex flex-col items-center gap-2">
         <FaEdit size={25} onClick={onEdit} />
-        <MdDelete size={25} onClick={() => setIsPopupVisible(true)} />
-        <AlertDialog
+        
+        {/* <AlertDialog
           title="Delete"
           description="Are you sure you want to delete this review?"
           loading={isPending}
           setIsPopupVisible={setIsPopupVisible}
           isPopupVisible={isPopupVisible}
           isSuccess={isSuccess}
-          submitOnClick={() => deleteProductReview(review._id)}
+          submitOnClick={handleDeleteReview}
           navigateUrl=""
-        />
+        /> */}
+        <AlertDialog>
+  <AlertDialogTrigger><MdDelete size={25}/></AlertDialogTrigger>
+  <AlertDialogContent>
+    <AlertDialogHeader>
+      <AlertDialogTitle>Are you sure you want to delete this review?</AlertDialogTitle>
+      <AlertDialogDescription>
+        This action cannot be undone. This will permanently delete your review from our servers.
+      </AlertDialogDescription>
+    </AlertDialogHeader>
+    <AlertDialogFooter>
+      <AlertDialogCancel>Cancel</AlertDialogCancel>
+      <AlertDialogAction disabled={isPending} onClick={handleDeleteReview}>{isPending ? "Loading" : "Continue"}</AlertDialogAction>
+    </AlertDialogFooter>
+  </AlertDialogContent>
+</AlertDialog>
       </div>
     </div>
   );

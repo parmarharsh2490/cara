@@ -10,6 +10,11 @@ import { useAddToWishlist } from '../../query/WishlistQueries';
 import { useAddToCart } from '../../query/CartQueries';
 import ProductList from '../../components/shared/ProductList';
 import { useToast } from '@/hooks/use-toast';
+import { useInfiniteQuery } from '@tanstack/react-query';
+import { QUERY_KEYS } from '@/query/queryKeys';
+import { getAllProducts } from '@/services/productService';
+import { MdProductionQuantityLimits } from 'react-icons/md';
+import { allProducts } from '@/utils/allProducts';
 
 
 const ProductSkeleton = () => {
@@ -46,21 +51,31 @@ const ProductSkeleton = () => {
 const ProductDetails = () => {
   const {toast} = useToast();
   const {productId} = useParams();
+  if(!productId){
+    return <p>Error Happened!</p>
+  }
   const [selectedVarietyIndex,setSelectedVarietyIndex] = useState(0)
   const [selectedSizeOptionIndex,setSelectedSizeOptionIndex] = useState(0)
   const [selectedImageIndex,setSelectedImageIndex] = useState(0);
   const {mutateAsync : addToWishlist} = useAddToWishlist();
-  const {mutateAsync : addToCart} = useAddToCart();
-  const [products,setProducts] = useState<any>([]);
-  
-  if(!productId){
-    return <p>Error Happened!</p>
-  }
+  const {mutateAsync : addToCart,isPending : isAddingToCartPending} = useAddToCart();
   const navigate = useNavigate();
     const productCount = useRef<HTMLInputElement>(null);
     const {data : product,isLoading,isPending,isFetched,isSuccess} = useGetProductDetails(productId);
-    const [options,setOptions] = useState({category : product?.category,enabled : !!product?.category,skip : 0});
-    const {data : similarProducts,error,isLoading : isProductLoading} = useGetAllProducts(options);
+    const [options,setOptions] = useState({category : product?.category,enabled : !!product?.category,pageParam : 0});
+    const {data : products,isFetching,isFetchingNextPage,error : isFetchingProductsError,fetchNextPage} = useInfiniteQuery({
+      queryKey : [QUERY_KEYS.PRODUCTS,options],
+      queryFn : ({ pageParam = 0 }) => getAllProducts({ ...options, pageParam }),
+      initialPageParam : 0,
+      getNextPageParam : (lastPage, allPages) => {
+        console.log(allPages);
+        
+        const nextPage = allPages.length || 10;
+        console.log(nextPage);
+        
+        return nextPage;
+      }
+    })
     useEffect(() => {
       if (product?.category) {
         setOptions(prev => ({
@@ -71,14 +86,9 @@ const ProductDetails = () => {
       }
     }, [product]);
     
-  useEffect(() => {
-    if (similarProducts) {
-      setProducts((prev: any) => [...prev, ...similarProducts]);
-    }
-  }, [similarProducts]);
     console.log(product);
     const loadMore  = () => {
-      setOptions((prev) => ({...prev,enabled : !!product?.category, skip: prev.skip + 10}))
+      fetchNextPage()
     } 
     
 const handleAddToCart = async({productId,sizeOptionId,varietyId,quantity} : {productId : any,sizeOptionId: any,varietyId: any,quantity : any}) => {
@@ -88,10 +98,22 @@ const handleAddToCart = async({productId,sizeOptionId,varietyId,quantity} : {pro
       navigate('/checkout/cart')
       return
     }
-    await addToCart({ productId,sizeOptionId,varietyId,quantity});  
+    await addToCart({ productId,sizeOptionId,varietyId,quantity});
+    product.isAlreadyInCart = true;  
    toast({title : "Success",description : "Successfully Added to Cart",variant : "cart"}) 
   } catch (error) {
   toast({title : "Failed",description : "Failed to Add to Cart",variant : "destructive"})   
+  }
+}
+const handleAddToWishlist = async({productId,sizeOptionId,varietyId} : {productId : any,sizeOptionId: any,varietyId: any,quantity : any}) => {
+  console.log(productId);
+  
+  
+  try {
+    await addToWishlist({ productId , sizeOptionId , varietyId})
+   toast({title : "Success",description : "Successfully Added to Wishlist",variant : "wishlist"}) 
+  } catch (error) {
+  toast({title : "Failed",description : "Already in Wishlist",variant : "destructive"})   
   }
 }
 const imageClick = (indexOfImage: number) => {
@@ -104,7 +126,7 @@ const imageClick = (indexOfImage: number) => {
         <ProductSkeleton/>
       ) : (
         <>
-         <Navigation/>
+          <Navigation/>
     {
       product && (
         <section
@@ -172,9 +194,7 @@ const imageClick = (indexOfImage: number) => {
           }
         </div>
         <div className="flex sm:my-2  left-0 bg-white sm:shadow-sm shadow-2xl p-1 gap-1 w-full z-10 fixed sm:relative bottom-0">
-          <button onClick={() => addToWishlist(
-            { productId : product._id, sizeOptionId : product.variety[selectedVarietyIndex].sizeOptions[selectedSizeOptionIndex]._id, varietyId : product.variety[selectedVarietyIndex]._id }
-            )} 
+          <button onClick={() =>handleAddToWishlist({productId : product._id,sizeOptionId : product.variety[selectedVarietyIndex].sizeOptions[selectedSizeOptionIndex]._id,varietyId :  product.variety[selectedVarietyIndex]._id})} 
             className="w-1/2 max-w-[200px] p-3 mx-2 gap-2 text-base sm:relative  sm:p-0 bg-white text-black border hover:bg-slate-600 duration-500 border-slate-800 hover:text-white flex justify-center items-center rounded-md font-semibold">
             <svg
               stroke="currentColor"
@@ -192,7 +212,7 @@ const imageClick = (indexOfImage: number) => {
           <button 
           onClick={() => handleAddToCart({ productId: product._id, sizeOptionId: product.variety[selectedVarietyIndex].sizeOptions[selectedSizeOptionIndex]._id, varietyId: product.variety[selectedVarietyIndex]._id, quantity: productCount.current?.value || 1 })}
           className="w-1/2 max-w-[200px] left-0 p-3 text-base sm:relative  sm:p-2 bg-slate-800 text-white border hover:bg-slate-600 rounded-md font-semibold duration-500 border-slate-800 hover:text-white">
-            {product.isAlreadyInCart ? "Go To Cart" : "ADD TO BAG"}
+            {product.isAlreadyInCart ? "Go To Cart" : (isAddingToCartPending ? "Adding" :"ADD TO BAG")}
           </button>
         </div>
         <h4 className="text-lg py-4">Product details</h4>
@@ -204,14 +224,14 @@ const imageClick = (indexOfImage: number) => {
       </div>
     </section>
       )
-    }
+    } 
     {/* <Reviews/> */}
     <Reviews/>
-    <div className='mt-10'>
+     <div className='mt-10'>
         <h1 className='text-center text-2xl sm:text-3xl sm:mb-2'>Similar Products</h1>
         <p className='sm:text-base text-sm text-slate-400 text-center mb:1 sm:mb-7'>You may also like</p>
-        <ProductList loadMore={loadMore} products={products} buttonLoading={isProductLoading} isError={!!error} productLoading={products?.length === 0}/>
-    </div>
+        <ProductList loadMore={loadMore} products={allProducts(products)} buttonLoading={isFetchingNextPage} isError={!!isFetchingProductsError} productLoading={isLoading}/>
+    </div> 
 
     <PromotionBanner/>
      <Footer/>

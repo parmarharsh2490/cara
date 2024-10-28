@@ -5,24 +5,23 @@ import { ICartItems } from "../../types/index.ts";
 import { totalDiscount,countTotalCartAmount } from "../../utils/cartPriceHelper.ts";
 import { useCreateOrder, usePaymentHandler } from "../../query/order.query.ts";
 import { useToast } from "@/hooks/use-toast.ts";
+import { useAddToWishlist } from "@/query/WishlistQueries.ts";
+import ShoppingCartSkeleton from "@/utils/skeleton/ShoppingCartSkeleton.tsx";
 
 declare global {
   interface Window {
     Razorpay: any;
   }
 }
-
 const ShoppingCart = () => {
   const {toast} = useToast()
-  const {data : products,isLoading} = useGetUserCart()
+  const {data : products,isLoading,isFetched} = useGetUserCart()
   const {mutateAsync : updateQuantity} = useUpdateQuantity();
   const {mutateAsync : createOrder,isPending:isOrderCreating} = useCreateOrder()
   const {mutateAsync : paymentHandler,isSuccess:isPaymentSuccess} = usePaymentHandler();
-  const {mutateAsync : removeProductFromCart} = useRemoveFromCart()
-  if(isLoading){
-    return <p>Loading...</p>
-  }
-  const {totalCartAmount,totalCartDiscount,totalMrp} = countTotalCartAmount(products)
+  const {mutateAsync : removeProductFromCart} = useRemoveFromCart();
+  const {mutateAsync : addToWishlist} = useAddToWishlist();
+  const {totalCartAmount,totalCartDiscount,totalMrp} = countTotalCartAmount(products || [])
  
   const handlePayment = async () => {
     const orderId  = await createOrder(totalCartAmount);
@@ -69,11 +68,16 @@ const ShoppingCart = () => {
       })
     }
   };
-  const handleRemoveFromCart = async({productId, varietyId, sizeOptionId}: {productId: string, varietyId: string, sizeOptionId: string}) => {
+  const updateCartQuantity = async({cartProductId,quantity} :any) => {
+    if(quantity === 0){
+      await removeProductFromCart({cartProductId,quantity});
+      return 
+    }
+    await updateQuantity({cartProductId : product._id,quantity : product.quantity-1 })
+  }
+  const handleRemoveFromCart = async(cartProductId : any) => {
     try {
-      console.log({productId,varietyId,sizeOptionId});
-      
-      await removeProductFromCart({productId,varietyId,sizeOptionId});
+      await removeProductFromCart(cartProductId);
       toast({
         title : "Success",
         description : "Successfully Removed From Cart",
@@ -81,6 +85,16 @@ const ShoppingCart = () => {
       })
     } catch (error) {
       console.log(error);
+      console.log(products);
+      
+      if(products && products.length === 1){
+        toast({
+          title : "Success",
+          description : "Successfully Removed From Cart",
+          variant : "cart"
+        })
+        return
+      }
       toast({
         title : "Failed",
         description : "Failed to Remove From Cart",
@@ -89,10 +103,36 @@ const ShoppingCart = () => {
     }
 
   }
+  const handleMoveToWishlist = async({cartProductId,productId, varietyId, sizeOptionId}: {cartProductId : string,productId: string, varietyId: string, sizeOptionId: string}) => {
+    try {
+      await addToWishlist({productId,varietyId,sizeOptionId});
+      await removeProductFromCart(cartProductId)
+      toast({
+        title : "Success",
+        description : "Successfully Added To Wishlist And Removed From Cart",
+        variant : "wishlist"
+      })
+    } catch (error) {
+      if(products && products.length === 1){
+        toast({
+          title : "Success",
+          description : "Successfully Removed From Cart",
+          variant : "cart"
+        })
+        return
+      }
+      toast({
+        title : "Failed",
+        description : "Failed to Add To Wishlist",
+        variant : "destructive"
+      })
+    }
+
+  }
   return (
     <>
     <Navigation/>  
-  {products &&  <div className="p-5 sm:px-10 flex h-full flex-col sm:flex-row justify-between items-start">
+  {isLoading && !isFetched ? <ShoppingCartSkeleton/> : products &&  <div className="p-5 sm:px-10 flex h-full flex-col sm:flex-row justify-between items-start">
       <div className="left sm:p-10 w-full sm:w-[70%]">
         <div className="flex justify-between items-center sm:mb-0 mb-5">
           <h1 className="font-semibold text-base sm:text-xl">Shopping cart</h1>
@@ -135,7 +175,7 @@ const ShoppingCart = () => {
                     <span className="text-lg mr-1 font-semibold">{product.quantity}</span>
                     <span
                       className="py-0 px-2 text-lg border mr-2 font-semibold cursor-pointer"
-                      onClick={()=> updateQuantity({cartProductId : product._id,quantity : product.quantity-1 })}
+                      onClick={() => updateCartQuantity({cartProductId : product._id,quantity : product.quantity-1})}
                     >
                       -
                     </span>
@@ -157,10 +197,10 @@ const ShoppingCart = () => {
               </div>
               <div className="lower h-[20%] w-full">
                 <div className="flex h-full w-full justify-start items-center p-1 sm:p-3 sm:py-4">
-                  <div onClick={() => handleRemoveFromCart({productId : product._id,varietyId : product.varietyId,sizeOptionId : product.sizeOptionId})} className="remove text-slate-400 text-sm pr-7 font-semibold cursor-pointer border-r-2">
+                  <div onClick={() => handleRemoveFromCart(product._id)} className="remove text-slate-400 text-sm pr-7 font-semibold cursor-pointer border-r-2">
                     REMOVE
                   </div>
-                  <div className="move text-red-500 text-sm pl-7 font-semibold cursor-pointer">
+                  <div onClick={() => handleMoveToWishlist({cartProductId : product._id,productId : product.productId,sizeOptionId : product.sizeOptionId,varietyId : product.varietyId})} className="move text-red-500 text-sm pl-7 font-semibold cursor-pointer">
                     MOVE TO WISHLIST
                   </div>
                 </div>
@@ -206,7 +246,7 @@ const ShoppingCart = () => {
           </svg>
           Free delivery order over ₹99
         </div>
-        <div className="py-4 text-center px-6 border text-green-600 my-3 cursor-pointer rounded-md">
+        <div onClick={() => toast({title : "Sorry",description : "This feature is not implemented yet!",variant : "sorry"})} className="py-4 text-center px-6 border text-green-600 my-3 cursor-pointer rounded-md">
           <svg
             stroke="currentColor"
             fill="none"

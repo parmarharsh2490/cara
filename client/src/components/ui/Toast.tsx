@@ -34,6 +34,8 @@ const toastVariants = cva(
         cart: "text-black bg-blue-200",
         wishlist: "text-black bg-pink-200",
         OrderStatusChange: "text-black bg-yellow-200",
+        sorry: "text-white bg-[#3A6D8C]",
+        productReview  :"text-black bg-blue-300"
       },
     },
     defaultVariants: {

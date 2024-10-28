@@ -11,8 +11,10 @@ const addToWishlist = async(data : any) => {
     return response.data.data
 }
 
-const removeFromWishlist = async(data : any) => {
-    const response = await apiClient.delete("/wishlist/remove",data);
+const removeFromWishlist = async(wishlistId : any) => {
+    console.log(wishlistId);
+    
+    const response = await apiClient.delete("/wishlist/remove",wishlistId);
     return response.data.data
 }
 

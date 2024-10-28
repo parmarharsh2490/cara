@@ -22,12 +22,13 @@ const useGetSellerOrders = () => {
         queryFn : ({ pageParam = 0 } : {pageParam : number}) => getSellerOrders(pageParam),
         staleTime : Infinity,
         initialPageParam: 0,
+        retry : false,
+        refetchOnWindowFocus : false,
         getNextPageParam: (lastPage, allPages) => {
-            if (lastPage.hasMore) { // Assuming the API returns a flag to indicate more pages exist
-                return allPages.length; // Use the length of allPages to get the next page index
-            } else {
-                return undefined; // If no more pages, return undefined
-            }
+            console.log(lastPage);
+            console.log(allPages);
+            
+            return (allPages.length)
         }
         
     })

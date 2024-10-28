@@ -6,9 +6,11 @@ import { useNavigate } from 'react-router-dom';
 const Wishlist = () => {
     const [skip, setSkip] = useState<number>(0);
     const navigate = useNavigate()    
-    const { data: products, isLoading,error,isFetched } = useGetUserWishlist(skip);
+    const { data: products, isLoading,error,isFetched,isError } = useGetUserWishlist(skip);
     const {mutateAsync : removeFromWishlist} = useRemoveFromWishlist();
-
+    if(isError){
+        return <h1 className='text-center text-lg w-full mt-4'>No Products Found...</h1>
+    }
 
     if (isLoading || !isFetched) {
         return  <div className='h-screen sm:h-[20rem] w-full sm:w-[90vw] px-2 py-8 sm:px-10 sm:pt-10 flex justify-start sm:gap-2 flex-wrap sm:flex-nowrap'> 
@@ -105,7 +107,7 @@ const Wishlist = () => {
                         error ? "No Products Found" : products && products.map((product: any, index: number) => (
                             <div
                                 key={index}
-                                className={`flex flex-col w-full shadow-lg sm:p-5 ${skip && 'hidden'}`}>
+                                className={`flex flex-col w-full shadow-lg sm:p-5 ${skip && ''}`}>
                                 <img src={product.imageUrl} className='sm:max-w-[250px] bg-cover' alt='' />
                                 <h1 className='sm:font-bold sm:text-sm tracking-tighter p-1 text-black'>{product.title}</h1>
                                 <div className='flex justify-between p-1 items-center'>
@@ -116,7 +118,7 @@ const Wishlist = () => {
                                     </div>
                                 </div>
                                 <div className='w-full flex justify-between gap-1 items-center sm:flex-row flex-col'>
-                                    <button onClick={() => removeFromWishlist({wishlistId : product?._id})} className='sm:w-[48%] w-full text-xs p-1 border text-red-600 font-semibold duration-500 border-red-600 hover:text-red-600'>
+                                    <button onClick={() => removeFromWishlist({wishlistId : product._id})} className='sm:w-[48%] w-full text-xs p-1 border text-red-600 font-semibold duration-500 border-red-600 hover:text-red-600'>
                                         Remove
                                     </button>
                                     <button onClick={() => navigate(`/product/${product._id}`)} className='sm:w-[48%] w-full text-xs p-1 border hover:bg-slate-800 font-semibold duration-500 border-slate-800 hover:text-white'>

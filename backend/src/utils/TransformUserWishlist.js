@@ -13,7 +13,7 @@ export const transformedWishlist = (userWishList) => {
       return {
         _id : data._id,
         title: data.product.title,
-        image: variety?.images[0]?.imageUrl || null, 
+        imageUrl: variety?.images[0]?.imageUrl || null, 
         originalPrice: sizeOption ? sizeOption.price.originalPrice : null, 
         discountedPrice: sizeOption ? sizeOption.price.discountedPrice : null, 
       };

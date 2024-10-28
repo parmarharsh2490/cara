@@ -1,5 +1,5 @@
 import { addToWishlist, getUserWishlist, removeFromWishlist } from "../services/WishlistServices"
-import { useMutation, useQuery } from "@tanstack/react-query"
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
 import { QUERY_KEYS } from "./queryKeys"
 
 export {
@@ -9,16 +9,17 @@ export {
 }
 
 const useAddToWishlist = () => {
+    const queryClient = useQueryClient();
     return useMutation({
         mutationFn : (data : any) => addToWishlist(data),
         onSuccess : () => {
-            alert("Successfully added to wishlist")
+            queryClient.invalidateQueries({queryKey : [QUERY_KEYS.WISHLIST]})
         }
     })
 }
 const useRemoveFromWishlist = () => {
     return useMutation({
-        mutationFn : (data : any) => removeFromWishlist(data),
+        mutationFn : (wishlistId : any) => removeFromWishlist(wishlistId),
         onSuccess : () => {
             alert("Successfully remove from wishlist")
         }

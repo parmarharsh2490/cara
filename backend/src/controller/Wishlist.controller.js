@@ -13,13 +13,14 @@ const addToWishlist = asyncHandler(async (req, res) => {
     throw new ApiError(400, "User not found");
   }
   const { productId, sizeOptionId, varietyId } = req.body;
+console.log( { productId, sizeOptionId, varietyId });
 
   if (
     !isValidObjectId(productId) ||
     !isValidObjectId(sizeOptionId) ||
     !isValidObjectId(varietyId)
   ) {
-    throw new ApiError(400, "ID is not valid");
+    throw new ApiError(400, "'ID's are not valid");
   }
   const userWishList = await Wishlist.findOneAndUpdate(
     {
@@ -57,10 +58,10 @@ const addToWishlist = asyncHandler(async (req, res) => {
 
 const removeFromWishlist = asyncHandler(async (req, res) => {
   const user = req.user;
-  const { wishlistId} = req.body;
+  const  wishlistId  = req.body;
   
   if (!isValidObjectId(wishlistId) ) {
-    throw new ApiError(400, "ID is not valid");
+    throw new ApiError(400, "WishlistId is not valid");
   }
 
   const userWishList = await Wishlist.findOneAndUpdate(
@@ -93,7 +94,7 @@ const getUserWishlist = asyncHandler(async (req, res) => {
   const user = req.user;
   let { skip = 0} = req.query;
   skip = parseInt(skip);
-  const cachedWishlist = await redis.lrange(`wishlist:${user._id}`,skip,skip+4);
+  const cachedWishlist = await redis.lrange(`wishlist:${user._id}`,skip,skip+3);
   if(cachedWishlist && cachedWishlist.length>0){
     const data = cachedWishlist.map((wishlist) => {
       return JSON.parse(wishlist)
@@ -178,7 +179,7 @@ const getUserWishlist = asyncHandler(async (req, res) => {
       discountedPrice: { $ifNull: ["$sizeOption.price.discountedPrice", null] },
       originalPrice: { $ifNull: ["$sizeOption.price.originalPrice", null] },
       sizeOptionId : "$products.sizeOptionId",
-      productId : "$_id"
+      productId : "$product._id"
       }
     },
    

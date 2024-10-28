@@ -5,24 +5,26 @@ import React, {  useEffect } from 'react';
 import AdminOrderSkeleton from '../../../utils/skeleton/AdminOrdersSkeleton';
 import { getStatusStyles } from '@/utils/getStatusByStyle';
 import { useInView } from 'react-intersection-observer';
+import Spinner from '@/utils/Spinner';
 
 const AdminOrders: React.FC = () => {
   const {toast} = useToast()
-  const { data: orders, isLoading,fetchNextPage,hasNextPage,isFetchingNextPage } = useGetSellerOrders();  
+  const { data: orders,error, isLoading,fetchNextPage,isFetchingNextPage } = useGetSellerOrders();  
   const {mutateAsync : updateOrderStatus,isSuccess : isSuccessUpdateOrderStatusChange} = useUpdateOrderStatus();
   const { ref, inView } = useInView();
 
   useEffect(() => {
-    if (inView && hasNextPage) {
+    if (inView) {
       fetchNextPage();
     }
-  }, [inView, fetchNextPage, hasNextPage]);
+  }, [inView]);
+
   if (isLoading) {
     return <AdminOrderSkeleton></AdminOrderSkeleton>;
   }
-
-  
-
+  const allOrders = orders?.pages.reduce((acc, page) => {
+    return [...acc, ...(page.items || [])];
+  }, []) ?? [];
   const handleStatusChange = async(id: number, newStatus: IOrder['status']) => {
     await updateOrderStatus({orderId : id, status : newStatus});
     if(isSuccessUpdateOrderStatusChange){
@@ -100,7 +102,7 @@ const AdminOrders: React.FC = () => {
           </tbody>
         </table>
         <div className="md:hidden space-y-4">
-        {orders?.pages[0].map((order : any) => (
+        {allOrders.map((order : any) => (
           <div key={order._id} className="bg-white shadow-md rounded-lg overflow-hidden">
             <div className="p-4">
               <div className="flex items-center space-x-4">
@@ -150,11 +152,19 @@ const AdminOrders: React.FC = () => {
           </div>
         ))}
       </div>
-      <div className='flex items-center justify-center'>
-      <div ref={ref}>
-            {isFetchingNextPage ? <p>Loading more...</p> : <p>Scroll down for more</p>}
-          </div>
-      </div>
+      <div className="flex items-center justify-center">
+  <div ref={ref} className="h-20 flex items-center justify-center">
+    {/* Error message if fetching next page fails */}
+    {error ? (
+      <p className="text-gray-500 text-center">No More Orders Found</p>
+    ) : isFetchingNextPage ? (
+      <Spinner />
+    ) : (
+      <p className="text-gray-500 text-center">Scroll to load more orders</p>
+    )}
+  </div>
+</div>
+
 
     </div>
     </div>
