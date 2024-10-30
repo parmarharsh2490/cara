@@ -1,8 +1,10 @@
-import { useState } from "react"
+import { useContext, useState } from "react"
 import { useSendPromotionalMail } from "../../query/promotional.queries"
+import { UserContext } from "@/context";
 
 const PromotionBanner = () => {
-  const [email,setEmail] = useState("");
+  const {user} = useContext(UserContext)
+  const [email,setEmail] = useState(user?.email || "");
   const {mutateAsync : sendPromotionMail} = useSendPromotionalMail();
   const handleOnClick = () => {
     sendPromotionMail(email);

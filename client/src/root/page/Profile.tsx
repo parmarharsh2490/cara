@@ -67,7 +67,6 @@ const Profile: React.FC = () => {
         {type : "string",label :"name",name:"Your Full Name"},
         {type : "number",label :"contactNumber",name:"Contact Number"},
         {type : "number",label :"alternativeNumber",name:"Alternative Number"},
-        {type : "email",label :"email",name:"Email"},
         {type : "date",label :"dateOfBirth",name:"Date Of Birth"},
         {type : "string",label :"gender",name:"Gender"},
       ]} 
