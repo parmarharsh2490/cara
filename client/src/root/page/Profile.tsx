@@ -2,18 +2,15 @@ import { UserContext } from "@/context/index.tsx";
 import PopupForm from "../../components/shared/PopupForm.tsx"
 import React, {   useContext, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { useUpdateUserDetails } from "../../query/UserQueries.ts";
+import { useUpdateUserDetails } from "../../query/user.queries.ts";
 
 const Profile: React.FC = () => {
   const [showPopupForm,setShowPopupForm] = useState<boolean>(false);
   const {mutateAsync : updateUserDetails,isPending} = useUpdateUserDetails()
-  const {user} = useContext(UserContext);
-  const handleClick = (e: React.MouseEvent) => {
-    e.stopPropagation();
-  };
+  const { user } = useContext(UserContext);
   return (
    <>
-    <div onClick={(e)=>handleClick(e)} className="w-full sm:w-[85%] px-5 py-10 sm:p-14 h-auto">
+    <div className="w-full sm:w-[85%] px-5 py-10 sm:p-14 h-auto">
       <div className="flex justify-between items-start w-full">
         <div>
           <h1 className="text-2xl font-semibold">My Profile</h1>
@@ -44,7 +41,7 @@ const Profile: React.FC = () => {
             </div>
             <div className="relative w-full sm:w-1/2 text-start">
               <p className="text-xs text-slate-400 font-semibold">ALTERNATE NUMBER</p>
-              <h1 className="sm:text-xl text-lg">{user.alternativeNumber || "9876543219"}</h1>
+              <h1 className="sm:text-xl text-lg">{user?.alternativeNumber || "9876543219"}</h1>
             </div>
           </div>
           <div className="flex flex-col sm:flex-row sm:gap-0 gap-5 mt-10 w-full justify-between items-center">
@@ -67,7 +64,7 @@ const Profile: React.FC = () => {
     <PopupForm
      inputData={
       [
-        {type : "string",label :"fullName",name:"Your Full Name"},
+        {type : "string",label :"name",name:"Your Full Name"},
         {type : "number",label :"contactNumber",name:"Contact Number"},
         {type : "number",label :"alternativeNumber",name:"Alternative Number"},
         {type : "email",label :"email",name:"Email"},
@@ -79,7 +76,6 @@ const Profile: React.FC = () => {
       handleSubmitFunction={updateUserDetails}
       label="Edit Your Profile"
       isLoading={isPending}
-      // onsuccess loading handleSubmit ma updateUserDetails pass 
       />
    </>
   );

@@ -1,11 +1,12 @@
 import { HTMLInputTypeAttribute } from "react";
 import { ChangeEventHandler } from "react";
 
+
 export interface IUser {
   _id: string;
   name: string;
   email: string;
-  role?: "customer" | "admin";
+  role: "customer" | "admin";
   gender?: "male" | "female" | "child" | "unisex" | null;
   mobileNumber?: string;
   alternativeNumber?: string;
@@ -18,13 +19,36 @@ export interface INewUser {
   password: string;
 }
 
+export interface IAddToCart {
+  productId : string,sizeOptionId: string,varietyId: string,quantity : number
+}
+
 export interface ILoginUser {
   email: string;
   password: string;
 }
+export interface IUpdateCartQuantity {
+  cartProductId : string,quantity : number
+}
 
-export interface IAdminProduct extends IProduct {}
+export interface IWishlistProduct{
+  imageUrl : string,
+  _id :string,
+  title : string,
+  discountedPrice : string
+}
 
+export interface IOrderProduct{
+  imageUrl : string,
+  _id :string,
+  title : string,
+  color : string,
+  size :string,
+  quantity:  string,
+  createdAt :string,
+  paymentId : string,
+  price : number
+}
 export interface IProduct {
   imageUrl: string;
   _id: string;
@@ -70,6 +94,7 @@ export interface INewArrivalProduct {
 
 export interface IFilter {
   minPrice?: string;
+  searchTerm? : string,
   maxPrice?: string;
   color?: string;
   gender?: string;
@@ -84,6 +109,7 @@ export interface ICartItems {
   title: string;
   color: string;
   size: string;
+  productId : string;
     originalPrice: number;
     discountedPrice: number;
   quantity: number;
@@ -129,26 +155,29 @@ export interface IInputFieldInterface {
 }
 
 export interface ITransaction {
-  id: string;
-  score: number;
-  stage: string;
+  _id: string;
   amount: string;
-  dateTime: string;
+  createdAt: string;
   status: string;
-  assignedTo: string;
 }
 
-export interface ISellerProfileDetails {
-  name: string;
-  primaryPhone: string;
-  primaryEmail: string;
-  secondaryPhone: string;
-  secondaryEmail: string;
-  businessName: string;
-  businessAddress: string;
-  panNumber: string;
-  aadharNumber: string;
-  gstin: string;
+export interface ISeller {
+  businessInformation: {
+    businessName?: string;
+    businessAddress?: string;
+  };
+  legalInformation: {
+    panNumber?: string;
+    aadharNumber?: string;
+    gstin?: string;
+  };
+  bankAccountDetails: {
+    bankName?: string;
+    ifscCode?: string;
+    accountNumber?: string;
+  };
+  createdAt?: Date;
+  updatedAt?: Date;
 }
 
 export interface IBankDetails {
@@ -157,18 +186,35 @@ export interface IBankDetails {
   accountNumber: string;
 }
 
-export interface IOrderItem {
-  image: string;
-  title: string;
-  price: number;
+export interface IContactForm {
+  name: string;
+  email: string;
+  subject: string;
+  message: string;
 }
 
-export interface IOrder {
-  id: number;
-  items: IOrderItem[];
-  totalPrice: number;
+export interface IProductReview {
+  _id : string;
+  ratingStar: number;
+  reviewImage: string | File; 
+  reviewTitle: string;
+  reviewDescription: string;
+  product: string; 
+}
+
+export interface IAddToWishlist {
+  productId : string,sizeOptionId: string,varietyId: string
+}
+
+export interface IOrderItem {
+  _id : string,
+  imageUrl: string;
+  title : string,
+  quantity : string,
+  price: number;
   status: "PLACED" | "CONFIRMED" | "SHIPPED" | "DELIVERED";
 }
+
 
 export interface ITransaction {
   id: string;

@@ -1,33 +1,30 @@
 import { ILoginUser } from "../../types/index.ts";
-import { useLoginUserAccount } from "../../query/UserQueries.ts";
-import { useState } from "react";
+import { useGetUserDetails, useLoginUserAccount } from "../../query/user.queries.ts";
+import { useContext, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { useToast } from "@/hooks/use-toast.ts";
 import AuthFormSignupButton from "./AuthFormSignupButton.tsx";
+import { UserContext } from "@/context/index.tsx";
 
 const SignIn = () => {
-  const {toast} = useToast();
-  const { mutateAsync: loginUserAccount,isPending } = useLoginUserAccount();
-
+  const { mutateAsync: loginUserAccount,isPending : isLoginAccount } = useLoginUserAccount();
+  const { refetch: getUserDetails,isLoading : isFetchingUserDetails } = useGetUserDetails();
   const [email, setEmail] = useState<string>("harsh2490@gmail.com");
   const [password, setPassword] = useState<string>("harsh");
   const navigate = useNavigate();
-
+  const {setUser} = useContext(UserContext)
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     const user : ILoginUser = {  email, password };
     try {
       await loginUserAccount(user);
-      toast({
-        title: "Success",
-        description: "Successfully Logged In",
-      });
+      const userDetails = await getUserDetails();
+      if (userDetails?.data) {
+        setUser(userDetails.data);
+        navigate("/");
+      }
       navigate('/')
     } catch (error) {
-      toast({
-        title: "Failed",
-        description: "Login Error,Please Try Again",
-      })
+      console.log(error);
     }
   };
   return (
@@ -66,7 +63,7 @@ const SignIn = () => {
             Forgot password?
           </Link>
         </div>
-        <AuthFormSignupButton isPending={isPending} signIn={true}></AuthFormSignupButton>
+        <AuthFormSignupButton isPending={isFetchingUserDetails || isLoginAccount} signIn={true}></AuthFormSignupButton>
         <div className="flex justify-center items-center gap-1">
           <h4 className="text-gray-400">Don't have an account?</h4>
           <Link to="/auth/sign-up" className="font-semibold text-xs sm:text-md hover:underline">

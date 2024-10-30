@@ -3,53 +3,17 @@ import Navigation from '../../components/shared/Navigation';
 import Footer from '../../components/shared/Footer';
 import PromotionBanner from '../../components/shared/PromotionBanner';
 import Reviews from '../../components/shared/Reviews';
-import { useGetAllProducts, useGetProductDetails } from '../../query/ProductQueries';
+import { useGetAllProducts, useGetProductDetails } from '../../query/product.queries';
 import { useNavigate, useParams } from 'react-router-dom';
-import { ISizeOption, IVariety } from '@/types';
-import { useAddToWishlist } from '../../query/WishlistQueries';
-import { useAddToCart } from '../../query/CartQueries';
+import { IAddToCart, IAddToWishlist, ISizeOption, IVariety } from '@/types';
+import { useAddToWishlist } from '../../query/wishlist.queries';
+import { useAddToCart } from '../../query/cart.queries';
 import ProductList from '../../components/shared/ProductList';
-import { useToast } from '@/hooks/use-toast';
-import { useInfiniteQuery } from '@tanstack/react-query';
-import { QUERY_KEYS } from '@/query/queryKeys';
-import { getAllProducts } from '@/services/productService';
-import { MdProductionQuantityLimits } from 'react-icons/md';
+import {  viewProduct } from '@/services/product.service';
 import { allProducts } from '@/utils/allProducts';
-
-
-const ProductSkeleton = () => {
-  return (
-    <div className='h-full'>
-    <section id="prodetails" className="p-5 sm:px-10 flex flex-col sm:flex-row w-full  items-center h-[70%]">
-        <div className='h-full w-full sm:w-[35%] flex justify-center items-center sm:gap-2 flex-col-reverse sm:flex-row '>
-            <div className='flex gap-1 justify-center items-center flex-row sm:flex-col w-full sm:w-[20%] mt-1'>
-                <div className='w-[24%] sm:w-full bg-slate-200 animate-pulse h-[5.7rem] ' />
-                <div className='h-[5.7rem] w-[24%] bg-slate-200 animate-pulse sm:w-full' />
-                <div className='h-[5.7rem] w-[24%] bg-slate-200 animate-pulse sm:w-full' />
-                <div className='h-[5.7rem] bg-slate-200 animate-pulse w-[24%] sm:w-full  ' />
-            </div>
-            <div className='w-full h-[350px]  sm:w-80 sm:h-[420px] bg-slate-200 animate-pulse'></div>
-        </div>
-        <div className=" w-full sm:w-[65%] mt-7 sm:px-12 pt-30">
-            <h6 className="text-xl font-semibold my-2 h-5 w-28 bg-slate-200 animate-pulse rounded-md"></h6>
-            <h4 className="text-3xl my-2  h-7 w-40 bg-slate-200 animate-pulse rounded-md"></h4>
-            <h2 className="text-2xl my-2  h-7 w-24 bg-slate-200 animate-pulse rounded-md"></h2>
-            <div className="block py-2 px-4 mb-4 border border-gray-300 focus:outline-none  h-7 w-32 bg-slate-200 animate-pulse rounded-md">
-            </div>
-            <div className="focus:outline-none w-14 border border-1 mr-3 p-2  h-5 bg-slate-200 animate-pulse rounded-md inline-block" />
-            <button className=' sm:w-1/4 p-2  hover:bg-slate-600  duration-500  
-  h-10 w-44 bg-slate-200 animate-pulse rounded-md
-'></button>
-            <h4 className="text-2xl py-4  h-7 w-32 bg-slate-200 animate-pulse rounded-md my-3"></h4>
-            <div className="min-h-[100px] max-w-[400px] bg-slate-200 animate-pulse rounded-md"></div>
-        </div>
-    </section>
-</div>
-  );
-};
+import ProductSkeleton from '@/utils/skeleton/ProductSkeleton';
 
 const ProductDetails = () => {
-  const {toast} = useToast();
   const {productId} = useParams();
   if(!productId){
     return <p>Error Happened!</p>
@@ -63,19 +27,7 @@ const ProductDetails = () => {
     const productCount = useRef<HTMLInputElement>(null);
     const {data : product,isLoading,isPending,isFetched,isSuccess} = useGetProductDetails(productId);
     const [options,setOptions] = useState({category : product?.category,enabled : !!product?.category,pageParam : 0});
-    const {data : products,isFetching,isFetchingNextPage,error : isFetchingProductsError,fetchNextPage} = useInfiniteQuery({
-      queryKey : [QUERY_KEYS.PRODUCTS,options],
-      queryFn : ({ pageParam = 0 }) => getAllProducts({ ...options, pageParam }),
-      initialPageParam : 0,
-      getNextPageParam : (lastPage, allPages) => {
-        console.log(allPages);
-        
-        const nextPage = allPages.length || 10;
-        console.log(nextPage);
-        
-        return nextPage;
-      }
-    })
+    const {data : products,isFetchingNextPage,error : isFetchingProductsError,fetchNextPage} = useGetAllProducts(options)
     useEffect(() => {
       if (product?.category) {
         setOptions(prev => ({
@@ -83,38 +35,24 @@ const ProductDetails = () => {
           category: product.category,
           enabled: true
         }));
+        viewProduct(product._id)
       }
     }, [product]);
-    
-    console.log(product);
+
     const loadMore  = () => {
       fetchNextPage()
     } 
     
-const handleAddToCart = async({productId,sizeOptionId,varietyId,quantity} : {productId : any,sizeOptionId: any,varietyId: any,quantity : any}) => {
-  console.log(productId);
-  try {
+const handleAddToCart = async({productId,sizeOptionId,varietyId,quantity} : IAddToCart) => {
     if(product.isAlreadyInCart){
       navigate('/checkout/cart')
       return
     }
     await addToCart({ productId,sizeOptionId,varietyId,quantity});
     product.isAlreadyInCart = true;  
-   toast({title : "Success",description : "Successfully Added to Cart",variant : "cart"}) 
-  } catch (error) {
-  toast({title : "Failed",description : "Failed to Add to Cart",variant : "destructive"})   
-  }
 }
-const handleAddToWishlist = async({productId,sizeOptionId,varietyId} : {productId : any,sizeOptionId: any,varietyId: any,quantity : any}) => {
-  console.log(productId);
-  
-  
-  try {
-    await addToWishlist({ productId , sizeOptionId , varietyId})
-   toast({title : "Success",description : "Successfully Added to Wishlist",variant : "wishlist"}) 
-  } catch (error) {
-  toast({title : "Failed",description : "Already in Wishlist",variant : "destructive"})   
-  }
+const handleAddToWishlist = async({productId,sizeOptionId,varietyId} : IAddToWishlist) => {
+    await addToWishlist({ productId , sizeOptionId , varietyId}) 
 }
 const imageClick = (indexOfImage: number) => {
   setSelectedImageIndex(indexOfImage)
@@ -142,7 +80,6 @@ const imageClick = (indexOfImage: number) => {
                 onClick={() => imageClick(imageIndex as number)}
                 className="hover:scale-105 duration-500 sm:w-[100%] w-[25%] max-w-[70px] bg-cover"
                 alt={`Product Thumbnail ${imageIndex as number + 1}`}
-                // className='w-[50px]'
               />
             ))}
         </div>
@@ -171,8 +108,6 @@ const imageClick = (indexOfImage: number) => {
   product.variety[selectedVarietyIndex].sizeOptions.map((sizeOption: ISizeOption, sizeOptionIndex: number) => (
     sizeOptionIndex !== selectedSizeOptionIndex && <option key={sizeOption.size} onClick={() => {
       setSelectedSizeOptionIndex(sizeOptionIndex);
-      console.log(selectedSizeOptionIndex);
-      
     }} value={sizeOption.size}>
     {sizeOption.size}
     </option>
@@ -210,7 +145,7 @@ const imageClick = (indexOfImage: number) => {
             WISHLIST
           </button>
           <button 
-          onClick={() => handleAddToCart({ productId: product._id, sizeOptionId: product.variety[selectedVarietyIndex].sizeOptions[selectedSizeOptionIndex]._id, varietyId: product.variety[selectedVarietyIndex]._id, quantity: productCount.current?.value || 1 })}
+          onClick={() => handleAddToCart({ productId: product._id, sizeOptionId: product.variety[selectedVarietyIndex].sizeOptions[selectedSizeOptionIndex]._id, varietyId: product.variety[selectedVarietyIndex]._id, quantity: Number(productCount.current?.value) || 1 })}
           className="w-1/2 max-w-[200px] left-0 p-3 text-base sm:relative  sm:p-2 bg-slate-800 text-white border hover:bg-slate-600 rounded-md font-semibold duration-500 border-slate-800 hover:text-white">
             {product.isAlreadyInCart ? "Go To Cart" : (isAddingToCartPending ? "Adding" :"ADD TO BAG")}
           </button>

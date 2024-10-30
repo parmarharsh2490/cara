@@ -1,37 +1,12 @@
 import React, { useCallback, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
-import { useInfiniteQuery } from '@tanstack/react-query';
 import { useInView } from 'react-intersection-observer';
 import Navigation from '../../components/shared/Navigation';
 import Filter from '../../components/shared/Filter';
 import ProductList from '../../components/shared/ProductList';
-import { QUERY_KEYS } from '@/query/queryKeys';
-import apiClient from '@/services';
-
-interface Product {
-  id: string;
-  name: string;
-  price: number;
-  // Add other product properties
-}
-
-interface FilterState {
-  category: string;
-  searchTerm: string;
-  minPrice: string;
-  maxPrice: string;
-  gender: string;
-  color: string;
-  latest: boolean;
-  priceLowToHigh: boolean;
-  priceHighToLow: boolean;
-}
-
-interface ProductResponse {
-  data: Product[];
-  hasMore: boolean;
-  totalPages: number;
-}
+import { useGetAllProducts } from '@/query/product.queries';
+import { allProducts } from '@/utils/allProducts';
+import { IFilter } from '@/types';
 
 const VALID_CATEGORIES = ['tshirt', 'shirt', 'pants', 'bottom', 'jackets'] as const;
 type ValidCategory = typeof VALID_CATEGORIES[number];
@@ -46,7 +21,7 @@ const Category: React.FC = () => {
 
   const isValidCategory = VALID_CATEGORIES.includes(category as ValidCategory);
   
-  const [filters, setFilters] = React.useState<FilterState>({
+  const [filters, setFilters] = React.useState<IFilter>({
     category: isValidCategory ? category : "",
     searchTerm: !isValidCategory ? category : "",
     minPrice: '',
@@ -58,45 +33,12 @@ const Category: React.FC = () => {
     priceHighToLow: false,
   });
 
-  const { 
-    data, 
-    isFetchingNextPage, 
-    isLoading,
-    error, 
-    hasNextPage, 
-    fetchNextPage,
-    refetch 
-  } = useInfiniteQuery({
-    queryKey: [QUERY_KEYS.PRODUCTS, filters],
-    retry: false,
-    queryFn: async ({ pageParam = 0 }) => {
-      try {
-        const response = await apiClient.get<ProductResponse>('/products', {
-          params: { 
-            ...filters, 
-            pageParam: pageParam,
-          }
-        });
-        return {
-          items: response.data.data,
-          nextPage: pageParam + 1,
-          totalPages: response.data.totalPages
-        };
-      } catch (error) {
-        console.error('Error fetching products:', error);
-        throw error;
-      }
-    },
-    initialPageParam: 0,
-    getNextPageParam: (lastPage) => lastPage.nextPage,
-  });
+  const {  data : products,  isFetchingNextPage,  isLoading, error,  hasNextPage,  fetchNextPage, refetch } = useGetAllProducts(filters)
 
-  // Reset query when filters change
   useEffect(() => {
     refetch();
   }, [filters, refetch]);
 
-  // Handle category change
   useEffect(() => {
     setFilters(prev => ({
       ...prev,
@@ -105,7 +47,6 @@ const Category: React.FC = () => {
     }));
   }, [category, isValidCategory]);
 
-  // Handle infinite scroll
   useEffect(() => {
     if (inView && hasNextPage && !isFetchingNextPage) {
       fetchNextPage();
@@ -122,11 +63,6 @@ const Category: React.FC = () => {
     }));
   }, []);
 
-  // Safely flatten all pages of products
-  const allProducts = data?.pages.reduce<Product[]>((acc, page) => {
-    return [...acc, ...(page.items || [])];
-  }, []) ?? [];
-
   return (
     <>
       <Navigation />
@@ -138,7 +74,7 @@ const Category: React.FC = () => {
         <div className="overflow-hidden w-full px-4">
           <div className="flex justify-between items-center sm:mt-12 mb-6 md:mx-8">
             <h1 className="lg:text-2xl hidden sm:block text-base md:text-lg">
-              Results for {category} - {allProducts.length} products found
+              Results for {category} - {allProducts(products).length} products found
             </h1>
             <h1 className="sm:hidden text-2xl font-bold uppercase">{category}</h1>
             <div className="flex gap-2 items-center ml-2">
@@ -166,9 +102,9 @@ const Category: React.FC = () => {
           </div>
 
           <ProductList
-          loadMore={() => console.log("LoadMore")}
+          loadMore={() => {}}
             isError={error ? true : false}
-            products={allProducts}
+            products={allProducts(products)}
             productLoading={isLoading}
             buttonLoading={isFetchingNextPage}
           />

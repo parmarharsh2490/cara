@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import ProductList from '../../components/shared/ProductList'
-import {  useGetLatestProducts } from '../../query/ProductQueries';
+import {  useGetLatestProducts } from '../../query/product.queries';
 
 const NewArrival = () => {
   const [pageParam,setPageParam] = useState(0);

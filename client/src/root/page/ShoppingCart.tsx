@@ -1,11 +1,11 @@
 import Navigation from "../../components/shared/Navigation";
 import Footer from "../../components/shared/Footer";
-import { useGetUserCart, useRemoveFromCart, useUpdateQuantity } from "../../query/CartQueries.ts";
-import { ICartItems } from "../../types/index.ts";
+import { useGetUserCart, useRemoveFromCart, useUpdateQuantity } from "../../query/cart.queries.ts";
+import { ICartItems, IUpdateCartQuantity } from "../../types/index.ts";
 import { totalDiscount,countTotalCartAmount } from "../../utils/cartPriceHelper.ts";
-import { useCreateOrder, usePaymentHandler } from "../../query/order.query.ts";
+import { useCreateOrder, usePaymentHandler } from "../../query/orders.queries.ts";
 import { useToast } from "@/hooks/use-toast.ts";
-import { useAddToWishlist } from "@/query/WishlistQueries.ts";
+import { useAddToWishlist } from "../../query/wishlist.queries.ts";
 import ShoppingCartSkeleton from "@/utils/skeleton/ShoppingCartSkeleton.tsx";
 
 declare global {
@@ -18,7 +18,7 @@ const ShoppingCart = () => {
   const {data : products,isLoading,isFetched} = useGetUserCart()
   const {mutateAsync : updateQuantity} = useUpdateQuantity();
   const {mutateAsync : createOrder,isPending:isOrderCreating} = useCreateOrder()
-  const {mutateAsync : paymentHandler,isSuccess:isPaymentSuccess} = usePaymentHandler();
+  const {mutateAsync : paymentHandler} = usePaymentHandler();
   const {mutateAsync : removeProductFromCart} = useRemoveFromCart();
   const {mutateAsync : addToWishlist} = useAddToWishlist();
   const {totalCartAmount,totalCartDiscount,totalMrp} = countTotalCartAmount(products || [])
@@ -35,20 +35,7 @@ const ShoppingCart = () => {
       description: 'Test Transaction dont worry just click it will not cut any money enter fake otp',
       order_id : orderId,
       handler: async(response: any) => {
-        try {
-          await paymentHandler({paymentResponse : response, totalCartAmount}),
-          toast({
-            title : "Success",
-            description : "Successfully Placed Order",
-            variant : "OrderStatusChange"
-          })
-        } catch (error) {
-          toast({
-            title : "Fail",
-            description : "Failed to  Placed Order",
-            variant : "destructive"
-          })
-        }
+          await paymentHandler({paymentResponse : response, totalCartAmount})
       },
       prefill: {
         name: 'John Doe',
@@ -61,73 +48,20 @@ const ShoppingCart = () => {
     };
     const paymentObject = new window.Razorpay(options);
     paymentObject.open();
-    if(isPaymentSuccess){
-      toast({
-        title: "Success",
-        description: "Successfully Logged In",
-      })
-    }
   };
-  const updateCartQuantity = async({cartProductId,quantity} :any) => {
+  const updateCartQuantity = async({cartProductId,quantity} : IUpdateCartQuantity) => {
     if(quantity === 0){
-      await removeProductFromCart({cartProductId,quantity});
+      await removeProductFromCart(cartProductId);
       return 
     }
-    await updateQuantity({cartProductId : product._id,quantity : product.quantity-1 })
+    await updateQuantity({cartProductId ,quantity  })
   }
-  const handleRemoveFromCart = async(cartProductId : any) => {
-    try {
+  const handleRemoveFromCart = async(cartProductId : string) => {
       await removeProductFromCart(cartProductId);
-      toast({
-        title : "Success",
-        description : "Successfully Removed From Cart",
-        variant : "cart"
-      })
-    } catch (error) {
-      console.log(error);
-      console.log(products);
-      
-      if(products && products.length === 1){
-        toast({
-          title : "Success",
-          description : "Successfully Removed From Cart",
-          variant : "cart"
-        })
-        return
-      }
-      toast({
-        title : "Failed",
-        description : "Failed to Remove From Cart",
-        variant : "destructive"
-      })
-    }
-
   }
   const handleMoveToWishlist = async({cartProductId,productId, varietyId, sizeOptionId}: {cartProductId : string,productId: string, varietyId: string, sizeOptionId: string}) => {
-    try {
       await addToWishlist({productId,varietyId,sizeOptionId});
       await removeProductFromCart(cartProductId)
-      toast({
-        title : "Success",
-        description : "Successfully Added To Wishlist And Removed From Cart",
-        variant : "wishlist"
-      })
-    } catch (error) {
-      if(products && products.length === 1){
-        toast({
-          title : "Success",
-          description : "Successfully Removed From Cart",
-          variant : "cart"
-        })
-        return
-      }
-      toast({
-        title : "Failed",
-        description : "Failed to Add To Wishlist",
-        variant : "destructive"
-      })
-    }
-
   }
   return (
     <>
@@ -168,7 +102,7 @@ const ShoppingCart = () => {
                     <p className="text-[15px] font-semibold">QTY</p>
                     <span
                       className="py-0 px-2 text-lg border mr-1 font-semibold cursor-pointer"
-                      onClick={()=> updateQuantity({cartProductId : product._id,quantity : product.quantity+1 })}
+                      onClick={()=> updateCartQuantity({cartProductId : product._id,quantity : product.quantity+1 })}
                     >
                       +
                     </span>

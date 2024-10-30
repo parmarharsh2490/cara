@@ -2,7 +2,10 @@ import apiClient from ".";
 
 export {
     createOrder,
-    paymentHandler
+    paymentHandler,
+    getUserOrders,
+    getSellerOrders,
+    updateOrderStatus
 }
 
 
@@ -33,4 +36,19 @@ const paymentHandler =  async({paymentResponse, totalCartAmount} : any) =>  {
   } catch (error) {
     console.error('Error creating order:', error);
   }
+}
+
+const getUserOrders = async(skip : number) => {
+    const response = await apiClient.get(`/order?skip=${skip}`);
+    return response.data.data
+}
+
+const getSellerOrders = async(pageParam=0) => {
+    const response = await apiClient.get(`/order/seller?pageParam=${pageParam}`);
+    return response.data.data
+}
+
+const updateOrderStatus = async(data : any) => {
+    const response = await apiClient.patch("/order/update",data);
+    return response.data.data
 }

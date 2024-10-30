@@ -1,16 +1,14 @@
-import { useToast } from '@/hooks/use-toast';
-import { useGetSellerOrders, useUpdateOrderStatus } from '../../../query/orderQueries';
-import { IOrder } from '@/types';
+import { IOrderItem } from '@/types';
 import React, {  useEffect } from 'react';
-import AdminOrderSkeleton from '../../../utils/skeleton/AdminOrdersSkeleton';
 import { getStatusStyles } from '@/utils/getStatusByStyle';
 import { useInView } from 'react-intersection-observer';
 import Spinner from '@/utils/Spinner';
+import { useGetSellerOrders, useUpdateOrderStatus } from '@/query/orders.queries';
+import SelleOrderSkeleton from '@/utils/skeleton/SellerOrdersSkeleton';
 
-const AdminOrders: React.FC = () => {
-  const {toast} = useToast()
+const SellerOrders: React.FC = () => {
   const { data: orders,error, isLoading,fetchNextPage,isFetchingNextPage } = useGetSellerOrders();  
-  const {mutateAsync : updateOrderStatus,isSuccess : isSuccessUpdateOrderStatusChange} = useUpdateOrderStatus();
+  const {mutateAsync : updateOrderStatus} = useUpdateOrderStatus();
   const { ref, inView } = useInView();
 
   useEffect(() => {
@@ -20,20 +18,10 @@ const AdminOrders: React.FC = () => {
   }, [inView]);
 
   if (isLoading) {
-    return <AdminOrderSkeleton></AdminOrderSkeleton>;
+    return <SelleOrderSkeleton/>
   }
-  const allOrders = orders?.pages.reduce((acc, page) => {
-    return [...acc, ...(page.items || [])];
-  }, []) ?? [];
-  const handleStatusChange = async(id: number, newStatus: IOrder['status']) => {
+  const handleStatusChange = async(id: string, newStatus: IOrderItem['status']) => {
     await updateOrderStatus({orderId : id, status : newStatus});
-    if(isSuccessUpdateOrderStatusChange){
-      toast({
-        title : "Success",
-        description : "Successfully Updated Order Status",
-        variant : "OrderStatusChange"
-      })
-    }
   };
 
  
@@ -64,10 +52,10 @@ const AdminOrders: React.FC = () => {
             </tr>
           </thead>
           <tbody>
-            {orders?.pages.map((page) => (
+            {orders?.pages.map((page: any[]) => (
              <>
               {
-                page.map((order : any) => ( <tr key={order._id} className="border-b border-gray-200">
+                page.map((order : IOrderItem) => ( <tr key={order._id} className="border-b border-gray-200">
                   <td className="px-4 py-2">
                     <div className="flex items-center space-x-2">
                           <img className='bg-cover rounded-full max-w-8 bg-center' src={order.imageUrl} alt="" />
@@ -85,7 +73,7 @@ const AdminOrders: React.FC = () => {
                   </td>
                   <td className="px-4 py-2">
                     <select
-                      onChange={(e) => handleStatusChange(order._id, e.target.value as IOrder['status'])}
+                      onChange={(e) => handleStatusChange(order._id, e.target.value as IOrderItem['status'])}
                       value={order.status}
                       className="bg-white hover:bg-gray-100 text-gray-700 py-1 px-2 rounded text-sm md:text-base"
                     >
@@ -102,8 +90,11 @@ const AdminOrders: React.FC = () => {
           </tbody>
         </table>
         <div className="md:hidden space-y-4">
-        {allOrders.map((order : any) => (
-          <div key={order._id} className="bg-white shadow-md rounded-lg overflow-hidden">
+        {orders?.pages.map((page: any[]) => (
+             <>
+              {
+                page.map(order => (
+          <div key={order._id} className="bg-white shadow-md rounded-lg">
             <div className="p-4">
               <div className="flex items-center space-x-4">
                 <img 
@@ -138,19 +129,20 @@ const AdminOrders: React.FC = () => {
                 </label>
                 <select
                   id={`status-${order._id}`}
-                  onChange={() => handleStatusChange(order.id, order.status)}
+                  onChange={() => handleStatusChange(order._id, order.status)}
                   value={order.status}
                   className="block w-full bg-white border border-gray-300 rounded-md shadow-sm py-2 px-3 text-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
                 >
-                  <option value="success">SUCCESS</option>
-                  {/* <option value="CONFIRMED">CONFIRMED</option>
-                  <option value="SHIPPED">SHIPPED</option>
-                  <option value="DELIVERED">DELIVERED</option> */}
+                  <option value="processing">PROCESSING</option>
+                      <option value="success">SUCCESS</option>
+                      <option value="failed">FAILED</option>
                 </select>
               </div>
             </div>
           </div>
         ))}
+        </>
+      ))}
       </div>
       <div className="flex items-center justify-center">
   <div ref={ref} className="h-20 flex items-center justify-center">
@@ -171,4 +163,4 @@ const AdminOrders: React.FC = () => {
   );
 };
 
-export default AdminOrders;
+export default SellerOrders;

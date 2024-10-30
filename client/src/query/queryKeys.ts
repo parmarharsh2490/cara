@@ -14,5 +14,6 @@ export enum QUERY_KEYS {
     "SELLERORDERS" = "sellerOrders",
     "ADDRESS"= "address",
     "ADMINPRODUCTS" = "adminProducts",
-    "PRODUCTREVIEW" = "productReview"
+    "PRODUCTREVIEW" = "productReview",
+    "PAYMENTWALLET" = "paymentwallet"
 }

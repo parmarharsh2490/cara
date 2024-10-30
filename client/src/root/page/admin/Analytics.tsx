@@ -1,21 +1,16 @@
-import { useGetAnalyticsDetails } from '../../../query/AdminQueries';
+import { useGetAnalyticsDetails } from '../../../query/seller.queries';
 import { BsThreeDots } from 'react-icons/bs';
 import { PieChart, Pie, Cell } from 'recharts';
 import { BarChart,ComposedChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Rectangle } from 'recharts';
 
-const CategoryChart = () => {
- const data = [
-  { name: 'Group A', value: 554 },
-  { name: 'Group B', value: 244 },
-  { name: 'Group C', value: 158 },
-];
+const CategoryChart = ({topSellingCategory} : any) => {
 const COLORS = ['#1e293b', '#475569', '#94a3b8', '#e2e8f0'];
-
-
     return (
-      <PieChart className='bg-white' width={210} height={180}>
+      <>
+       <div className="flex items-center justify-center mt-3">
+       <PieChart className='bg-white' width={210} height={180}>
         <Pie
-          data={data}
+          data={topSellingCategory}
           cx={100}
           cy={80}
           innerRadius={60}
@@ -24,52 +19,32 @@ const COLORS = ['#1e293b', '#475569', '#94a3b8', '#e2e8f0'];
           paddingAngle={5}
           dataKey="value"
         >
-          {data.map((_, index) => (
+          {topSellingCategory.map((_ : any, index :number) => (
             <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
           ))}
         </Pie>
-        {/* <Pie
-          data={data}
-          cx={420}
-          cy={200}
-          startAngle={180}
-          endAngle={0}
-          innerRadius={60}
-          outerRadius={80}
-          fill="#8884d8"
-          paddingAngle={5}
-          dataKey="value"
-        >
-          {data.map((entry, index) => (
-            <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
-          ))}
-        </Pie> */}
       </PieChart>
+        </div>
+    <div className='w-full  px-2'>
+    <ul className='flex items-center justify-between flex-col w-full'>
+      {
+        topSellingCategory.map((category :any,index : number) => (
+          <li key={index} className='flex items-center  p-1  w-full justify-between'>{category.name} <span className='text-slate-100 bg-slate-800 rounded-xl p-1 text-sm font-bold'>{category.value}</span></li>
+        ))
+      }
+    </ul>
+    </div>
+      </>
     );
 }
 
-const ProgressChart = () => {
-  const data = [
-    { name: 'Jan', revenue: 5000, margin: 3000 },
-    { name: 'Feb', revenue: 4200, margin: 2500 },
-    { name: 'Mar', revenue: 6000, margin: 4000 },
-    { name: 'Apr', revenue: 7500, margin: 5000 },
-    { name: 'May', revenue: 6800, margin: 4500 },
-    { name: 'Jun', revenue: 8000, margin: 5500 },
-    { name: 'Jul', revenue: 8500, margin: 6200 },
-    { name: 'Aug', revenue: 9000, margin: 7000 },
-    { name: 'Sep', revenue: 9500, margin: 7300 },
-    { name: 'Oct', revenue: 10000, margin: 8000 },
-    { name: 'Nov', revenue: 11000, margin: 8500 },
-    { name: 'Dec', revenue: 12000, margin: 9000 },
-  ];
-
+const RevenueMarginChart = ({revenueMargin} : any) => {
   return (
     <div className="w-full lg:w-[72%] m-3 rounded-md p-4 bg-white -black">
       <h1 className='text-2xl text-center text-green-600'>Revenue & Margin Progress (2024)</h1>
       <ResponsiveContainer width="100%" height={330}>
         <BarChart
-          data={data}
+          data={revenueMargin}
           margin={{
             top: 5,
             right: 30,
@@ -91,24 +66,13 @@ const ProgressChart = () => {
   );
 };
 
-const ComposedMonthlyChart = () => {
-  const data = [
-  { name: 'MON', "Orders Received": 190 },
-  { name: 'TUES', "Orders Received": 868 },
-  { name: 'WED', "Orders Received": 1397 },
-  { name: 'THU', "Orders Received": 1800 },
-  { name: 'FRI', "Orders Received": 1480 },
-  { name: 'SAT', "Orders Received": 1520 },
-  { name: 'SUN', "Orders Received": 1400 },
-];
-
-
+const WeeklyProgressChart = ({lastWeekOrders} : any) => {
   return (
     <div className="w-full lg:w-[45%] p-4 bg-white">
       <h1 className='text-2xl text-center text-green-600'>Your Weekly Progress</h1>
       <ResponsiveContainer width="100%" height={190}>
         <ComposedChart
-          data={data}
+          data={lastWeekOrders}
           margin={{
             top: 20,
             right: 20,
@@ -120,30 +84,22 @@ const ComposedMonthlyChart = () => {
           <XAxis dataKey="name" scale="band" />
           <YAxis />
           <Tooltip />
-          <Bar dataKey="Orders Received" barSize={20} fill="#413ea0" />
+          <Bar dataKey="orders" barSize={20} fill="#413ea0" />
         </ComposedChart>
       </ResponsiveContainer>
     </div>
   );
 };
 
-const PaymentChart = () => {
-  const data = [
-    { name: 'Cash', value: 40 },
-    { name: 'GPay', value: 35 },
-    { name: 'Paytm', value: 15 },
-    { name: 'UPI', value: 10 },
-  ];
-
+const PaymentChart = ({paymentChart}: any) => {
   const COLORS = ['#4caf50', '#ff9800', '#f44336', '#2196f3'];
-
   return (
     <div className="w-full   flex items-center justify-center flex-col lg:w-[45%] h-fit bg-white p-4 rounded-md shadow-lg">
       <h1 className="text-center text-xl  font-semibold">Payment Methods</h1>
       <ResponsiveContainer width="100%" height={200}>
         <PieChart>
           <Pie
-            data={data}
+            data={paymentChart}
             cx="50%"
             cy="45%"
             outerRadius={90}
@@ -167,7 +123,7 @@ const PaymentChart = () => {
               );
             }}
           >
-            {data.map((_, index) => (
+            {paymentChart.map((_ : any, index : number) => (
               <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
             ))}
           </Pie>
@@ -178,33 +134,30 @@ const PaymentChart = () => {
   );
 };
 
-const ProductRatingChart = () => {
+
+const ProductRatingChart = ({ selledProductRatings } : any) => {
   const RADIAN = Math.PI / 180;
-  const data = [
-    { name: 'A', value: 90, color: '#ff0000' },
-    { name: 'B', value: 30, color: '#00ff00' },
-    { name: 'C', value: 30, color: '#0000ff' },
-  ];
   const cx = 100;
   const cy = 100;
   const iR = 50;
   const oR = 100;
-  const value = 150;
+  const value = 150; // Adjust based on your data
 
-  const needle = ({ value, data, cx, cy, iR, oR, color }: { value: number, data: any, cx: number, cy: number, iR: number, oR: number, color: string }) => {
-    console.log(value, cx, cy, iR, oR, color);
+  const renderNeedle = ({value, cx, cy, iR, oR, color} : any) => {
+    let total = selledProductRatings.reduce((sum :any, v :any) => sum + v.value, 0);
     
-    let total = 0;
-    data.forEach((v : any) => {
-      total += v.value;
-    });
-    const ang = 180.0 * (1 - value / total);
+    // Calculate angle correctly to match the PieChart’s start and end angles
+    const angle = 180 - (180 * value) / total;
     const length = (iR + 2 * oR) / 3;
-    const sin = Math.sin(-RADIAN * ang);
-    const cos = Math.cos(-RADIAN * ang);
+    const sin = Math.sin(RADIAN * angle);
+    const cos = Math.cos(RADIAN * angle);
     const r = 5;
-    const x0 = cx + 5;
-    const y0 = cy + 5;
+
+    // Center position for the needle base
+    const x0 = cx;
+    const y0 = cy;
+
+    // Calculate needle points
     const xba = x0 + r * sin;
     const yba = y0 - r * cos;
     const xbb = x0 - r * sin;
@@ -212,21 +165,23 @@ const ProductRatingChart = () => {
     const xp = x0 + length * cos;
     const yp = y0 + length * sin;
 
-    return [
-      <circle cx={x0} cy={y0} r={r} fill={color} stroke="none" />,
-      <path d={`M${xba} ${yba}L${xbb} ${ybb} L${xp} ${yp} L${xba} ${yba}`} stroke="#none" fill={color} />,
-    ];
+    return (
+      <>
+        <circle cx={x0} cy={y0} r={r} fill={color} stroke="none" />
+        <path d={`M${xba},${yba} L${xbb},${ybb} L${xp},${yp} Z`} fill={color} />
+      </>
+    );
   };
 
   return (
-    <div className='flex flex-col max-w-[300px]  items-center justify-center bg-white w-full lg:w-[45%] m-3 p-4 -black'>
-      <h1 className='pb-2 text-xl flex flex-col'>Your Products Ratings: <span className='text-center'>Very Good </span></h1>
+    <div className='flex flex-col max-w-[300px] items-center justify-center bg-white w-full lg:w-[45%] m-3 p-4'>
+      <h1 className='pb-2 text-xl flex flex-col'>Your Products Ratings: <span className='text-center'>Very Good</span></h1>
       <PieChart width={220} height={120}>
         <Pie
           dataKey="value"
           startAngle={180}
           endAngle={0}
-          data={data}
+          data={selledProductRatings}
           cx={cx}
           cy={cy}
           innerRadius={iR}
@@ -234,22 +189,63 @@ const ProductRatingChart = () => {
           fill="#8884d8"
           stroke="none"
         >
-          {data.map((entry, index) => (
+          {selledProductRatings.map((entry : any, index : number) => (
             <Cell key={`cell-${index}`} fill={entry.color} />
           ))}
         </Pie>
-        {needle({value, data, cx, cy, iR, oR, color : '#d0d000'})}
+        <svg x={0} y={0} width={220} height={220}>
+          {renderNeedle({value, cx, cy, iR, oR, color: '#d0d000'})}
+        </svg>
       </PieChart>
     </div>
   );
 };
 
+
+
+const SkeletonBox = ({ width, height } : any) => (
+  <div className={`bg-gray-200 animate-pulse rounded ${width} ${height}`} />
+);
+
+const AnalyticsSkeleton = () => (
+  <div className="flex flex-col w-full items-center justify-around lg:flex-row lg:flex-wrap">
+    <div className="m-3 w-full max-w-[300px] lg:w-[25%] bg-white rounded-lg shadow-md sm:p-5">
+      <div className="flex items-center justify-between mb-4 p-2">
+        <SkeletonBox width="w-3/4" height="h-6" />
+        <SkeletonBox width="w-6" height="h-6" />
+      </div>
+      <SkeletonBox width="w-full" height="h-40" />
+    </div>
+
+    <div className="m-3 w-full lg:w-[72%] bg-white rounded-md shadow-md p-4">
+      <SkeletonBox width="w-1/2" height="h-6 mb-4" />
+      <SkeletonBox width="w-full" height="h-52" />
+    </div>
+
+    <div className="flex flex-col sm:flex-row items-center justify-around w-full lg:w-[50%]">
+      <div className="m-3 w-full lg:w-[100%] bg-white rounded-md shadow-lg p-4">
+        <SkeletonBox width="w-1/2" height="h-6 mb-4" />
+        <SkeletonBox width="w-full" height="h-40" />
+      </div>
+      <div className="m-3 w-full lg:w-[100%] bg-white rounded-md shadow-lg p-4">
+      <SkeletonBox width="w-1/2" height="h-6 mb-4" />
+      <SkeletonBox width="w-full" height="h-40" />
+      </div>
+
+      <div className="m-3 w-full lg:w-[100%] bg-white rounded-md shadow-lg p-4">
+        <SkeletonBox width="w-1/2" height="h-6 mb-4" />
+        <SkeletonBox width="w-full" height="h-40" />
+      </div>
+    </div>
+  </div>
+);
+
+
 const Analytics = () => {
-  const {data : analyticsData,isLoading} = useGetAnalyticsDetails();
-  if(isLoading){
-    return <p>Loading...</p>
+  const {data : analyticsData,isLoading,isFetched} = useGetAnalyticsDetails();
+  if(isLoading || !isFetched){
+    return <AnalyticsSkeleton/>
   }
-  console.log(analyticsData);
   
   return (
    <>
@@ -260,25 +256,17 @@ const Analytics = () => {
       <h1 className="sm:text-xl text-lg font-semibold">Top Selling Category</h1>
       <BsThreeDots />
     </div>
-    <div className="flex items-center justify-center mt-3"><CategoryChart/></div>
-    <div className='w-full  px-2'>
-    <ul className='flex items-center justify-between flex-col w-full'>
-    <li className='flex items-center  p-1  w-full justify-between'>T-shirt <span className='text-slate-100 bg-slate-800 rounded-xl p-1 text-sm font-bold'>554</span></li>
-    <li className='flex items-center  p-1  w-full justify-between'>Shirt <span className='text-slate-200 bg-slate-600 rounded-xl p-1 text-sm font-bold'>244</span></li>
-    <li className='flex items-center  p-1  w-full justify-between'>Pant <span className='text-slate-300 bg-slate-400 rounded-xl p-1 text-sm font-bold'>158</span></li>
-    </ul>
-    </div>
+   <CategoryChart topSellingCategory={analyticsData.topSellingCategory}/>
   </div>
-      <ProgressChart />
-    <ComposedMonthlyChart />
+      <RevenueMarginChart revenueMargin={analyticsData.revenueMargin} />
+    <WeeklyProgressChart lastWeekOrders={analyticsData.lastWeekOrders}/>
       <div className='flex flex-col items-center justify-around sm:flex-row w-full lg:w-[50%] '>
-      <PaymentChart />
+      <PaymentChart paymentChart={analyticsData.paymentChart}/>
       
-      <ProductRatingChart />
+      <ProductRatingChart selledProductRatings={analyticsData.selledProductRatings}/>
       </div>
     </div>
     </>
-    // </div>
   );
 };
 

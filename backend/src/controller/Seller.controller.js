@@ -1,6 +1,7 @@
 import { redis } from "../index.js";
 import Order from "../model/Order.model.js";
 import { Payment } from "../model/Payment.model.js";
+import PaymentWallet from "../model/PaymentWallet.model.js";
 import { Product } from "../model/Product.model.js";
 import Seller from "../model/Seller.model.js";
 import ApiError from "../utils/ApiError.js";
@@ -61,8 +62,7 @@ const updateSellerDetails = asyncHandler(async (req, res) => {
     seller.bankAccountDetails = {...bankAccountDetails}
   }    
   await seller.save({validationBeforeSave : false});
-  // await redis.del(`sellerDetails:${user._id}`)
-  await redis.set(`sellerDetails:${user._id}`,seller)
+  await redis.set(`sellerDetails:${user._id}`,JSON.stringify(seller))
   await redis.expire(`sellerDetails:${user._id}`,600)
   return res
     .status(200)
@@ -82,8 +82,15 @@ const registerSeller = asyncHandler(async (req, res) => {
   if (!seller) {
     throw new ApiError(400, "Seller Creation Failed");
   }
+  const paymentWallet = await PaymentWallet.create({
+    user : user._id,
+    currentBalance : 0
+  });
+  if (!paymentWallet) {
+    throw new ApiError(400, "PaymentWallet Creation Failed");
+  }
   user.role = "admin"
-  user.save({validationBeforeSave : false})
+  await user.save({validationBeforeSave : false})
   return res
     .status(200)
     .json(new ApiResponse(200, seller, "Successfully become seller"));
@@ -162,13 +169,13 @@ const getDashboardDetails = asyncHandler(async (req, res) => {
             {
               $group: {
                 _id: null,
-                totalSales: {
+                totalSuccessOrders: {
                   $sum: "$succesOrders",
                 },
                 totalEarning: {
                   $sum: "$price",
                 },
-                totalOrders: {
+                totalSales : {
                   $sum: "$orders",
                 },
               },
@@ -241,6 +248,41 @@ const getDashboardDetails = asyncHandler(async (req, res) => {
             },
             { $sort: { _id: 1 } },
           ],
+          totalVisitors: [
+            {
+              $group : {
+                _id : null
+              }
+            },
+       {
+         $lookup: {
+           from: "products",
+           let: { userId: new mongoose.Types.ObjectId(user._id)  }, // Get the owner's ID
+           pipeline: [
+
+             {
+               $group: {
+                 _id: null,
+                 totalVisitorCount: { $sum: "$visitorCount" }, // Sum visitorCount
+               },
+             },
+             {
+               $project: {
+                 _id: 0,
+                 totalVisitorCount: { $ifNull: ["$totalVisitorCount", 0] }, // Default to 0 if no products
+               },
+             },
+           ],
+           as: "ownerProducts", 
+         },
+       },
+            {
+         $project: {
+           _id : 0,
+           totalVisitorCount: "$ownerProducts.totalVisitorCount", // Select only the totalVisitorCount
+         },
+       },
+     ],            
         },
       },
       {
@@ -253,6 +295,7 @@ const getDashboardDetails = asyncHandler(async (req, res) => {
           },
           topProducts: { $ifNull: ["$topProducts", []] },
           yearReport: { $ifNull: ["$yearReport", []] },
+          totalVisitors : 1
         },
       },
     ]
@@ -260,9 +303,7 @@ const getDashboardDetails = asyncHandler(async (req, res) => {
   if (!dashboardReport) {
     throw new ApiError(400, "Dashboard Report Failed");
   }
-  
   const formatedYearReport = applyMonthByDate(dashboardReport[0].yearReport);
-  console.log(formatedYearReport);
   dashboardReport[0].yearReport = formatedYearReport;
   await redis.set(`sellerDashboardReport:${user._id}`,JSON.stringify(dashboardReport[0]));
   await redis.expire(`sellerDashboardReport:${user._id}`,600);
@@ -333,11 +374,7 @@ const getAnalyticsDetails = asyncHandler(async (req,res) => {
             {
               $match: {
                 createdAt: {
-                  $gt: new Date(
-                    new Date().setDate(
-                      new Date().getDate() - 7
-                    )
-                  ),
+                  $gt: new Date(new Date().setDate(new Date().getDate() - 7)),
                   $lt: new Date(),
                 },
               },
@@ -345,31 +382,63 @@ const getAnalyticsDetails = asyncHandler(async (req,res) => {
             {
               $group: {
                 _id: {
-                  $dateToString: {
-                    format: "%Y-%m-%d",
-                    date: "$createdAt",
-                  },
+                  $dateToString: { format: "%Y-%m-%d", date: "$createdAt" },
                 },
-                count: { $sum: 1 },
+                orders: { $sum: 1 },
               },
             },
             { $sort: { _id: 1 } },
+            {
+              $addFields: {
+                dayOfWeek: {
+                  $dayOfWeek: {
+                    $dateFromString: { dateString: "$_id" },
+                  },
+                },
+              },
+            },
+            {
+              $project: {
+                _id: 0,
+                orders: 1,
+                name: {
+                  $arrayElemAt: [
+                    ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"],
+                    { $subtract: ["$dayOfWeek", 1] },
+                  ],
+                },
+              },
+            },
           ],
           paymentChart: [
             {
               $group: {
                 _id: "$payment.paymentMethod",
-                count: { $sum: 1 },
+                value: { $sum: 1 },
               },
             },
+            {
+              $project : {
+                name : "$_id",
+                _id : 0,
+                value : 1
+              }
+            }
           ],
           topSellingCategory: [
             {
               $group: {
                 _id: "$product.category",
-                count: { $sum: 1 },
+                value: { $sum: 1 },
               },
             },
+            {
+              $project : {
+                _id : 0,
+                name : "$_id",
+                value : 1
+              }
+            }
           ],
           revenueMargin: [
             {
@@ -408,11 +477,62 @@ const getAnalyticsDetails = asyncHandler(async (req,res) => {
                 },
               },
             },
+            {
+              $project : {
+                _id : 0,
+                name : "$_id",
+                margin : 1,
+                revenue : 1
+              }
+            }
+          ],
+          selledProductRatings: [
+            {
+              $lookup: {
+                from: "productreviews",
+                localField: "products.product",
+                foreignField: "product",
+                as: "ratings",
+              },
+            },
+            {
+              $unwind: {
+                path: "$ratings",
+              },
+            },
+            {
+              $group: {
+                _id: "$ratings.ratingStar",
+                value: {
+                  $sum: 1,
+                },
+              },
+            },
+            {
+              $sort : {
+                _id : 1
+              }
+            },
+            {
+              $project: {
+                value: 1,
+                _id: 0,
+                name: "$_id",
+              },
+            },
           ],
         },
       },
     ]
   )
+  const colors = ["#C6E7FF","#B03052","#E6C767","#257180","#FF6500"]
+   analyticsReport[0].selledProductRatings =  analyticsReport[0].selledProductRatings.map((item,index) => {
+     return {
+       ...item,
+       color: colors[index]
+    }
+})
+ 
   await redis.set(`sellerAnalyticsReport:${user._id}`,JSON.stringify(analyticsReport));
   await redis.expire(`sellerAnalyticsReport:${user._id}`,600);
 

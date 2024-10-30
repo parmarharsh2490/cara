@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import ProductList from '../../components/shared/ProductList'
-import {  useGetTopSelledProducts } from '../../query/ProductQueries';
+import {  useGetTopSelledProducts } from '../../query/product.queries';
 const SeasonProducts = () => {
   const [skip,setSkip] = useState(0);
   const [products,setProducts] = useState<any>([]);

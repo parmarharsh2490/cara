@@ -1,18 +1,11 @@
 import { useState } from "react"
-import { useSendPromotionalMail } from "../../query/PromotionalQueries"
-import { useToast } from "@/hooks/use-toast";
+import { useSendPromotionalMail } from "../../query/promotional.queries"
 
 const PromotionBanner = () => {
   const [email,setEmail] = useState("");
-  const {toast}  = useToast()
   const {mutateAsync : sendPromotionMail} = useSendPromotionalMail();
   const handleOnClick = () => {
-    sendPromotionMail({email});
-    toast({
-      title : "Success",
-      description : "Successfully Signup to Promotional Mail",
-      variant : "promotion"
-    })
+    sendPromotionMail(email);
   }
   return (
     <div className='py-10 text-center px-3 gap-3 sm:gap-0  items-center flex flex-col md:flex-row justify-around bg-gradient-to-r from-purple-700 via-red-500 to-yellow-300 text-white'>

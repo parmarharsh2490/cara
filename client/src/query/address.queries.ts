@@ -1,6 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
 import { QUERY_KEYS } from "./queryKeys"
-import { createUserAddress, deleteUserAddress, getUserAddress, updateUserAddress } from "../services/addressServices"
+import { createUserAddress, deleteUserAddress, getUserAddress, updateUserAddress } from "../services/address.services"
+import { IAddress } from "@/types"
 
 export {
     useGetUserAddress,
@@ -23,7 +24,7 @@ const useGetUserAddress = () => {
 const useUpdateUserAddress = () => {
     const queryClient = useQueryClient()
     return useMutation({
-        mutationFn : (data : any) => updateUserAddress(data),
+        mutationFn : (data : IAddress) => updateUserAddress(data),
         onSuccess : () => {
             queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.ADDRESS] })
         }
@@ -32,7 +33,7 @@ const useUpdateUserAddress = () => {
 const useCreateUserAddress = () => {
     const queryClient = useQueryClient()
     return useMutation({
-        mutationFn : (data : any) => createUserAddress(data),
+        mutationFn : (data : IAddress) => createUserAddress(data),
         onSuccess : () => {
             queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.ADDRESS] })
         }

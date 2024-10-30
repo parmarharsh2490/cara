@@ -1,4 +1,4 @@
-const AdminOrderSkeleton = () => {
+const SelleOrderSkeleton = () => {
     return <div className="container mx-auto px-4 py-8 flex flex-col">
     <div className='flex items-center justify-between mb-6 flex-col sm:flex-row'>
       <h1 className="text-2xl md:text-3xl font-bold bg-gray-200 rounded-lg h-6 w-32"></h1>
@@ -71,4 +71,4 @@ const AdminOrderSkeleton = () => {
   }
 
 
-export default AdminOrderSkeleton
+export default SelleOrderSkeleton

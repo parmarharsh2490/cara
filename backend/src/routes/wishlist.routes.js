@@ -4,7 +4,7 @@ import { getUserWishlist, addToWishlist, removeFromWishlist } from "../controlle
 const wishListRouter = Router();
 
 wishListRouter.post('/add', addToWishlist);
-wishListRouter.delete('/remove', removeFromWishlist);
+wishListRouter.delete('/remove/:wishlistId', removeFromWishlist);
 wishListRouter.get('/', getUserWishlist);
 
 export default wishListRouter;

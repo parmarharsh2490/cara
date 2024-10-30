@@ -105,7 +105,8 @@ const productSchema = new mongoose.Schema({
     enum: ["male", "female", "child", "unisex"],
     required: true,
     index: true
-  }
+  },
+  visitorCount: { type: Number, default: 0 }, 
 }, {
   timestamps: true
 });

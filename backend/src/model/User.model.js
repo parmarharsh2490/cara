@@ -59,7 +59,6 @@ const userSchema = new mongoose.Schema(
 
 userSchema.pre("save", function (next) {
   if (this.isModified("password")) {
-    console.log("working");
     this.password = bcrypt.hashSync(
       this.password,
       parseInt(BCRYPT_SORTORROUNDS)
@@ -91,7 +90,6 @@ userSchema.methods.generateAccessToken = function () {
 };
 
 userSchema.methods.generateRefreshToken = function () {
-  console.log(REFRESH_TOKEN_EXPIRY);
   const refreshToken = Jwt.sign(
     {
       data: {

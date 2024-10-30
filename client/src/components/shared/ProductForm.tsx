@@ -1,9 +1,8 @@
 import { useState, useEffect } from "react";
 import VarietyForm from "./VarietyForm.tsx";
 import { IVariety } from "../../types/index.ts";
-import { useCreateProduct, useUpdateProduct } from "../../query/ProductQueries.ts";
+import { useCreateProduct, useUpdateProduct } from "../../query/product.queries.ts";
 import { useParams } from "react-router-dom";
-import { useToast } from "@/hooks/use-toast.ts";
 
 interface ProductFormProps {
   existingProduct?: {
@@ -47,7 +46,6 @@ const ProductForm: React.FC<ProductFormProps> = ({ existingProduct, isUpdate = f
   const {productId} = useParams()
   const { mutateAsync: createProduct, isPending: isCreating  } = useCreateProduct();
   const { mutateAsync: updateProduct, isPending: isUpdating } = useUpdateProduct();
-  const {toast} = useToast()
   useEffect(() => {
     if (existingProduct) {
       setTitle(existingProduct.title);
@@ -83,7 +81,6 @@ const ProductForm: React.FC<ProductFormProps> = ({ existingProduct, isUpdate = f
       const fileArray = Array.from(files); // Convert FileList to Array
       newVarieties[index].images = fileArray; // Store File objects
       setVariety(newVarieties);
-      console.log(variety[0]);
     }
   };
 
@@ -151,23 +148,13 @@ const ProductForm: React.FC<ProductFormProps> = ({ existingProduct, isUpdate = f
     try {
       if (isUpdate) {
         await updateProduct({ data: formData, productId });
-        toast({
-          title: "Success",
-          description: "Successfully updated Product"
-        });
+     
       } else {
         await createProduct(formData);
-        toast({
-          title: "Success",
-          description: "Successfully created Product"
-        });
+        
       }
     } catch (error) {
-      toast({
-        title: "Failed",
-        description: isUpdate ? "Failed updating Product" : "Failed creating Product",
-        variant: "destructive"
-      });
+     
     }
   };
 

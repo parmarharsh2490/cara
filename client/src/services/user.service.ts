@@ -1,11 +1,12 @@
 import apiClient from "./index";
-import { ILoginUser, INewUser } from "../types/index";
+import { ILoginUser, INewUser, IUser } from "../types/index";
 
 export {
     createUserAccount,
     loginUserAccount,
     getUserDetails,
-    updateUserDetails
+    updateUserDetails,
+    logOut
 }
 
 const createUserAccount = async (user: INewUser) => {
@@ -29,7 +30,6 @@ const loginUserAccount = async (user: ILoginUser) => {
                 "Content-Type": "application/json",
             }
         })
-        console.log(response);
         return response.data;
     } catch (error) {
         console.error("Error logging in user:", error);
@@ -40,21 +40,24 @@ const loginUserAccount = async (user: ILoginUser) => {
 const getUserDetails = async () => {
     try {
         const response = await apiClient.get("/user")
-        console.log(response);
         return response.data.data;
     } catch (error) {
         console.error("Error logging in user:", error);
         throw error;
     }
 }
-const updateUserDetails = async (userDetails : any) => {
-    console.log(userDetails);
+
+const updateUserDetails = async (userDetails : IUser) => {
     try {
         const response = await apiClient.post("/user/update",userDetails)
-        console.log(response);
         return response.data.data;
     } catch (error) {
         console.error("Error logging in user:", error);
         throw error;
     }
+}
+
+const logOut = async() => {
+    const respose = await apiClient.post('/user/logout');
+    return respose.data
 }

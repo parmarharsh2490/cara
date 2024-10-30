@@ -3,9 +3,9 @@ import { Link, useNavigate } from "react-router-dom";
 import { AiOutlineShop } from "react-icons/ai";
 import { UserContext } from "../../context/index.tsx";
 import AlertDialog from "../ui/AlertDialog";
-import { useBecomeSeller } from "../../query/UserQueries.ts";
-import { useGetUserCart } from "../../query/CartQueries.ts";
-import { useGetUserWishlist } from "../../query/WishlistQueries.ts";
+import { useBecomeSeller } from "../../query/user.queries.ts";
+import { useGetUserCart } from "../../query/cart.queries.ts";
+import { useGetUserWishlist } from "../../query/wishlist.queries.ts";
 const Navigation = () => {
   const [showAlertDialog,setShowAlertDialog] = useState(false);
   const [searchValue,setSearchValue] = useState<string>("");
@@ -177,7 +177,7 @@ const Navigation = () => {
                  <AiOutlineShop  size={25}/> <span className=" whitespace-nowrap">Become a Seller</span>
                 </Link>
                 <Link
-                  className="my-2 hidden  whitespace-nowrap lg:block text-sm xl:text-base leading-5 text-gray-700 transition-colors duration-300 transform hover:text-blue-600 hover:underline md:mx-2 lg:mx-4 md:my-1"
+                  className="my-2  whitespace-nowrap lg:block text-sm xl:text-base leading-5 text-gray-700 transition-colors duration-300 transform hover:text-blue-600 hover:underline md:mx-2 lg:mx-4 md:my-1"
                   to="/about"
                 >
                   About Cara
@@ -187,6 +187,12 @@ const Navigation = () => {
                   to="/contact"
                 >
                   Contact Us
+                </Link>
+                <Link
+                  className="my-2 md:hidden whitespace-nowrap text-sm xl:text-base leading-5 text-gray-700 transition-colors duration-300 transform hover:text-blue-600 hover:underline md:mx-2 lg:mx-4 md:my-1"
+                  to="/profile"
+                >
+                  Profile
                 </Link>
                {!isAuthenticated && <Link
                   className="my-2 text-sm  whitespace-nowrap xl:text-base leading-5 text-gray-700 transition-colors duration-300 transform hover:text-blue-600 hover:underline md:mx-2 lg:mx-4 md:my-1"

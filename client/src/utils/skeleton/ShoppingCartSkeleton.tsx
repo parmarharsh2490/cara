@@ -1,5 +1,3 @@
-import React from 'react'
-
 const ShoppingCartSkeleton = () => {
   return (
     <div className='w-full h-full flex flex-col sm:flex-row'>

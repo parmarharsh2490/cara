@@ -25,7 +25,6 @@ const PopupForm: React.FC<IPopupFormProps> = ({ inputData,label, title, showPopu
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name } = e.target;
     const files = e.target.files;
-    console.log(files);
     
     setFormValues((prev) => ({ ...prev, [name]: files }));
 
@@ -33,14 +32,14 @@ const PopupForm: React.FC<IPopupFormProps> = ({ inputData,label, title, showPopu
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    console.log(formValues);
     if(label == "businessInformation" || label == "bankAccountDetails" || label == "legalInformation"){
       const data = { [label] :{...formValues}}
       await handleSubmitFunction(data);
+      setShowPopupForm(false)
+      return
     }
     const formData = new FormData();
     Object.entries(formValues).forEach(([key, value]) => {
-      console.log(key, value);
       if (value instanceof FileList) {
         Array.from(value).forEach((file) => {
           formData.append(key, file);

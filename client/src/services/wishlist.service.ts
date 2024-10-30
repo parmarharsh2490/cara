@@ -1,3 +1,4 @@
+import { IAddToWishlist } from "@/types";
 import apiClient from "."
 
 export {
@@ -6,15 +7,13 @@ export {
     removeFromWishlist
 }
 
-const addToWishlist = async(data : any) => {
+const addToWishlist = async(data : IAddToWishlist) => {
     const response = await apiClient.post("/wishlist/add",data);
     return response.data.data
 }
 
 const removeFromWishlist = async(wishlistId : any) => {
-    console.log(wishlistId);
-    
-    const response = await apiClient.delete("/wishlist/remove",wishlistId);
+    const response = await apiClient.delete(`/wishlist/remove/${wishlistId}`);
     return response.data.data
 }
 

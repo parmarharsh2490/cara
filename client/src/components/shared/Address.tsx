@@ -1,7 +1,8 @@
 import React, { useContext, useState } from "react";
 import PopupForm from "./PopupForm";
-import { useCreateUserAddress, useGetUserAddress } from "../../query/AddressQueries";
+import { useCreateUserAddress, useGetUserAddress } from "../../query/address.queries";
 import { UserContext } from "../../context";
+import AddressSkeleton from "@/utils/skeleton/AddressSkeleton";
 
 interface AddressFieldProps {
   label: string;
@@ -36,24 +37,7 @@ const Address: React.FC = () => {
     }
   }
   if(isLoading){
-    return   <div className='p-5 sm:p-20 w-full '>
-    <div className='h-7 w-40 bg-slate-200 rounded-lg animate-pulse'></div>
-    <div className='w-full  mt-10 '>
-        <div className='flex flex-col sm:flex-row gap-5 sm:gap-20 justify-start items-start'>
-          <div className='h-7 w-56 bg-slate-200 rounded-lg animate-pulse'></div>
-          <div className='h-7 w-56 bg-slate-200 rounded-lg animate-pulse'></div>
-        </div>
-        <div className='flex flex-col sm:flex-row gap-5 sm:gap-20 justify-start items-start mt-7'>
-          <div className='h-7 w-56 bg-slate-200 rounded-lg animate-pulse'></div>
-          <div className='h-7 w-56 bg-slate-200 rounded-lg animate-pulse'></div>
-        </div>
-        <div className='flex flex-col sm:flex-row gap-5 sm:gap-20 justify-start items-start mt-7'>
-          <div className='h-7 w-56 bg-slate-200 rounded-lg animate-pulse'></div>
-          <div className='h-7 w-56 bg-slate-200 rounded-lg animate-pulse'></div>
-        </div>
-    </div>
-    <div className='h-12 w-32 mt-14 bg-slate-200 rounded-lg animate-pulse'></div>
-</div>
+    return <AddressSkeleton/>
   }
   return (
     <>
@@ -61,8 +45,7 @@ const Address: React.FC = () => {
         <div className="flex justify-between items-center w-full">
           <h1 className="font-semibold text-2xl">Address</h1>
           <div
-            className="flex text-red-500 justify-center items-center text-xl cursor-pointer"
-            
+            className="flex text-red-500 justify-center items-center text-xl cursor-pointer" 
           >
             <svg
               stroke="currentColor"

@@ -8,7 +8,7 @@ const paymentSchema = mongoose.Schema(
             required: true
         },
         paymentMethod : {
-            type : String
+            type : String,
         },
         razorpayOrderId: {
             type: String,

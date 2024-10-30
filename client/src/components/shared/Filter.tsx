@@ -4,7 +4,6 @@ import  { ChangeEvent, useEffect } from 'react';
 const Filter = ({filters, setFilters,setProducts }: {filters : IFilter,setFilters : any,setProducts? : any}) => {
     const handleChange = (e : ChangeEvent<HTMLInputElement>) => {
         const { name, value } = e.target;
-        console.log(name,value);
         
         if(name == "price"){
             let price = value.split('-');
@@ -27,7 +26,6 @@ const Filter = ({filters, setFilters,setProducts }: {filters : IFilter,setFilter
     setProducts([])
 
     }
-        console.log(filters);
     };
 
     const resetFilter = () => {

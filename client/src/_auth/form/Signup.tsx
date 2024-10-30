@@ -1,6 +1,6 @@
 import { FormEvent, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { useCreateUserAccount } from "../../query/UserQueries.ts";
+import { useCreateUserAccount } from "../../query/user.queries.ts";
 import { INewUser } from "../../types/index.ts";
 import AuthFormSignupButton from "./AuthFormSignupButton.tsx";
 

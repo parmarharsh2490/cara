@@ -1,6 +1,6 @@
-import { IOrder } from "@/types";
+import { IOrderItem } from "@/types";
 
-export const getStatusStyles = (status: IOrder['status']) => {
+export const getStatusStyles = (status: IOrderItem['status']) => {
     switch (status) {
       case 'DELIVERED':
         return 'bg-green-100 text-green-600';

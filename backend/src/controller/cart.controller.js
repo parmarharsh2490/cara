@@ -5,6 +5,7 @@ import { asyncHandler } from "../utils/AsyncHandler.js";
 import { transformCartData } from "../utils/TransformCartData.js";
 import { redis } from "../index.js";
 import ApiError from "../utils/ApiError.js";
+import { Product } from "../model/Product.model.js";
 
 export { addToCart, removeFromCart, updateQuantity, getUserCart };
 
@@ -28,15 +29,17 @@ const addToCart = asyncHandler(async (req, res) => {
     }
   
     // Step 2: Add the product to the cart if it doesn't exist
+    const product = await Product.findById(productId);
     let newCart = await Cart.findOneAndUpdate(
       { user: user._id },
       {
         $push: {
           products: {
-            product: productId,
+            product: product._id,
             sizeOption: sizeOptionId,
             variety : varietyId,
             quantity: quantity,
+            seller : product.owner
           },
         },
       },
@@ -47,12 +50,10 @@ const addToCart = asyncHandler(async (req, res) => {
     ).select("-user -__v -createdAt -updatedAt").populate("products.product","title variety").lean();
     
     const transformedCart = transformCartData(newCart.products);
-    await redis.set(`cart:${user._id}`,JSON.stringify(transformCartData))
+    
+    await redis.set(`cart:${user._id}`,JSON.stringify(transformedCart))
     await redis.expire(`cart:${user._id}`,600)
-    return res.status(200).json({
-      cart: transformedCart,
-      message: "Product added to cart successfully",
-    });
+    return res.status(200).json( new ApiResponse(200,transformedCart,"Product Add to cart successfully"))
 });
   
 
@@ -67,9 +68,6 @@ const removeFromCart = asyncHandler(async (req, res) => {
   const updatedCart = await Cart.findOneAndUpdate(
     {
       user: user._id,
-      // "products.product": new mongoose.Types.ObjectId(productId),
-      // "products.sizeOption": new mongoose.Types.ObjectId(sizeOptionId),
-      // "products.variety": new mongoose.Types.ObjectId(varietyId),
     },
     {
       $pull: {
@@ -92,10 +90,7 @@ const removeFromCart = asyncHandler(async (req, res) => {
   const transformedCart = transformCartData(updatedCart.products);
   await redis.set(`cart:${user._id}`,JSON.stringify(transformedCart))
   await redis.expire(`cart:${user._id}`,600)
-  return res.status(200).json({
-    cart: transformedCart,
-    message: "Product removed from cart successfully",
-  });
+  return res.status(200).json(new ApiResponse(200,transformedCart,"Product removed from cart successfully"))
 });
 
 const updateQuantity = asyncHandler(async (req, res) => {
@@ -109,9 +104,6 @@ const updateQuantity = asyncHandler(async (req, res) => {
   const updatedCart = await Cart.findOneAndUpdate(
     {
       user: user._id,
-      // "products.product": new mongoose.Types.ObjectId(productId),
-      // "products.sizeOption": new mongoose.Types.ObjectId(sizeOptionId),
-      // "products.variety": new mongoose.Types.ObjectId(varietyId),
       products : {
         $elemMatch : {
           _id : new mongoose.Types.ObjectId(cartProductId)
@@ -132,18 +124,15 @@ const updateQuantity = asyncHandler(async (req, res) => {
   const transformedCart = transformCartData(updatedCart.products);
   await redis.set(`cart:${user._id}`,JSON.stringify(transformedCart))
   await redis.expire(`cart:${user._id}`,600)
-  return res.status(200).json({
-    cart: transformedCart,
-    message: "Quantity updated successfully",
-  });
+  return res.status(200).json(new ApiResponse(200,transformedCart,"Quantity updated successfully"));
 });
 
 const getUserCart = asyncHandler(async (req, res) => {
   const user = req.user;
-  // const cachedCart = await redis.get(`cart:${user._id}`);
-  // if(cachedCart){
-  //   return res.status(200).json(new ApiResponse(200,JSON.parse(cachedCart),"Successfully fetch user cart"))
-  // }
+  const cachedCart = await redis.get(`cart:${user._id}`);
+  if(cachedCart){
+    return res.status(200).json(new ApiResponse(200,JSON.parse(cachedCart),"Successfully fetch user cart"))
+  }
   const cart = await Cart.aggregate([
     {
       $match: {
@@ -227,7 +216,7 @@ const getUserCart = asyncHandler(async (req, res) => {
   if (!cart) {
     return res.status(404).json({ message: "Cart not found" });
   }
-  // await redis.set(`cart:${user._id}`,JSON.stringify(cart));
-  // await redis.expire(`cart:${user._id}`,600)
+  await redis.set(`cart:${user._id}`,JSON.stringify(cart));
+  await redis.expire(`cart:${user._id}`,600)
   return res.status(200).json(new ApiResponse(200,cart,"Successfully fetch user cart"))
 })

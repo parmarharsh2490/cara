@@ -192,12 +192,11 @@ const getUserDetails = async(req,res) => {
 }
 
 const updateUserDetails = asyncHandler(async (req, res) => {
-    const { fullName, contactNumber, alternativeNumber, dateOfBirth, gender } = req.body;
-    console.log(fullName, contactNumber, alternativeNumber, dateOfBirth, gender);
+    const { name, contactNumber, alternativeNumber, dateOfBirth, gender } = req.body;
     
     const updatedFields = {};
-    if (fullName) {
-        updatedFields.name = fullName;
+    if (name) {
+        updatedFields.name = name;
     }
     if (contactNumber) {
         updatedFields.mobileNumber = contactNumber;
@@ -225,7 +224,7 @@ const updateUserDetails = asyncHandler(async (req, res) => {
     if (!user) {
         throw new ApiError(404, "User not found.");
     }
-
+    
     return res.status(200).json(new ApiResponse(200, user, "Successfully updated user."));
 });
 

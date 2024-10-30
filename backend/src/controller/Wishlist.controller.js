@@ -13,7 +13,6 @@ const addToWishlist = asyncHandler(async (req, res) => {
     throw new ApiError(400, "User not found");
   }
   const { productId, sizeOptionId, varietyId } = req.body;
-console.log( { productId, sizeOptionId, varietyId });
 
   if (
     !isValidObjectId(productId) ||
@@ -49,7 +48,6 @@ console.log( { productId, sizeOptionId, varietyId });
 
   const transformWish = transformedWishlist(userWishList);
   
-  //await redis.del(`wishlist:${user._id}`)
   await redis.lpush(`wishlist:${user._id}`,JSON.stringify(transformWish))
   return res
     .status(200)
@@ -58,7 +56,7 @@ console.log( { productId, sizeOptionId, varietyId });
 
 const removeFromWishlist = asyncHandler(async (req, res) => {
   const user = req.user;
-  const  wishlistId  = req.body;
+  const  {wishlistId}  = req.query;
   
   if (!isValidObjectId(wishlistId) ) {
     throw new ApiError(400, "WishlistId is not valid");
@@ -94,15 +92,12 @@ const getUserWishlist = asyncHandler(async (req, res) => {
   const user = req.user;
   let { skip = 0} = req.query;
   skip = parseInt(skip);
-  const cachedWishlist = await redis.lrange(`wishlist:${user._id}`,skip,skip+3);
+  const cachedWishlist = await redis.get(`wishlist:${user._id}:skip:${skip}`);
   if(cachedWishlist && cachedWishlist.length>0){
-    const data = cachedWishlist.map((wishlist) => {
-      return JSON.parse(wishlist)
-    })
     return res
     .status(200)
     .json(
-      new ApiResponse(200, data, "Successfully retrieved user wishlist")
+      new ApiResponse(200, JSON.parse(cachedWishlist), "Successfully retrieved user wishlist")
     );
   }
   const wishlist = await Wishlist.aggregate([
@@ -188,7 +183,7 @@ const getUserWishlist = asyncHandler(async (req, res) => {
   if (!wishlist || wishlist.length === 0) {
     throw new ApiError(404, "Wishlist not found");
   }
-  await redis.rpush(`wishlist:${user._id}`, ...wishlist.map((wishlist)=>JSON.stringify(wishlist)));
+  await redis.set(`wishlist:${user._id}:skip:${skip}`, JSON.stringify(wishlist));
   return res
     .status(200)
     .json(

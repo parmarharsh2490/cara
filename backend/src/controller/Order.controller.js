@@ -9,6 +9,7 @@ import ApiError from '../utils/ApiError.js';
 import mongoose, { isValidObjectId } from 'mongoose';
 import { Product } from '../model/Product.model.js';
 import { redis } from '../index.js';
+import  PaymentWallet  from '../model/PaymentWallet.model.js';
 
 
 export const createOrder = asyncHandler(async (req, res) => {
@@ -19,7 +20,6 @@ export const createOrder = asyncHandler(async (req, res) => {
   if (!amount || isNaN(amount)) {
     throw new ApiError(400, "Invalid amount provided");
   }
-console.log("amount",amount);
 
   const session = await mongoose.startSession();
   session.startTransaction();
@@ -34,7 +34,7 @@ console.log("amount",amount);
     const cartProducts = [];
 
     for (const item of cart.products) {
-      const { product, variety, sizeOption, quantity } = item;
+      const { product, variety, sizeOption, quantity,seller } = item;
       const selectedVariety = product.variety.find(v => v._id.toString() === variety.toString());
       const selectedSizeOption = selectedVariety.sizeOptions.find(s => s._id.toString() === sizeOption.toString());
 
@@ -43,9 +43,10 @@ console.log("amount",amount);
       }
       
       realAmount += parseFloat(selectedSizeOption.price.discountedPrice) * quantity;
+    await redis.del(`product:${product}`);
       cartProducts.push({
         product: product._id,
-        seller : product.seller || user._id,
+        seller,
         varietyId: variety,
         sizeOptionId: sizeOption,
         costPrice : selectedSizeOption?.price?.costPrice || selectedSizeOption?.price?.originalPrice,
@@ -78,7 +79,7 @@ console.log("amount",amount);
       user: user._id,
       status: "processing",
       products: cartProducts,
-      totalAmount: realAmount
+      totalAmount: realAmount,
     }], { session });
 
     const payment = await Payment.create([{
@@ -91,7 +92,6 @@ console.log("amount",amount);
 
     userOrder[0].payment = payment[0]._id;
     await userOrder[0].save({ session });
-
     await session.commitTransaction();
     res.status(200).json(new ApiResponse(200, { orderId: razorpayOrder.id }, "Order created successfully"));
   } catch (error) {
@@ -104,8 +104,7 @@ console.log("amount",amount);
 
 export const verifyOrder = asyncHandler(async (req, res) => {
   const user = req.user;
-  const { amount, razorpay_order_id, razorpay_payment_id, razorpay_signature } = req.body;
-  console.log("amount",amount);
+  const { razorpay_order_id, razorpay_payment_id, razorpay_signature } = req.body;
 
   if (!razorpay_order_id || !razorpay_payment_id || !razorpay_signature) {
     throw new ApiError(400, "Missing required payment information");
@@ -123,17 +122,30 @@ export const verifyOrder = asyncHandler(async (req, res) => {
     if (!payment) {
       throw new ApiError(404, "Payment not found");
     }
-    await redis.del(`cart:${user._id}`)
+    
     const order = await Order.findOne({ payment: payment._id, user: user._id }).session(session);
     if (!order) {
       throw new ApiError(404, "Order not found");
     }
-
     if (digest === razorpay_signature) {
       payment.razorpayPaymentId = razorpay_payment_id;
       payment.razorpaySignature = razorpay_signature;
       payment.status = "success";
       order.status = "success";
+      Promise.all(order.products.map(async(order) => {
+        await PaymentWallet.findOneAndUpdate(
+          {user : order.seller},
+          {
+            $inc : {
+              currentBalance : order.price * order.quantity
+            }
+          }
+        );
+
+      }))
+    
+    const razorpayPayment = await Razorpay_Instance.orders.fetchPayments(razorpay_order_id);
+      payment.paymentMethod = razorpayPayment.items[0].method;
 
       const cart = await Cart.findOne({ user: user._id }).session(session);
       cart.products = [];
@@ -141,13 +153,22 @@ export const verifyOrder = asyncHandler(async (req, res) => {
 
       await payment.save({ session });
       await order.save({ session });
-
+      redis.del(`paymentWallet:${user._id}:pageParam:0`)
       await session.commitTransaction();
       res.status(200).json(new ApiResponse(200, order, "Order successful"));
     } else {
       payment.status = "failed";
       order.status = "failed";
-
+      Promise.all(order.products.map(async(order) => {
+        await PaymentWallet.findOneAndUpdate(
+          {user : order.seller},
+          {
+            $inc : {
+              currentBalance : order.price * order.quantity
+            }
+          }
+        );
+      }))
       // Revert stock changes
       for (const item of order.products) {
         const product = await Product.findById(item.product).select("variety").session(session);
@@ -156,7 +177,6 @@ export const verifyOrder = asyncHandler(async (req, res) => {
         sizeOption.stock += item.quantity;
         await product.save({ session });
       }
-
       await payment.save({ session });
       await order.save({ session });
 
@@ -164,9 +184,11 @@ export const verifyOrder = asyncHandler(async (req, res) => {
       throw new ApiError(400, "Payment verification failed");
     }
   } catch (error) {
+  
     await session.abortTransaction();
     throw new ApiError(500, "Order verification failed: " + error.message);
   } finally {
+    await redis.del(`cart:${user._id}`);
     session.endSession();
   }
 });
@@ -175,10 +197,9 @@ export const getUserOrders = asyncHandler(async (req, res) => {
   const user = req.user;
   let { skip = 0 } = req.query;
   skip = parseInt(skip);
-  const cachedOrderList = await redis.lrange(`order:${user._id}`,skip,skip+4);
   
+  const cachedOrderList = await redis.lrange(`order:${user._id}`,skip,skip+4);
   if(cachedOrderList && cachedOrderList.length > 0){
-    console.log("cached data");
     const data = cachedOrderList.map((order) => {
       return JSON.parse(order)
     })
@@ -270,6 +291,7 @@ export const getUserOrders = asyncHandler(async (req, res) => {
   if(!orders || orders.length==0){
     return res.status(404).json(new ApiResponse(404, null, "No orders found for this user"));
   }
+  
   await redis.rpush(`order:${user._id}`,...orders.map((order) =>JSON.stringify(order)))
   await redis.expire(`order:${user._id}`,600)
   return res.status(200).json(new ApiResponse(200, orders, "Successfully retrieved user orders"));
@@ -279,10 +301,10 @@ export const getAdminOrders = asyncHandler(async(req,res) => {
   const user = req.user;
   let { pageParam = 0 } = req.query;
   const skip = parseInt(pageParam*10);
-  console.log(skip)
   if (isNaN(skip) || skip < 0) {
     throw new ApiError(400,"Invalid Skip value");
   }
+  
   const cachedOrderList = await redis.lrange(`order:${user._id}`, skip, skip + 9);
   if(cachedOrderList && cachedOrderList.length > 0){
     const data = cachedOrderList.map((order) => {
@@ -301,7 +323,7 @@ export const getAdminOrders = asyncHandler(async(req,res) => {
     },
     {
       $sort: {
-        createdAt: 1,
+        createdAt: -1,
       },
     },
     {
@@ -366,7 +388,6 @@ export const getAdminOrders = asyncHandler(async(req,res) => {
     }
   }
   ]);
-  console.log(orders)
   if(!orders || orders.length==0){
     throw new ApiError(400,"No Orders Found!");
   }

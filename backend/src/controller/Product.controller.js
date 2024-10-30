@@ -23,16 +23,8 @@ const getAllProducts = asyncHandler(async (req, res) => {
     priceLowToHigh,
   } = req.query;
 
-  const parsedSkip = parseInt(pageParam*10);
-  // console.log(searchTerm,
-  //   color,
-  //   parsedSkip,
-  //   gender,
-  //   category,
-  //   maxPrice,
-  //   minPrice,
-  //   priceHighToLow,
-  //   priceLowToHigh)
+  const parsedSkip = parseInt(pageParam * 10);
+ 
   if (isNaN(parsedSkip) || parsedSkip < 0) {
     throw new ApiError(400, "Invalid skip value");
   }
@@ -131,7 +123,7 @@ const getAllProducts = asyncHandler(async (req, res) => {
       ? "lowToHigh"
       : "recent"
   }:skip:${parsedSkip}`;
-  
+
   const cachedProducts = await redis.lrange(redisKey, 0, -1);
   if (cachedProducts && cachedProducts.length > 0) {
     const data = cachedProducts.map((product) => {
@@ -228,7 +220,7 @@ const getTopSelledProducts = asyncHandler(async (req, res) => {
     "topSelledProducts",
     ...products.map((product) => JSON.stringify(product))
   );
-  await redis.expire("topSelledProducts",600)
+  await redis.expire("topSelledProducts", 600);
 
   res
     .status(200)
@@ -242,31 +234,31 @@ const getProductDetails = asyncHandler(async (req, res) => {
   if (!productId || !isValidObjectId(productId)) {
     throw new ApiError(400, "ProductId is invalid");
   }
-  // const cachedProductDetails = await redis.get(`product:${productId}`);
-  // if (cachedProductDetails) {
-  //   console.log(cachedProductDetails);
-    
-  //   return res
-  //     .status(200)
-  //     .json(
-  //       new ApiResponse(
-  //         200,
-  //         JSON.parse(cachedProductDetails),
-  //         "Successfully retrieved product details"
-  //       )
-  //     );
-  // }
+  const cachedProductDetails = await redis.get(`product:${productId}`);
+  if (cachedProductDetails) {
+    return res
+      .status(200)
+      .json(
+        new ApiResponse(
+          200,
+          JSON.parse(cachedProductDetails),
+          "Successfully retrieved product details"
+        )
+      );
+  }
   const product = await Product.findById(productId).populate("owner").lean();
-  const cart = await Cart.findOne({user : req.user._id});
-  console.log(product._id);
-  product.isAlreadyInCart = cart && cart.products.some(cartProduct => cartProduct.product.toString() === product._id.toString());
-  console.log(product.isAlreadyInCart);
-  
+  const cart = await Cart.findOne({ user: req.user._id });
+  product.isAlreadyInCart =
+    cart &&
+    cart.products.some(
+      (cartProduct) => cartProduct.product.toString() === product._id.toString()
+    );
+
   if (!product) {
     throw new ApiError(404, "Product not found");
   }
-  // await redis.set(`product:${productId}`, JSON.stringify(product));
-  // await redis.expire(`product:${productId}`,600)
+  await redis.set(`product:${productId}`, JSON.stringify(product));
+  await redis.expire(`product:${productId}`,600)
   return res
     .status(200)
     .json(
@@ -276,8 +268,9 @@ const getProductDetails = asyncHandler(async (req, res) => {
 
 const getAdminProducts = asyncHandler(async (req, res) => {
   const user = req.user;
-  let { skip } = req.query;
-  skip = parseInt(skip);
+  let { pageParam } = req.query;
+  const skip = parseInt(pageParam * 10);
+
   const cachedProducts = await redis.lrange("adminProducts", skip, skip + 10);
   if (cachedProducts && cachedProducts.length > 0) {
     const data = cachedProducts.map((product) => JSON.parse(product));
@@ -387,17 +380,19 @@ const createProduct = asyncHandler(async (req, res) => {
     variety: parsedVariety,
     gender,
   });
-  await redis.set(`product:${product._id}`,JSON.stringify(product));
-  await redis.expire(`product:${product._id}`,600);
+  await redis.set(`product:${product._id}`, JSON.stringify(product));
+  await redis.expire(`product:${product._id}`, 600);
   await redis.lpush(
     `products:category:all:gender:all:color:all:search:none:priceRange:none-none:sort:recent:skip:0`,
-    JSON.stringify({_id: product._id,
-            title: product.title,
-            description: product.description,
-            imageUrl: product.variety[0].images[0].imageUrl,
-            originalPrice: product.variety[0].sizeOptions[0].price.originalPrice,
-            discountedPrice: product.variety[0].sizeOptions[0].price.originalPrice,
-            createdAt: product.createdAt})
+    JSON.stringify({
+      _id: product._id,
+      title: product.title,
+      description: product.description,
+      imageUrl: product.variety[0].images[0].imageUrl,
+      originalPrice: product.variety[0].sizeOptions[0].price.originalPrice,
+      discountedPrice: product.variety[0].sizeOptions[0].price.originalPrice,
+      createdAt: product.createdAt,
+    })
   );
   return res
     .status(201)
@@ -478,9 +473,10 @@ const updateProduct = asyncHandler(async (req, res) => {
     { new: true }
   );
   await redis.set(`product:${productId}`, updatedProduct);
-  await redis.expire(`product:${productId}`,600);
-  await redis.del('topSelledProducts');
-await redis.del('adminProducts');
+  await redis.expire(`product:${productId}`, 600);
+  await redis.del("topSelledProducts");
+  await redis.del("adminProducts");
+  await redis.del(`cart:${user._id}`);
   return res
     .status(200)
     .json(new ApiResponse(200, updatedProduct, "Successfully updated product"));
@@ -501,9 +497,22 @@ const deleteProduct = asyncHandler(async (req, res) => {
   }
   await Product.findByIdAndDelete(productId);
   await redis.del(`product:${productId}`);
+  await redis.del(`cart:${user._id}`);
   return res
     .status(200)
     .json(new ApiResponse(200, null, "Successfully deleted product"));
+});
+
+const viewProduct = asyncHandler(async (req, res) => {
+  const { productId } = req.params;
+  if (!productId || !isValidObjectId(productId)) {
+    throw new ApiError(400, "Invalid ProductId");
+  }
+  await Product.findByIdAndUpdate(productId, { $inc: { visitorCount: 1 } });
+  await redis.del(`sellerDashboardReport:${user._id}`);
+  return res
+    .status(200)
+    .json(new ApiResponse(200,[],"Successfully increatement product view"));
 });
 
 export {
@@ -514,4 +523,5 @@ export {
   updateProduct,
   deleteProduct,
   getTopSelledProducts,
+  viewProduct,
 };

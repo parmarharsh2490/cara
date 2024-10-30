@@ -43,7 +43,7 @@ const TopProducts = ({ topProducts }: { topProducts: any }) => {
                 {product.price}
               </td>
               <td className="text-xs sm:text-sm md:text-sm p-2 text-center">
-               {product?.averageRating?.toString().slice(0,3) ||  '5'}
+               {product?.averageRating?.toString().slice(0,3) ||  '0'}
               </td>
             </tr>
           )))}

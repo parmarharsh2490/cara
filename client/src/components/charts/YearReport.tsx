@@ -2,18 +2,21 @@ import { useEffect, useState } from 'react';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Area, Tooltip } from 'recharts';
 
 
-const YearReport = ({yearReport} : {yearReport : any}) => {
-    console.log(yearReport);
+interface YearReportProps {
+  yearReport: { name: string; value: number }[];
+}
+
+const YearReport = ({ yearReport }: YearReportProps) => {
     const handleResize = () => {
         let screenWidth = window.innerWidth;
-        let chartHeight = 300; // Default for smaller screens
+        let chartHeight = 300; 
     
         if (screenWidth > 640 && screenWidth < 1024) {
           screenWidth = screenWidth * 65 / 100;
-          chartHeight = 350; // Adjust for medium screens
+          chartHeight = 350;
         } else if (screenWidth >= 1024) {
           screenWidth = (screenWidth - (screenWidth * 20 / 100)) / 2;
-          chartHeight = 400; // Larger height for larger screens
+          chartHeight = 400;
         }
     
         return { chartWidth: screenWidth - 40, chartHeight };

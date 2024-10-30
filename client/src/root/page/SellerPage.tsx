@@ -1,5 +1,7 @@
-import  { useState } from 'react'
-import { Link, Outlet } from 'react-router-dom'
+import { UserContext } from '@/context';
+import { logOut } from '@/services/user.service';
+import  { useContext, useState } from 'react'
+import { Link, Outlet, useNavigate } from 'react-router-dom'
 
 const menuItems = [
   { label: 'Dashboard', path: '/dashboard' },
@@ -14,11 +16,20 @@ const menuItems = [
 const SellerPage = () => {
   const [toggle, setToggle] = useState<boolean>(false);
   const [selected, setSelected] = useState("dashboard");
-
+  const {setIsAuthenticated} = useContext(UserContext)
+  const navigate = useNavigate();
   const toggleButton = () => {
     setToggle(!toggle);
   }
-
+  const handleLogout = async() => {
+    try {
+      await logOut();
+      setIsAuthenticated(false)
+      navigate("/auth/sign-in")
+    } catch (error) {
+    }
+   
+  }
   return (
     <div className='flex'>
       {/* Sidebar */}
@@ -73,7 +84,7 @@ const SellerPage = () => {
             alt="user-image"
             className="w-7 h-7 bg-slate-600 rounded-full overflow-hidden"
           />
-          <button className='' ><Link to='/admin/auth/sign-in'>Log out</Link></button>
+          <button className='' onClick={handleLogout}>Log out</button>
         </div>
       </div>
       

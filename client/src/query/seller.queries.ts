@@ -1,6 +1,6 @@
 import { useQuery } from "@tanstack/react-query"
 import { QUERY_KEYS } from "./queryKeys"
-import { getAnalyticsDetails, getDashboardDetails } from "../services/adminServices"
+import { getAnalyticsDetails, getDashboardDetails } from "../services/seller.service"
 
 export {
     useGetDashboardDetails,

@@ -1,4 +1,4 @@
-import axios from "axios";
+import { IFilter, IProductAllDetails } from "@/types";
 import apiClient from "./index"
 
 export {
@@ -9,7 +9,8 @@ export {
     deleteProduct,
     getTopSelledProducts,
     getAllProducts,
-    getAdminProducts
+    getAdminProducts,
+    viewProduct
 }
  
 const getLatestProducts = async (pageParam : number) => {
@@ -28,8 +29,6 @@ const getTopSelledProducts = async (skip : number) => {
       skip 
     }
    });
-   console.log(response);
-   console.log(response.data.data);
    return response.data.data
 }
 
@@ -38,44 +37,39 @@ const getProductDetails = async (productId : string) => {
    return response.data.data
 }
 
-const createProduct = async (data : any) => {
-  console.log(data); 
+const createProduct = async (data : IProductAllDetails) => {
   const response = await apiClient.post('/products/create',data)
-  console.log(response);
   return response
 }
 
-const updateProduct = async ({ data, productId }: { data: any; productId: string; }) => {
+const updateProduct = async ({ data, productId }: { data: IProductAllDetails; productId: string; }) => {
   const response = await apiClient.patch(`/products/update/${productId}`, data, {
     headers: {
        'Content-Type': 'multipart/form-data'
     }
   });
-  console.log(response);
   return response;
 }
 
-const deleteProduct = async (productId : any) => {
-  const response = await axios.delete(`${apiClient}/products/delete/${productId}`);
-  console.log(response);
+const deleteProduct = async (productId : string) => {
+  const response = await apiClient.delete(`/products/delete/${productId}`)
   return response
 }
 
-const getAllProducts = async(options : any) => {
-  console.log("options");
-  console.log(options);
-  
+const getAllProducts = async(options : IFilter) => {
   const response = await apiClient.get('/products/',{
     params : options
   })
-  console.log(response.data?.data);
   return response.data?.data
 }
-const getAdminProducts = async(skip : any) => {
-  console.log(skip);
-  
+const getAdminProducts = async(pageParam : number) => {
   const respose = await apiClient.get("/products/seller",{
-    params : {skip : skip}
+    params : {pageParam}
   })
   return respose.data?.data
+}
+
+const viewProduct = async(productId : string) => {
+  const respose = await apiClient.patch(`/products/view/${productId}`)
+  return respose.data
 }

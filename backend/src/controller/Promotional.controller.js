@@ -100,7 +100,7 @@ const getPromotionalEmail = asyncHandler(async (req, res) => {
 });
 
 const sendContactFormDetails = asyncHandler(async (req, res) => {
-
+    const transporter = await createTransporter();
     const { name, email, subject, message } = req.body;
     
     if ([name, email, subject, message].some((field) => !field || field.trim() === "")) {

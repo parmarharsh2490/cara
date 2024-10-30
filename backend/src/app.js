@@ -13,6 +13,7 @@ import wishListRouter from './routes/wishlist.routes.js';
 import cartRouter from './routes/cart.routes.js';
 import orderRouter from './routes/Order.routes.js';
 import { promotionalRouter } from './routes/Promotional.routes.js';
+import { paymentWalletRouter } from './routes/paymentWallet.routes.js';
 
 const app = express();
 
@@ -63,5 +64,6 @@ app.use('/api/v1/order', verifyJWT, orderRouter);
 app.use('/api/v1/wishlist', verifyJWT, wishListRouter);
 app.use('/api/v1/address', verifyJWT, addressRouter);
 app.use('/api/v1/promotional', verifyJWT, promotionalRouter);
+app.use('/api/v1/paymentwallet', verifyJWT, paymentWalletRouter);
 
 export default app;

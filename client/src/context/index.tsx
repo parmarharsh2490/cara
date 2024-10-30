@@ -1,5 +1,5 @@
 import { useNavigate } from "react-router-dom";
-import { getUserDetails } from "../services/userServices.ts";
+import { getUserDetails } from "../services/user.service.ts";
 import React, { createContext, useEffect, useState } from "react";
 import { IUser } from "../types/index.ts";
 
@@ -16,6 +16,7 @@ const INITIAL_USER : IUser = {
 const INITIAL_STATE = {
   user: INITIAL_USER,
   isAuthenticated: false,
+  setUser: (() => {}) as React.Dispatch<React.SetStateAction<IUser>>,
   setIsAuthenticated: (() => {}) as React.Dispatch<React.SetStateAction<boolean>>,
 };
 export const UserContext = createContext(INITIAL_STATE);
@@ -28,7 +29,6 @@ const UserProvider = ({ children }: { children: React.ReactNode }) => {
   const checkAuthUser = async () => {
     try {
       const user = await getUserDetails();
-      console.log(user);
       if (user) {
         setUser({
           _id: user._id,
@@ -58,6 +58,7 @@ const UserProvider = ({ children }: { children: React.ReactNode }) => {
 
   const value = {
     user,
+    setUser,
     isAuthenticated,
     setIsAuthenticated,
   };
@@ -65,5 +66,4 @@ const UserProvider = ({ children }: { children: React.ReactNode }) => {
   return <UserContext.Provider value={value}>{children}</UserContext.Provider>;
 };
 
-// Create a custom hook for using the context
 export { UserProvider };

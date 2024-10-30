@@ -145,10 +145,9 @@ const getAverageProductReview = asyncHandler(async (req, res) => {
   const {pageParam=0}  =req.query;
   const parsedSkip = parseInt(pageParam*5);
   
-  const cachedProductReviewList = await redis.lrange(`review:${productId}`,parsedSkip,parsedSkip+5);
+  const cachedProductReviewList = await redis.get(`review:${productId}:pageParam:${pageParam}`);
   
   if(cachedProductReviewList && cachedProductReviewList.length > 0){
-    console.log("cached data");
     const data = cachedProductReviewList.map((review) => {
       return JSON.parse(review)
     })
@@ -189,9 +188,10 @@ const getAverageProductReview = asyncHandler(async (req, res) => {
             _id: "$_id",
             title: "$reviewTitle",
             description: "$reviewDescription",
-            image: "$reviewImage",
+            imageUrl : "$reviewImage.imageUrl",
             rating: "$ratingStar",
-            user: { $first: "$user.name" },
+            userName: { $first: "$user.name" },
+            userId : {$first : "$user._id"},
             date: { "$dateToString": { "format": "%d-%m-%Y", "date": "$createdAt" } }
           }
         }
@@ -275,8 +275,8 @@ const getAverageProductReview = asyncHandler(async (req, res) => {
     throw new ApiError(400,"No Rating Data Found")
   }
   const reviewsToCache = ratingData[0].reviews.map((review) => JSON.stringify(review));
-  await redis.rpush(`review:${productId}`, ...reviewsToCache);
-  await redis.expire(`review:${productId}`,600);
+  await redis.set(`review:${productId}:pageParam:${pageParam}`, ...reviewsToCache);
+  await redis.expire(`review:${productId}:pageParmar:${pageParam}`,600);
 return res.status(200).json(new ApiResponse(200, ratingData, "Average rating retrieved successfully"));
 });
 
