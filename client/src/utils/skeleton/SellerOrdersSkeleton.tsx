@@ -42,7 +42,7 @@ const SelleOrderSkeleton = () => {
         </tbody>
       </table>
   
-      <div className="md:hidden space-y-4 bg-red-800">
+      <div className="md:hidden space-y-4">
         {Array(7).fill(null).map((_, index) => (
           <div key={index} className="bg-white shadow-md rounded-lg p-4">
             <div className="flex items-center space-x-4">
