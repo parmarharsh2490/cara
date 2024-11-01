@@ -6,7 +6,7 @@ interface TransactionProps {
 
 const Transaction: React.FC<TransactionProps> = ({ paymentWalletTransactions }) => {
   return (
-    <div className=" mx-auto p-4 mt-6 bg-gray-100 shadow-md rounded-lg">
+    <div className=" mx-auto p-4 mt-6 bg-gray-100 shadow-md rounded-lg overflow-scroll">
       <table className="min-w-full table-auto text-center">
         <thead>
           <tr className="bg-blue-500 text-white">

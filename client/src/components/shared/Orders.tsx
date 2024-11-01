@@ -97,7 +97,7 @@ const Orders = () => {
 
       <div className="flex items-center justify-center mt-4">
         <button
-          className="md:p-3 p-2 bg-gray-500 max-w-48 border rounded-2xl"
+        className="py-[6px] px-12 text-base font-bold bg-slate-800 text-white hover:shadow-lg hover:bg-slate-900 duration-500 my-5"
           disabled={error || isFetching ? true : false}
           onClick={loadMoreOrders}
         >

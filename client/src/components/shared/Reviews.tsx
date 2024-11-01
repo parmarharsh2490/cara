@@ -177,12 +177,12 @@ const Reviews = () => {
               ))}
               <button
                 onClick={() => fetchNextPage()}
-                disabled={reviewsData.length < 5}
+                disabled={reviewsData.length < 5 || !!error}
                 className="max-w-sm my-auto mx-auto py-2 px-12 text-base font-bold bg-slate-800 text-white hover:shadow-lg hover:bg-slate-900 duration-500 disabled:bg-slate-400"
               >
                 {error || reviewsData.length < 5
                   ? "No More Reviews"
-                  : isLoading
+                  : isLoading || isFetching
                   ? "Loading..."
                   : "View All Reviews"}
               </button>

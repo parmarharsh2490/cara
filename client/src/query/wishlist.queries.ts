@@ -1,13 +1,14 @@
-import { addToWishlist, getUserWishlist, removeFromWishlist } from "../services/wishlist.service"
+import { addToWishlist, getUserWishlist, getUserWishlistCount, removeFromWishlist } from "../services/wishlist.service"
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
 import { QUERY_KEYS } from "./queryKeys"
-import { IAddToWishlist } from "@/types"
+import { IAddToWishlist, IWishlistProduct } from "@/types"
 import { useToast } from "@/hooks/use-toast"
 
 export {
     useAddToWishlist,
     useGetUserWishlist,
-    useRemoveFromWishlist
+    useRemoveFromWishlist,
+    useGetUserWishlistCount
 }
 
 const useAddToWishlist = () => {
@@ -15,8 +16,11 @@ const useAddToWishlist = () => {
     const {toast} = useToast()
     return useMutation({
         mutationFn : (data : IAddToWishlist) => addToWishlist(data),
-        onSuccess : () => {
-            queryClient.invalidateQueries({queryKey : [QUERY_KEYS.WISHLIST]}),
+        onSuccess : (data : IWishlistProduct[]) => {
+            for (let skip = 0; skip <= data.length; skip += 4) {
+                queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.WISHLIST, skip] });
+            }
+            queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.WISHLISTCOUNT] });
             toast({title : "Success",description : "Successfully Added to Wishlist",variant : "wishlist"})
         },
         onError : () => {
@@ -24,15 +28,21 @@ const useAddToWishlist = () => {
         }
     })
 }
+
 const useRemoveFromWishlist = () => {
-    const {toast} = useToast()
+    const {toast} = useToast();
+    const queryClient = useQueryClient();
     return useMutation({
         mutationFn : (wishlistId : any) => removeFromWishlist(wishlistId),
-        onSuccess : () => {
-            alert("Successfully remove from wishlist")
+        onSuccess : (data) => {
+            for (let skip = 0; skip <= data.length; skip += 4) {
+                queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.WISHLIST, skip] });
+            }
+            queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.WISHLISTCOUNT] });
+            toast({title : "Success",description : "Successfully Removed From Wishlist",variant : "wishlist"});
         },
         onError : () => {
-            toast({title : "Failed",description : "Already in Wishlist",variant : "destructive"})   
+            toast({title : "Failed",description : "Failed To Remove From Wishlist",variant : "destructive"})   
         }
     })
 }
@@ -41,6 +51,18 @@ const useGetUserWishlist = (skip: number) => {
     return useQuery({
       queryKey: [QUERY_KEYS.WISHLIST, skip],
       queryFn: () => getUserWishlist(skip),
+      staleTime: Infinity,
+      retryOnMount: false,
+      refetchOnMount: false,
+      retry: false,
+      placeholderData : true,
+      refetchOnWindowFocus : false
+    });
+};
+const useGetUserWishlistCount = () => {
+    return useQuery({
+      queryKey: [QUERY_KEYS.WISHLISTCOUNT],
+      queryFn: () => getUserWishlistCount(),
       staleTime: Infinity,
       retryOnMount: false,
       refetchOnMount: false,

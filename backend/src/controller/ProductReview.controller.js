@@ -60,8 +60,10 @@ const createProductReview = asyncHandler(async (req, res) => {
   }
   review.name = user.name;
   const transformReview = transformProductReviewData(review);
-  await redis.del(`review:${productId}`)
-  await redis.lpush(`review:${productId}`,JSON.stringify(transformReview))
+  const reviewKeys = await redis.keys(`review:${productId}:pageParam:*`);  
+  if (reviewKeys.length > 0) {
+    await redis.del(reviewKeys);
+  }
   return res.status(201).json(new ApiResponse(201, transformReview, "Review created successfully"));
 });
 
@@ -104,7 +106,10 @@ const updateProductReview = asyncHandler(async (req, res) => {
   await existingProductReview.save({ validationBeforeSave: false });
   existingProductReview.name = user.name;
   const transformReview = transformProductReviewData(existingProductReview)
-  await redis.del(`review:${productId}`)
+  const reviewKeys = await redis.keys(`review:${productId}:pageParam:*`);  
+  if (reviewKeys.length > 0) {
+    await redis.del(reviewKeys);
+  }
   return res
     .status(200)
     .json(
@@ -134,7 +139,11 @@ const deleteProductReview = asyncHandler(async (req, res) => {
   }
 
   await ProductReview.findByIdAndDelete(productReviewId);
-  await redis.del(`review:${productReviewId}`)
+
+  const reviewKeys = await redis.keys(`review:${productReview.product}:pageParam:*`);  
+  if (reviewKeys.length > 0) {
+    await redis.del(reviewKeys);
+  }
   return res
     .status(204)
     .json(new ApiResponse(204, null, "ProductReview successfully deleted"));
@@ -144,14 +153,10 @@ const getAverageProductReview = asyncHandler(async (req, res) => {
   const { productId } = req.params;
   const {pageParam=0}  =req.query;
   const parsedSkip = parseInt(pageParam*5);
-  
+
   const cachedProductReviewList = await redis.get(`review:${productId}:pageParam:${pageParam}`);
-  
   if(cachedProductReviewList && cachedProductReviewList.length > 0){
-    const data = cachedProductReviewList.map((review) => {
-      return JSON.parse(review)
-    })
-    return res.status(200).json(new ApiResponse(200,data,"Successfully fetch user cart"))
+    return res.status(200).json(new ApiResponse(200,JSON.parse(cachedProductReviewList),"Successfully fetch user cart"))
   }  
   if (isNaN(parsedSkip) || parsedSkip < 0) {
     throw new ApiError(400, "Invalid  skip value");
@@ -270,13 +275,11 @@ const getAverageProductReview = asyncHandler(async (req, res) => {
       }
     }
   ]);
-  
   if(!ratingData || ratingData?.length === 0 || (parsedSkip>0 && ratingData[0].reviews && ratingData[0].reviews.length === 0)){
     throw new ApiError(400,"No Rating Data Found")
   }
-  const reviewsToCache = ratingData[0].reviews.map((review) => JSON.stringify(review));
-  await redis.set(`review:${productId}:pageParam:${pageParam}`, ...reviewsToCache);
-  await redis.expire(`review:${productId}:pageParmar:${pageParam}`,600);
+  await redis.set(`review:${productId}:pageParam:${pageParam}`, JSON.stringify(ratingData));
+  await redis.expire(`review:${productId}:pageParam:${pageParam}`,600);
 return res.status(200).json(new ApiResponse(200, ratingData, "Average rating retrieved successfully"));
 });
 

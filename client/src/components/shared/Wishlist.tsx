@@ -10,21 +10,35 @@ const Wishlist = () => {
     const navigate = useNavigate();    
     const { data: products, isLoading,isFetched,isError } = useGetUserWishlist(skip);
     const {mutateAsync : removeFromWishlist} = useRemoveFromWishlist();
-    
+    const updatePage = (value: number) => {
+        setSkip((prev) => prev + value)
+    };
     if(isError || products?.length === 0){
-        return <div className=" w-full h-[60vh] sm:h-auto sm:p-10 p-5 flex-col flex justify-center items-center">
+        return (
+        <div className='flex items-center justify-center'>
+         <GrPrevious
+                    onClick={() => updatePage(-4)}
+                    size={25}
+                    className={`${skip === 0 ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'} h-full my-auto ml-5`}
+                />
+        <div className=" w-full h-[60vh] sm:h-auto sm:p-10 p-5 flex-col flex justify-center items-center">
             <img src="https://img.freepik.com/free-vector/no-data-concept-illustration_114360-2506.jpg?w=740&amp;t=st=1703961108~exp=1703961708~hmac=1144a81753ebea9c937ae58ad507639a51a9bb7697a8d0956ddc0fbd54d6046c" alt="wishlist is empty" className=" w-auto h-60"/>
             <h2 className="text-slate-500 text-xl -mt-2">Nothing found.</h2>
             </div>
+            <GrNext
+                    size={25}
+                    className={`${skip === 0 ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'} h-full my-auto mr-5`}
+                />
+        </div>
+        )
+
     }
 
     if (isLoading || !isFetched) {
         return  <WishlistSkeleton/>
     }
 
-    const updatePage = (value: number) => {
-        setSkip((prev) => prev + value)
-    };
+  
 
     return (
         <div className='flex flex-col justify-center items-center sm:gap-15 lg:mx-4 sm:w-[85%]'>
@@ -37,9 +51,8 @@ const Wishlist = () => {
                     className={`${skip === 0 ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'} hidden sm:block`}
                 />
                 </button>
-
                 <div className='max-w-[100%] justify-center gap-3 overflow-x-scroll grid grid-cols-2 lg:grid-cols-4'>
-                       { products.map((product: IWishlistProduct, index: number) => (
+                       {products && products.length>0 &&  products.map((product: IWishlistProduct, index: number) => (
                             <div
                                 key={index}
                                 className={`flex flex-col w-full shadow-lg sm:p-5 ${skip && ''}`}>

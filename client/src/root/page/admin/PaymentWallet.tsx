@@ -25,7 +25,7 @@ const PaymentWallet = () => {
   }, [inView, hasNextPage, fetchNextPage]);
 
   if (isLoading) {
-    return <p>Loading...</p>;
+    return <div className="h-full w-full flex items-center justify-center"><Spinner/></div>
   }
 
   const walletData = paymentWallet?.pages[0][0];

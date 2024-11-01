@@ -5,7 +5,7 @@ import { UserContext } from "../../context/index.tsx";
 import AlertDialog from "../ui/AlertDialog";
 import { useBecomeSeller } from "../../query/user.queries.ts";
 import { useGetUserCart } from "../../query/cart.queries.ts";
-import { useGetUserWishlist } from "../../query/wishlist.queries.ts";
+import { useGetUserWishlistCount } from "@/query/wishlist.queries.ts";
 const Navigation = () => {
   const [showAlertDialog,setShowAlertDialog] = useState(false);
   const [searchValue,setSearchValue] = useState<string>("");
@@ -19,7 +19,7 @@ const Navigation = () => {
     setToggle(!toggle);
   }
   const {data : userCart} = useGetUserCart();
-  const {data : userWishlist} = useGetUserWishlist(0);
+  const {data : userWishlistCount} = useGetUserWishlistCount();
   const {user,isAuthenticated} = useContext(UserContext);
   const {mutateAsync : becomeSeller,isPending,isSuccess} = useBecomeSeller()
   const handleBecomeSellerClick = (e: React.MouseEvent<HTMLAnchorElement>) => {
@@ -101,7 +101,7 @@ const Navigation = () => {
                       </svg>
                     </Link>
                     <div className=" p-[6px] h-2 w-2 rounded-full bg-red-500 border-white absolute top-0 -right-1 flex justify-center items-center text-[10px] text-white">
-                      0
+                    {userWishlistCount || 0}
                     </div>
                   </div>
                   <div className="relative">
@@ -208,7 +208,7 @@ const Navigation = () => {
                 </Link>}
               </div>
               <div className="sm:ml-6  gap-4 md:flex justify-center items-center hidden">
-                <div className="relative hidden xl:block">
+                <div className="relative hidden lg:block">
                   <Link to="/wishlist">
                     <svg
                       stroke="currentColor"
@@ -224,7 +224,7 @@ const Navigation = () => {
                     </svg>
                   </Link>
                   <div className=" p-[6px] h-2 w-2 rounded-full bg-red-500 border-white absolute top-0 -right-1 flex justify-center items-center text-[10px] text-white">
-                  {userWishlist?.length || 0}
+                  {userWishlistCount || 0}
                   </div>
                 </div>
                 <div className="relative">

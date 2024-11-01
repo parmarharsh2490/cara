@@ -55,6 +55,7 @@ export interface IProduct {
   title: string;
   discountedPrice: string;
   originalPrice: string;
+  quantity?:string
 }
 export interface IProductAllDetails {
   _id?: string;
