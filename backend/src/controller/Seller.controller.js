@@ -2,7 +2,6 @@ import { redis } from "../index.js";
 import Order from "../model/Order.model.js";
 import { Payment } from "../model/Payment.model.js";
 import PaymentWallet from "../model/PaymentWallet.model.js";
-import { Product } from "../model/Product.model.js";
 import Seller from "../model/Seller.model.js";
 import ApiError from "../utils/ApiError.js";
 import ApiResponse from "../utils/ApiResponse.js";
@@ -186,7 +185,7 @@ const getDashboardDetails = asyncHandler(async (req, res) => {
               $group: {
                 _id: "$products.product",
                 totalTimeSelled: {
-                  $sum: 1,
+                  $sum: "$products.quantity",
                 },
                 product: { $first: "$product" },
               },

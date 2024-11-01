@@ -1,6 +1,6 @@
 import React, { useContext, useState } from "react";
 import PopupForm from "./PopupForm";
-import { useCreateUserAddress, useGetUserAddress } from "../../query/address.queries";
+import { useCreateUserAddress, useGetUserAddress, useUpdateUserAddress } from "../../query/address.queries";
 import { UserContext } from "../../context";
 import AddressSkeleton from "@/utils/skeleton/AddressSkeleton";
 
@@ -28,7 +28,7 @@ const Address: React.FC = () => {
   const {user}  =useContext(UserContext);
   const [action,setAction] = useState<IAddressAction>(IAddressAction.create);
   const {mutateAsync : createUserAddress,isPending : isCreatingUserAddress}  = useCreateUserAddress();
-  const {mutateAsync : updateUserAddress,isPending : isUpdatingUserAddress}  = useCreateUserAddress();
+  const {mutateAsync : updateUserAddress,isPending : isUpdatingUserAddress}  = useUpdateUserAddress();
   const handleAddressSubmitFunction = async(data : any) => {
     if(action === IAddressAction.create){
       createUserAddress(data)
@@ -61,13 +61,13 @@ const Address: React.FC = () => {
             </svg>
            {address ? <p 
            onClick={() => {
-            setShowPopupForm(!showPopupForm)
             setAction(IAddressAction.update)
+            setShowPopupForm(!showPopupForm)
            }
            }>Update address</p> : <p
            onClick={() => {
-            setShowPopupForm(!showPopupForm)
-            setAction(IAddressAction.create)
+             setAction(IAddressAction.create)
+             setShowPopupForm(!showPopupForm)
            }
            }
            >Add new address</p>}

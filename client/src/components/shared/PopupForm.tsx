@@ -2,32 +2,16 @@ import { IPopupFormProps } from '@/types';
 import React, { useState } from 'react';
 
 const PopupForm: React.FC<IPopupFormProps> = ({ inputData,label, title, showPopupForm, setShowPopupForm,handleSubmitFunction,isLoading }) => {
-  // const [isVisible, setIsVisible] = useState<boolean>(false);
   const [formValues, setFormValues] = useState<{ [key: string]: string | FileList | null }>({});
-  const [errors] = useState<{ [key: string]: string }>({});
-  // useEffect(() => {
-  //   if (showPopupForm) {
-  //     setIsVisible(true);
-  //   } else {
-  //     setIsVisible(false);
-  //   }
-  // }, [showPopupForm]);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     setFormValues((prev) => ({ ...prev, [name]: value }));
-    // if (value.length < 2) {
-    //   setErrors((prev) => ({ ...prev, [name]: `${name} must be at least 2 characters long.` }));
-    // } else {
-    //   setErrors((prev) => ({ ...prev, [name]: '' }));
-    // }
   };
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name } = e.target;
     const files = e.target.files;
-    
     setFormValues((prev) => ({ ...prev, [name]: files }));
-
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -89,14 +73,9 @@ const PopupForm: React.FC<IPopupFormProps> = ({ inputData,label, title, showPopu
               type={data.type}
               name={data.label}
               id={data.label}
-              // min={data.type === 'number' ? 1 : 1}
-            //  value={data.type !== "file" ? formValues[data.label] || '9876543210' : undefined}
               onChange={data.type === "file" ? handleImageChange : handleChange}
               className="border p-2 rounded-xl bg-gray-100 outline-none focus:border-primary-600"
             />
-            {errors[data.label] && (
-              <p className="text-red-500 text-sm">{errors[data.label]}</p>
-            )}
           </div>
         ))}
         <button

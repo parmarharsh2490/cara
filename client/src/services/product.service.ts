@@ -9,7 +9,7 @@ export {
     deleteProduct,
     getTopSelledProducts,
     getAllProducts,
-    getAdminProducts,
+   getSellerProducts,
     viewProduct
 }
  
@@ -62,7 +62,7 @@ const getAllProducts = async(options : IFilter) => {
   })
   return response.data?.data
 }
-const getAdminProducts = async(pageParam : number) => {
+const getSellerProducts = async(pageParam : number) => {
   const respose = await apiClient.get("/products/seller",{
     params : {pageParam}
   })

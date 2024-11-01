@@ -1,6 +1,6 @@
 import {   useInfiniteQuery, useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
 import { QUERY_KEYS } from "./queryKeys"
-import {createProduct, deleteProduct, getAdminProducts, getAllProducts, getLatestProducts, getProductDetails, getTopSelledProducts, updateProduct} from "../services/product.service"
+import {createProduct, deleteProduct,getSellerProducts, getAllProducts, getLatestProducts, getProductDetails, getTopSelledProducts, updateProduct} from "../services/product.service"
 import { useToast } from "@/hooks/use-toast"
 
 
@@ -12,13 +12,13 @@ export {
     useDeleteProduct,
     useGetTopSelledProducts,
     useGetAllProducts,
-    useGetAdminProducts
+    useGetSellerProducts
 }
 
-const useGetAdminProducts = () => {
+const useGetSellerProducts = () => {
     return useInfiniteQuery({
         queryKey : [QUERY_KEYS.ADMINPRODUCTS],
-        queryFn : ({ pageParam = 0 } : {pageParam : number}) => getAdminProducts(pageParam),
+        queryFn : ({ pageParam = 0 } : {pageParam : number}) => getSellerProducts(pageParam),
         staleTime : Infinity,
         initialPageParam: 0,
         retry : false,
@@ -56,8 +56,8 @@ const useGetLatestProducts = (pageParam : number) => {
 }
 const useGetTopSelledProducts = (skip : number) => {
     return useQuery({
-        queryKey : [QUERY_KEYS.TOPSELLEDPRODUCTS],
-        queryFn : () =>getTopSelledProducts(skip),
+        queryKey : [QUERY_KEYS.TOPSELLEDPRODUCTS,skip],
+        queryFn : () => getTopSelledProducts(skip),
         staleTime: Infinity,
       retryOnMount: false,
       refetchOnMount: false,
@@ -116,6 +116,7 @@ const useDeleteProduct = () => {
         mutationFn : (productId : any) => deleteProduct(productId),
         onSuccess : (data) => {        
             queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.PRODUCT, data.data._id] });
+            queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.ADMINPRODUCTS] });
             toast({
                 title : "Success",
                 description : "Success To Delete Product",

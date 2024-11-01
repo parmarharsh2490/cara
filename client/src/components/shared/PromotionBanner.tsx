@@ -3,8 +3,8 @@ import { useSendPromotionalMail } from "../../query/promotional.queries"
 import { UserContext } from "@/context";
 
 const PromotionBanner = () => {
-  const {user} = useContext(UserContext)
-  const [email,setEmail] = useState(user?.email || "");
+  const {user} = useContext(UserContext);
+  const [email,setEmail] = useState(user.email || "");
   const {mutateAsync : sendPromotionMail} = useSendPromotionalMail();
   const handleOnClick = () => {
     sendPromotionMail(email);

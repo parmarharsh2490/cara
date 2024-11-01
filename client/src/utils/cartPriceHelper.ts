@@ -15,5 +15,5 @@ export const countTotalCartAmount = (cartProducts : ICartItems[]) => {
 
 export const totalDiscount = (discountedPrice : number,originalPrice : number) => {
     const discount = ((originalPrice-discountedPrice)/originalPrice) * 100
-    return discount
+    return discount.toString().substring(0,4)
 }

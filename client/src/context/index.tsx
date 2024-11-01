@@ -1,7 +1,7 @@
 import { useNavigate } from "react-router-dom";
-import { getUserDetails } from "../services/user.service.ts";
 import React, { createContext, useEffect, useState } from "react";
 import { IUser } from "../types/index.ts";
+import { useGetUserDetails } from "@/query/user.queries.ts";
 
 const INITIAL_USER : IUser = {
   _id: "",
@@ -26,20 +26,13 @@ const UserProvider = ({ children }: { children: React.ReactNode }) => {
   const [user, setUser] = useState<IUser>(INITIAL_USER);
   const [isAuthenticated, setIsAuthenticated] = useState(true);
 
+  const { refetch: getUserDetails, error } = useGetUserDetails();
+
   const checkAuthUser = async () => {
     try {
-      const user = await getUserDetails();
-      if (user) {
-        setUser({
-          _id: user._id,
-          name: user.name,
-          email: user.email,
-          gender: user?.gender,
-          mobileNumber: user?.mobileNumber,
-          alternativeNumber: user?.alternativeNumber,
-          dateOfBirth: user?.dateOfBirth,
-          role : user.role
-        });
+      const { data: user } = await getUserDetails();
+      if (user && !error) {
+        setUser(user);
         setIsAuthenticated(true);
       } else {
         setIsAuthenticated(false);

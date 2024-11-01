@@ -53,7 +53,7 @@ const Settings: React.FC = () => {
                     </button>
                   </div>
                   {fieldMappings[section as keyof typeof fieldMappings].map(({ name, label }) =>
-                  <RenderField name={name} label={label} section={section} sellerResponse={sellerResponse}/>
+                  <RenderField key={name} name={name} label={label} section={section} sellerResponse={sellerResponse}/>
                   )}
                 </div>
               ))}

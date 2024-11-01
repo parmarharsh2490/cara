@@ -13,7 +13,7 @@ const TopProducts = ({ topProducts }: { topProducts: any }) => {
               Title
             </th>
             <th className="p-2 text-base sm:text-sm md:text-base text-center">
-              Items Sold
+              Quantities Sold
             </th>
             <th className="p-2 text-base sm:text-sm md:text-base text-center">
               Discounted Price
@@ -34,7 +34,7 @@ const TopProducts = ({ topProducts }: { topProducts: any }) => {
                 />
               </td>
               <td className="text-xs sm:text-sm md:text-sm p-2 text-center">
-                {product.title}
+                {product.title.length > 15 ? `${product.title.substring(0, 15)}...` : product.title}
               </td>
               <td className="text-xs sm:text-sm md:text-sm p-2 text-center">
                 {product.totalTimeSelled}

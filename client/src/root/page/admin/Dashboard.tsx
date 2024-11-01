@@ -1,6 +1,5 @@
 import React from 'react';
 import {  DollarSign, ShoppingBag, FileText, Users } from 'lucide-react';
-import { BsThreeDots } from "react-icons/bs";
 import { useGetDashboardDetails } from '../../../query/seller.queries';
 import YearReport from '../../../components/charts/YearReport';
 import TopProducts from '../../../components/shared/TopProducts';
@@ -72,16 +71,7 @@ const Dashboard: React.FC = () => {
       </main>
 
       <section className="overflow-scroll flex flex-col lg:flex-row gap-6 sm:p-4 bg-gray-100">
-        <div className="recent-orders-chart  flex-1 bg-white rounded-lg shadow-md sm:p-5">
-          <div className=" flex items-center justify-between mb-0 p-2">
-            <h1 className="sm:text-xl text-lg font-semibold">Recent Orders</h1>
-            <BsThreeDots />
-          </div>
-          <div className="flex items-center justify-center w-full h-full">
             <YearReport yearReport={dashboardData.yearReport}/>
-            </div>
-        </div>
-
         <TopProducts topProducts={dashboardData.topProducts}/>
       </section>
     </>

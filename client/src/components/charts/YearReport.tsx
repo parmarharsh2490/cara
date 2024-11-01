@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Area, Tooltip } from 'recharts';
+import { BsThreeDots } from "react-icons/bs";
 
 
 interface YearReportProps {
@@ -33,7 +34,13 @@ const YearReport = ({ yearReport }: YearReportProps) => {
       };
     }, []);
   return (
-    <LineChart width={chartWidth} height={chartHeight} data={yearReport}>
+    <div className="recent-orders-chart  flex-1 bg-white rounded-lg shadow-md sm:p-5">
+    <div className=" flex items-center justify-between mb-0 p-2">
+      <h1 className="sm:text-xl text-lg font-semibold">Recent Orders</h1>
+      <BsThreeDots />
+    </div>
+    <div className="flex items-center justify-center w-full h-full">
+      <LineChart width={chartWidth} height={chartHeight} data={yearReport}>
     <CartesianGrid strokeDasharray="3 3" />
     <XAxis dataKey="name" />
     <YAxis />
@@ -41,6 +48,8 @@ const YearReport = ({ yearReport }: YearReportProps) => {
     <Area type="monotone" dataKey="value" stroke="#003366" fill="#e0f0ff" />
     <Line type="monotone" dataKey="value" stroke="#003366" strokeWidth={3} />
   </LineChart>
+      </div>
+  </div>
   )
 }
 

@@ -78,15 +78,16 @@ const removeFromCart = asyncHandler(async (req, res) => {
     },
     {
       new: true,
+      upsert : true
     }
   ).populate("products.product", "title variety");
   
-  if (!updatedCart || updatedCart.products.length === 0) {
+  if (!updatedCart) {
+  await redis.del(`cart:${user._id}`)
     return res
       .status(404)
       .json({ message: "Cart not found or product not in cart" });
   }
-
   const transformedCart = transformCartData(updatedCart.products);
   await redis.set(`cart:${user._id}`,JSON.stringify(transformedCart))
   await redis.expire(`cart:${user._id}`,600)

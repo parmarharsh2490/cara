@@ -74,7 +74,10 @@ const ShoppingCart = () => {
         </div>
         {
           products.length === 0 ? (
-            <h1 className="text-3xl text-center m-5">No Products Found</h1>
+            <div className='sm:h-[80vh] h-auto w-full flex justify-start sm:justify-center items-center flex-col'>
+            <img src='/emptyCart.jpg' alt="" className='object-fit h-96 w-96'/>
+            <h2 className='text-slate-500 font-semibold text-xl -mt-5'>Your cart is empty</h2>
+            </div>
           ) : 
           products.map((product : ICartItems,index : number) => (
             <div key={index} className="w-full flex justify-start items-start sm:items-center h-auto sm:h-40 p-1 border rounded-sm my-3">

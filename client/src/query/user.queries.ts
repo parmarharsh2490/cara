@@ -4,6 +4,8 @@ import { ILoginUser, INewUser, ISeller, IUser } from "../types/index"
 import {   useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
 import { QUERY_KEYS } from "./queryKeys"
 import { useToast } from "@/hooks/use-toast"
+import { useContext } from "react"
+import { UserContext } from "@/context"
 
 export {
     useCreateUserAccount,
@@ -38,32 +40,35 @@ const useLoginUserAccount = () => {
         }
     })
 }
-
 const useGetUserDetails = () => {
     return useQuery({
-        queryKey : [QUERY_KEYS.USER],
-        queryFn : getUserDetails,
+        queryKey: [QUERY_KEYS.USER],
+        queryFn: getUserDetails,
+        staleTime: 0,
         refetchOnWindowFocus: false,
         refetchOnReconnect: false,
-        retry : false
-    })
-}
+        retry: false,
+    });
+};
 
 const useUpdateUserDetails = () => {
-    const {toast} = useToast()
-    const queryClient = useQueryClient()
+    const { toast } = useToast();
+    const queryClient = useQueryClient();
+    const {setUser} = useContext(UserContext)
     return useMutation({
-        mutationFn  : (data : IUser) => updateUserDetails(data),
-        onSuccess : () => {
-            queryClient.invalidateQueries({queryKey : [QUERY_KEYS.USER]})
+        mutationFn: (data: IUser) => updateUserDetails(data),
+        onSuccess: (data) => {
+            queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.USER] });            
+            setUser(data);
             toast({
-                title : "Success",
-                description : "Successfully Updated User Details",
-                variant : "cart"
-            })
-        }
-    })
-}
+                title: "Success",
+                description: "Successfully Updated User Details",
+                variant: "cart",
+            });
+        },
+    });
+};
+
 
 const useBecomeSeller = () => {
     const queryClient = useQueryClient()
@@ -94,4 +99,3 @@ const useUpdateSellerDetails = () => {
       },
     });
 };
-  

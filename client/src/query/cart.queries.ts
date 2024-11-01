@@ -50,7 +50,7 @@ const useRemoveFromCart = () => {
     const {toast} = useToast();
     return useMutation({
         mutationFn : (cartProductId : string) => removeFromCart(cartProductId),
-        onSuccess : () => {
+        onSuccess : () => {  
             queryClient.invalidateQueries({queryKey :[QUERY_KEYS.CART]}),
             toast({
                 title : "Success",

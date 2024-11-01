@@ -34,7 +34,7 @@ const PaymentWallet = () => {
   const transactions = walletData ? allTransactions(paymentWallet) : [];
 
   return (
-    <div className='w-full mx-auto sm:p-6 bg-white shadow-lg rounded-lg'>
+    <div className='w-full mx-auto sm:p-6  shadow-lg rounded-lg'>
       <div className='payment-box flex flex-col sm:flex-row items-center justify-between p-4'>
         <div className='flex flex-col sm:ml-5 mb-4 sm:mb-0'>
           <div className='flex sm:flex-row sm:gap-10 gap-3 items-center justify-center'>

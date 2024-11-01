@@ -73,12 +73,13 @@ const Wishlist = () => {
 
             </div>
             {/* Mobile Pagination */}
-            <div className='flex w-full sm:hidden items-center justify-between mx-5 my-5'>
+            <div className='flex w-full sm:hidden items-center justify-center gap-3 mx-5 my-5'>
                 <GrPrevious
                     onClick={() => updatePage(-4)}
                     size={25}
                     className={`${skip === 0 ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}`}
                 />
+                <p className='rounded-full bg-blue-300 px-4 py-3'>{skip/4+1}</p>
                 <GrNext
                     onClick={() => updatePage(4)}
                     size={25}

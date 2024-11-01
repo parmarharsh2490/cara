@@ -152,7 +152,7 @@ const getTopSelledProducts = asyncHandler(async (req, res) => {
   const cachedProducts = await redis.lrange(
     "topSelledProducts",
     parseInt(skip),
-    parseInt(skip + limit)
+    parseInt(limit-1)
   );
   if (cachedProducts && cachedProducts.length > 0) {
     let data = cachedProducts.map((product) => JSON.parse(product));
@@ -216,7 +216,7 @@ const getTopSelledProducts = asyncHandler(async (req, res) => {
       .status(500)
       .json(new ApiResponse(500, null, "Error fetching top sold products"));
   }
-  await redis.lpush(
+  await redis.rpush(
     "topSelledProducts",
     ...products.map((product) => JSON.stringify(product))
   );
@@ -246,13 +246,7 @@ const getProductDetails = asyncHandler(async (req, res) => {
         )
       );
   }
-  const product = await Product.findById(productId).populate("owner").lean();
-  const cart = await Cart.findOne({ user: req.user._id });
-  product.isAlreadyInCart =
-    cart &&
-    cart.products.some(
-      (cartProduct) => cartProduct.product.toString() === product._id.toString()
-    );
+  const product = await Product.findById(productId).lean();
 
   if (!product) {
     throw new ApiError(404, "Product not found");
@@ -271,7 +265,7 @@ const getAdminProducts = asyncHandler(async (req, res) => {
   let { pageParam } = req.query;
   const skip = parseInt(pageParam * 10);
 
-  const cachedProducts = await redis.lrange("adminProducts", skip, skip + 10);
+  const cachedProducts = await redis.lrange(`adminProducts:${user._id}`, skip, skip + 10);
   if (cachedProducts && cachedProducts.length > 0) {
     const data = cachedProducts.map((product) => JSON.parse(product));
     return res
@@ -312,10 +306,10 @@ const getAdminProducts = asyncHandler(async (req, res) => {
     throw new ApiError(400, "No Products Found");
   }
   await redis.rpush(
-    "adminProducts",
+    `adminProducts:${user._id}`,
     ...products.map((product) => JSON.stringify(product))
   );
-  await redis.expire("adminProducts",600);
+  await redis.expire(`adminProducts:${user._id}`,600);
   return res
     .status(200)
     .json(new ApiResponse(200, products, "Successfully get Admin Products"));
@@ -472,7 +466,7 @@ const updateProduct = asyncHandler(async (req, res) => {
     updateFields,
     { new: true }
   );
-  await redis.set(`product:${productId}`, updatedProduct);
+  await redis.set(`product:${productId}`, JSON.stringify(updatedProduct));
   await redis.expire(`product:${productId}`, 600);
   await redis.del("topSelledProducts");
   await redis.del("adminProducts");
@@ -498,12 +492,14 @@ const deleteProduct = asyncHandler(async (req, res) => {
   await Product.findByIdAndDelete(productId);
   await redis.del(`product:${productId}`);
   await redis.del(`cart:${user._id}`);
+  await redis.del(`adminProducts:${user._id}`)
   return res
     .status(200)
     .json(new ApiResponse(200, null, "Successfully deleted product"));
 });
 
 const viewProduct = asyncHandler(async (req, res) => {
+  const user = req.user;
   const { productId } = req.params;
   if (!productId || !isValidObjectId(productId)) {
     throw new ApiError(400, "Invalid ProductId");
