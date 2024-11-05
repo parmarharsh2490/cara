@@ -20,7 +20,7 @@ const Navigation = () => {
   }
   const {data : userCart} = useGetUserCart();
   const {data : userWishlistCount} = useGetUserWishlistCount();
-  const {user,isAuthenticated} = useContext(UserContext);
+  const {user} = useContext(UserContext);
   const {mutateAsync : becomeSeller,isPending,isSuccess} = useBecomeSeller()
   const handleBecomeSellerClick = (e: React.MouseEvent<HTMLAnchorElement>) => {
     if(user.role === "customer"){
@@ -174,7 +174,7 @@ const Navigation = () => {
                   to="/dashboard"
                   onClick={(e) => handleBecomeSellerClick(e)}
                 >
-                 <AiOutlineShop  size={25}/> <span className=" whitespace-nowrap">Become a Seller</span>
+                 <AiOutlineShop  size={25}/> <span className="whitespace-nowrap">Become a Seller</span>
                 </Link>
                 <Link
                   className="my-2  whitespace-nowrap lg:block text-sm xl:text-base leading-5 text-gray-700 transition-colors duration-300 transform hover:text-blue-600 hover:underline md:mx-2 lg:mx-4 md:my-1"
@@ -194,13 +194,13 @@ const Navigation = () => {
                 >
                   Profile
                 </Link>
-               {!isAuthenticated && <Link
+               {!user && <Link
                   className="my-2 text-sm  whitespace-nowrap xl:text-base leading-5 text-gray-700 transition-colors duration-300 transform hover:text-blue-600 hover:underline md:mx-2 lg:mx-4 md:my-1"
                   to="/auth/sign-in"
                 >
                   Login
                 </Link>}
-               {!isAuthenticated &&  <Link
+               {!user &&  <Link
                   className="my-2 hidden  whitespace-nowrap lg:block text-sm xl:text-base leading-5 text-gray-700 transition-colors duration-300 transform hover:text-blue-600 hover:underline md:mx-2 lg:mx-4 md:my-1"
                   to="/auth/sign-up"
                 >

@@ -143,7 +143,7 @@ const SellerProducts: React.FC = () => {
       <div className="flex items-center justify-center">
         <div ref={ref} className="h-20 flex items-center justify-center">
           {error ? (
-            <p className="text-gray-500 text-center">No More Orders Found</p>
+            <p className="text-gray-500 text-center">No More Products Found</p>
           ) : isFetchingNextPage ? (
             <Spinner />
           ) : (
