@@ -7,13 +7,13 @@ import { useGetSellerOrders, useUpdateOrderStatus } from '@/query/orders.queries
 import SelleOrderSkeleton from '@/utils/skeleton/SellerOrdersSkeleton';
 
 const SellerOrders: React.FC = () => {
-  const { data: orders, error, isLoading, fetchNextPage, isFetchingNextPage } = useGetSellerOrders();  
+  const { data: orders, error, isLoading, fetchNextPage, isFetchingNextPage , isFetchNextPageError} = useGetSellerOrders();  
   const { mutateAsync: updateOrderStatus } = useUpdateOrderStatus();
   const { ref, inView } = useInView();
 
   useEffect(() => {
-    if (inView) {
-      fetchNextPage();
+    if (inView && !isFetchNextPageError) {
+      fetchNextPage()
     }
   }, [inView]);
 

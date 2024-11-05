@@ -1,9 +1,9 @@
 import { Router } from "express";
-import { getPromotionalEmail, sendContactFormDetails } from "../controller/Promotional.controller.js";
+import { sendContactFormDetails, sendPromotionalEmail } from "../controller/Promotional.controller.js";
 
 const promotionalRouter = Router();
 
-promotionalRouter.post('/signup',getPromotionalEmail)
+promotionalRouter.post('/signup',sendPromotionalEmail)
 promotionalRouter.post('/contactform',sendContactFormDetails)
 
 export {

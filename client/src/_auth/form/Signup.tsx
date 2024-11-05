@@ -7,7 +7,7 @@ import AuthFormSignupButton from "./AuthFormSignupButton.tsx";
 const SignIn = () => {
   const { mutateAsync: createUserAccount , isPending } = useCreateUserAccount();
   const [name, setName] = useState<string>("harsh");
-  const [email, setEmail] = useState<string>("harsh2490@gmail.com");
+  const [email, setEmail] = useState<string>("parmarharsh6480@gmail.com");
   const [password, setPassword] = useState<string>("harsh");
   const navigate = useNavigate();
 

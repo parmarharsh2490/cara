@@ -8,7 +8,7 @@ import { UserContext } from "@/context/index.tsx";
 const SignIn = () => {
   const { mutateAsync: loginUserAccount,isPending : isLoginAccount } = useLoginUserAccount();
   const { refetch: getUserDetails,isLoading : isFetchingUserDetails } = useGetUserDetails();
-  const [email, setEmail] = useState<string>("harsh2490@gmail.com");
+  const [email, setEmail] = useState<string>("parmarharsh6480@gmail.com");
   const [password, setPassword] = useState<string>("harsh");
   const navigate = useNavigate();
   const {setUser} = useContext(UserContext)

@@ -45,25 +45,25 @@ const Dashboard: React.FC = () => {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 w-full">
           <MetricCard
             title="Total Sales"
-            value={dashboardData.orderStatistics.totalSales}
+            value={dashboardData?.orderStatistics?.totalSales || 0}
             icon={<ShoppingBag className="text-white" size={24} />}
             color="bg-green-500"
           />
           <MetricCard
             title="Total Income"
-            value={dashboardData.orderStatistics.totalEarning}
+            value={dashboardData?.orderStatistics?.totalEarning || 0}
             icon={<DollarSign className="text-white" size={24} />}
             color="bg-orange-500"
           />
           <MetricCard
             title="Success Orders"
-            value={dashboardData.orderStatistics.totalSuccessOrders}
+            value={dashboardData?.orderStatistics?.totalSuccessOrders || 0}
             icon={<FileText className="text-white" size={24} />}
             color="bg-gray-400"
           />
           <MetricCard
             title="Total Visitor"
-            value={dashboardData.totalVisitors[0]?.totalVisitorCount || 0}
+            value={dashboardData?.totalVisitors[0]?.totalVisitorCount || 0}
             icon={<Users className="text-white" size={24} />}
             color="bg-blue-500"
           />

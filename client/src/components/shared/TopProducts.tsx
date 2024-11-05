@@ -24,7 +24,7 @@ const TopProducts = ({ topProducts }: { topProducts: any }) => {
           </tr>
         </thead>
         <tbody>
-          {topProducts.length === 0 ? <h1 className="text-xl">No Products Found</h1> : (topProducts.map((product: any) => (
+          {topProducts.length === 0 ? <h1 className="text-xl whitespace-nowrap">No Products Found</h1> : (topProducts.map((product: any) => (
             <tr key={product._id} className="text-center border-b">
               <td className="p-2">
                 <img
