@@ -131,7 +131,7 @@ const VarietyForm: React.FC<VarietyFormProps> = ({
 
       {/* Image Upload */}
       <div className="mt-4">
-        <label className="block text-sm font-medium text-gray-700 mb-2">Images</label>
+        <label className="block text-sm font-medium text-gray-700 mb-2">Images(Max Images you can upload are 5 on one color)</label>
         <input
           type="file"
           multiple

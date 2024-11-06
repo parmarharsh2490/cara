@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { Outlet } from 'react-router-dom';
 import Footer from '../../components/shared/Footer';
 import Navigation from '../../components/shared/Navigation';
@@ -11,6 +11,10 @@ const ProfileComponent: React.FC = () => {
   //   setIsSidebarOpen(!isSidebarOpen);
   // };
 
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, []);
+  
   return (
     <>
       <Navigation />

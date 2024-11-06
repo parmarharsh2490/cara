@@ -69,7 +69,7 @@ const Wishlist = () => {
                                     <button onClick={() => removeFromWishlist({wishlistId : product._id})} className='sm:w-[48%] w-full text-xs p-1 border text-red-600 font-semibold duration-500 border-red-600 hover:text-red-600'>
                                         Remove
                                     </button>
-                                    <button onClick={() => navigate(`/product/${product._id}`)} className='sm:w-[48%] w-full text-xs p-1 border hover:bg-slate-800 font-semibold duration-500 border-slate-800 hover:text-white'>
+                                    <button onClick={() => navigate(`/product/${product.productId}`)} className='sm:w-[48%] w-full text-xs p-1 border hover:bg-slate-800 font-semibold duration-500 border-slate-800 hover:text-white'>
                                         View Details
                                     </button>
                                 </div>

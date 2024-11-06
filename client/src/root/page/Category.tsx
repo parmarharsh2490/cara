@@ -53,6 +53,9 @@ const Category: React.FC = () => {
     }
   }, [inView]);
 
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, []);
   const handleSortChange = useCallback((e: React.ChangeEvent<HTMLSelectElement>) => {
     const value = e.target.value;
     setFilters(prev => ({

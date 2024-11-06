@@ -1,7 +1,7 @@
 import Navigation from '../../components/shared/Navigation';
 import Footer from '../../components/shared/Footer';
 import { MapPin, Mail, Phone, Clock } from 'lucide-react';
-import React, { useContext, useState } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import { UserContext } from '../../context';
 import { useSendContactformDetails } from '@/query/promotional.queries';
 import { IContactForm } from '@/types';
@@ -54,6 +54,10 @@ const Contact = () => {
     setFormData(prevFormData => ({ ...prevFormData, [name]: value }));
   };
 
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, []);
+  
   return (
     <>
       <Navigation />

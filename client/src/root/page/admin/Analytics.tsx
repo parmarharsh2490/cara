@@ -136,6 +136,12 @@ const PaymentChart = ({paymentChart}: any) => {
 
 
 const ProductRatingChart = ({ selledProductRatings } : any) => {
+  const averageRating = selledProductRatings.reduce((accumulator, currentValue) => {
+    return accumulator + (currentValue.name * currentValue.value);
+  }, 0) / selledProductRatings.reduce((accumulator, currentValue) => {
+    return accumulator + currentValue.value;
+  }, 0);
+
   const RADIAN = Math.PI / 180;
   const cx = 100;
   const cy = 100;
@@ -175,7 +181,7 @@ const ProductRatingChart = ({ selledProductRatings } : any) => {
 
   return (
     <div className='flex flex-col max-w-[300px] items-center justify-center bg-white w-full lg:w-[45%] m-3 p-4'>
-      <h1 className='pb-2 text-xl flex flex-col'>Your Products Ratings: <span className='text-center'>Very Good</span></h1>
+      <h1 className='pb-2 text-xl flex flex-col'>Your Products Ratings: <span className='text-center'>{averageRating}</span></h1>
       <PieChart width={220} height={120}>
         <Pie
           dataKey="value"

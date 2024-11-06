@@ -28,8 +28,23 @@ const addToCart = asyncHandler(async (req, res) => {
       return res.status(400).json(new ApiResponse(400,"Product is Already in Cart"))
     }
   
-    // Step 2: Add the product to the cart if it doesn't exist
+    //  Add the product to the cart if it doesn't exist
     const product = await Product.findById(productId);
+
+    //  Check that product have that number of quantity
+    const variety = product.variety.id(varietyId);
+    if (!variety) {
+      throw new ApiError(400, "Variety not found");
+    }
+
+    const sizeOption = variety.sizeOptions.id(sizeOptionId);
+    if (!sizeOption) {
+      throw new ApiError(400, "Size option not found");
+    }
+
+    if (sizeOption.stock < quantity) {
+      throw new ApiError(400, "Quantity cant be greater than stock");
+    }
     let newCart = await Cart.findOneAndUpdate(
       { user: user._id },
       {

@@ -32,6 +32,7 @@ export interface IUpdateCartQuantity {
 }
 
 export interface IWishlistProduct{
+  productId : string,
   imageUrl : string,
   _id :string,
   title : string,

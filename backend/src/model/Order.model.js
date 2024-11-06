@@ -48,11 +48,6 @@ const orderSchema = new mongoose.Schema({
             default: "processing"
         }
     }],
-    overallStatus: { 
-        type: String,
-        enum: ["success", "failed", "processing"],
-        default: "processing"
-    }
 }, {
     timestamps: true
 });

@@ -1,8 +1,12 @@
 import appVideo from "/about_video.mp4";
 import aboutImage from "/about.jpg";
 import Navigation from "../../components/shared/Navigation";
+import { useEffect } from "react";
 
 const About = () => {
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, []);
   return (
     <>
     <Navigation/>

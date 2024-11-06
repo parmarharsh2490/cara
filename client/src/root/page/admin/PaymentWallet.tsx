@@ -57,7 +57,7 @@ const PaymentWallet = () => {
       
       {/* Infinite Scroll Trigger */}
       <div ref={ref} className="h-20 flex items-center justify-center">
-        {fetchError ? (
+        {fetchError || transactions?.length === 0 ? (
           <p className="text-gray-500 text-center">No More Transactions Found</p>
         ) : isFetchingNextPage ? (
           <Spinner />

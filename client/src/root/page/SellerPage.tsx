@@ -36,7 +36,7 @@ const SellerPage = () => {
       <div
         className={`z-50 h-screen flex-col justify-between bg-slate-100 flex sm:relative absolute top-0 left-0 w-screen sm:w-full sm:max-w-[200px] md:max-w-[230px]  lg:max-w-[250px] max-h-[100%] transform ${
           toggle ? "translate-x-0" : "-translate-x-full"
-        } md:translate-x-0 transition-transform duration-300 ease-in-out`}
+        } sm:translate-x-0 transition-transform duration-300 ease-in-out`}
       >
         <div>
           <ul className="py-7 px-5 z-50">
@@ -92,7 +92,7 @@ const SellerPage = () => {
   <header className="h-[8vh] flex w-full bg-slate-200">
   <button
             type="button"
-            className="text-gray-500 md:hidden hover:text-gray-600 focus:outline-none focus:text-gray-600"
+            className="text-gray-500 sm:hidden hover:text-gray-600 focus:outline-none focus:text-gray-600"
             aria-label="toggle menu"
             onClick={toggleButton}
           >

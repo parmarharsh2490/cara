@@ -62,6 +62,9 @@ const ProductDetails = () => {
   const loadMore = () => {
     fetchNextPage();
   };
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, []);
 
   const handleAddToCart = async ({
     productId,
@@ -122,7 +125,7 @@ const ProductDetails = () => {
                       selectedImageIndex
                     ].imageUrl
                   }
-                  className="w-full  sm:w-[100%] max-w-[70%] h-full cursor-pointer bg-cover p-2"
+                  className="w-full  sm:w-[100%] max-w-[70%] h-full max-h-[460px] cursor-pointer bg-cover p-2"
                   alt="Main Product"
                 />
               </div>

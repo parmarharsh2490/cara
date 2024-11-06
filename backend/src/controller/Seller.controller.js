@@ -548,7 +548,7 @@ export const applyMonthByDate = (data) => {
   if (!data.length) return monthNames.map(name => ({ name, value: 0 }));
   
   data.forEach((date) => {
-    const monthIndex = date._id.slice(5); 
+    const monthIndex = date._id.slice(5) - 1; 
     months[monthNames[monthIndex]] += date.orders; 
   });
 

@@ -12,7 +12,7 @@ const Transaction: React.FC<TransactionProps> = ({ paymentWalletTransactions }) 
           <tr className="bg-blue-500 text-white">
             <th className="px-4 py-2  text-sm md:text-base">ID</th>
             <th className="px-4 py-2  text-sm md:text-base">Amount</th>
-            <th className="px-4 py-2  text-sm md:text-base">Date/Time</th>
+            <th className="px-4 py-2  text-sm md:text-base">Date</th>
             <th className="px-4 py-2  text-sm md:text-base">Transaction Status</th>
           </tr>
         </thead>

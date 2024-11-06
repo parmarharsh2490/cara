@@ -7,6 +7,7 @@ import { useCreateOrder, usePaymentHandler } from "../../query/orders.queries.ts
 import { useToast } from "@/hooks/use-toast.ts";
 import { useAddToWishlist } from "../../query/wishlist.queries.ts";
 import ShoppingCartSkeleton from "@/utils/skeleton/ShoppingCartSkeleton.tsx";
+import { useEffect } from "react";
 
 declare global {
   interface Window {
@@ -63,6 +64,9 @@ const ShoppingCart = () => {
       await addToWishlist({productId,varietyId,sizeOptionId});
       await removeProductFromCart(cartProductId)
   }
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, []);
   return (
     <>
     <Navigation/>  
