@@ -136,9 +136,9 @@ const PaymentChart = ({paymentChart}: any) => {
 
 
 const ProductRatingChart = ({ selledProductRatings } : any) => {
-  const averageRating = selledProductRatings.reduce((accumulator, currentValue) => {
+  const averageRating = selledProductRatings.reduce((accumulator: any, currentValue : any) => {
     return accumulator + (currentValue.name * currentValue.value);
-  }, 0) / selledProductRatings.reduce((accumulator, currentValue) => {
+  }, 0) / selledProductRatings.reduce((accumulator : any, currentValue : any) => {
     return accumulator + currentValue.value;
   }, 0);
 

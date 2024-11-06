@@ -1,7 +1,7 @@
 import { UserContext } from "@/context/index.tsx";
 import PopupForm from "../../components/shared/PopupForm.tsx";
 import React, { useContext, useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import {  useNavigate } from "react-router-dom";
 import { useUpdateUserDetails } from "../../query/user.queries.ts";
 import { logOut } from "@/services/user.service.ts";
 
