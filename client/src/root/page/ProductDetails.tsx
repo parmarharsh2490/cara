@@ -1,4 +1,4 @@
-import { Key, useEffect, useRef, useState } from "react";
+import { Key, useContext, useEffect, useRef, useState } from "react";
 import Navigation from "../../components/shared/Navigation";
 import Footer from "../../components/shared/Footer";
 import PromotionBanner from "../../components/shared/PromotionBanner";
@@ -17,8 +17,10 @@ import { allItems } from "@/utils/alItems";
 import ProductSkeleton from "@/utils/skeleton/ProductSkeleton";
 import { productDiscountPercentage } from "@/utils/productDiscountPercentage";
 import { alreadyInCart } from "@/utils/alreadyInCart";
+import { UserContext } from "@/context";
 
 const ProductDetails = () => {
+  const {isAuthenticated} = useContext(UserContext);
   const { productId } = useParams();
   if (!productId) {
     return <p>Error Happened!</p>;
@@ -72,12 +74,15 @@ const ProductDetails = () => {
     varietyId,
     quantity,
   }: IAddToCart) => {
-    
-    if (alreadyInCart({cartItems,productId : product?._id,sizeOptionId :  product?.variety[selectedVarietyIndex]?.sizeOptions[selectedSizeOptionIndex]?._id})) {
+    if(!isAuthenticated){
+      navigate("/auth/sign-in");
+    }
+    else if (alreadyInCart({cartItems,productId : product?._id,sizeOptionId :  product?.variety[selectedVarietyIndex]?.sizeOptions[selectedSizeOptionIndex]?._id})) {
       navigate("/checkout/cart");
       return;
+    }else{
+      await addToCart({ productId, sizeOptionId, varietyId, quantity });
     }
-    await addToCart({ productId, sizeOptionId, varietyId, quantity });
   };
   
   const handleAddToWishlist = async ({

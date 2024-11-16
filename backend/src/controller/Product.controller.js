@@ -8,7 +8,6 @@ import { uploadImage } from "../utils/Cloudinary.js";
 import { getIndexOfVarietyAndImage } from "../utils/index.js";
 import Order from "../model/Order.model.js";
 import { redis } from "../index.js";
-import { Cart } from "../model/Cart.model.js";
 const MAX_PRODUCTS = 80;
 const getAllProducts = asyncHandler(async (req, res) => {
   const {
@@ -142,7 +141,7 @@ const getAllProducts = asyncHandler(async (req, res) => {
     ...products.map((product) => JSON.stringify(product))
   );
   await redis.expire(redisKey, 600);
-  res
+  return res
     .status(200)
     .json(new ApiResponse(200, products, "Successfully fetched products"));
 });
@@ -156,7 +155,7 @@ const getTopSelledProducts = asyncHandler(async (req, res) => {
   );
   if (cachedProducts && cachedProducts.length > 0) {
     let data = cachedProducts.map((product) => JSON.parse(product));
-    res
+    return res
       .status(200)
       .json(
         new ApiResponse(200, data, "Successfully fetched top sold products")
@@ -212,7 +211,7 @@ const getTopSelledProducts = asyncHandler(async (req, res) => {
     throw new ApiError(400, "Top Selled Products not found");
   }
   if (!products || products.length == 0) {
-    res
+    return res
       .status(500)
       .json(new ApiResponse(500, null, "Error fetching top sold products"));
   }
@@ -222,7 +221,7 @@ const getTopSelledProducts = asyncHandler(async (req, res) => {
   );
   await redis.expire("topSelledProducts", 600);
 
-  res
+  return res
     .status(200)
     .json(
       new ApiResponse(200, products, "Successfully fetched top sold products")
@@ -466,7 +465,6 @@ const updateProduct = asyncHandler(async (req, res) => {
     updateFields,
     { new: true }
   );
-  console.log(updatedProduct);
   await redis.set(`product:${productId}`, JSON.stringify(updatedProduct));
   await redis.expire(`product:${productId}`, 600);
   await redis.del("topSelledProducts");
