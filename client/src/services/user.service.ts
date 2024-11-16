@@ -42,7 +42,7 @@ const getUserDetails = async () => {
         const response = await apiClient.get("/user")
         return response.data.data;
     } catch (error) {
-        console.error("Error logging in user:", error);
+        // console.error("Error logging in user:", error);
         throw error;
     }
 }
