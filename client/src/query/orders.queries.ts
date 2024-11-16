@@ -8,7 +8,6 @@ import {
 import {
   useInfiniteQuery,
   useMutation,
-  useQuery,
   useQueryClient,
 } from "@tanstack/react-query";
 import { QUERY_KEYS } from "./queryKeys";
@@ -35,7 +34,7 @@ const usePaymentHandler = () => {
     mutationFn: ({ paymentResponse, totalCartAmount }: any) =>
       paymentHandler({ paymentResponse, totalCartAmount }),
     onSuccess: () => {
-      const queryKeysToInvalidate = [QUERY_KEYS.CART, QUERY_KEYS.ORDERS];
+      const queryKeysToInvalidate = [QUERY_KEYS.CART, QUERY_KEYS.ORDERS,QUERY_KEYS.DASHBOARD,QUERY_KEYS.ANALYTICS,QUERY_KEYS.PAYMENTWALLET,QUERY_KEYS.TOPSELLEDPRODUCTS];
 
       queryKeysToInvalidate.forEach((queryKey) => {
         queryClient.invalidateQueries({ queryKey: [queryKey] });
@@ -56,11 +55,18 @@ const usePaymentHandler = () => {
   });
 };
 
-const useGetUserOrders = (skip: number) => {
-  return useQuery({
-    queryKey: [QUERY_KEYS.ORDERS, skip],
-    queryFn: () => getUserOrders(skip),
+const useGetUserOrders = () => {
+  return useInfiniteQuery({
+    queryKey: [QUERY_KEYS.ORDERS],
+    queryFn: ({ pageParam = 0 }: { pageParam: number }) =>
+    getUserOrders(pageParam),
     staleTime: Infinity,
+    initialPageParam: 0,
+    retry: false,
+    refetchOnWindowFocus: false,
+    getNextPageParam: (_, allPages) => {
+      return allPages.length;
+    },
   });
 };
 
@@ -105,7 +111,11 @@ const useUpdateOrderStatus = () => {
       return { previousOrders };
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.SELLERORDERS] });
+      const queryKeysToInvalidate = [QUERY_KEYS.SELLERORDERS,QUERY_KEYS.DASHBOARD];
+      queryKeysToInvalidate.forEach((queryKey) => {
+        queryClient.invalidateQueries({ queryKey: [queryKey] });
+      });
+
       toast({
         title : "Success",
         description : "Successfully Updated Order Status",

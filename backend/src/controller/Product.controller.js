@@ -384,7 +384,7 @@ const createProduct = asyncHandler(async (req, res) => {
       description: product.description,
       imageUrl: product.variety[0].images[0].imageUrl,
       originalPrice: product.variety[0].sizeOptions[0].price.originalPrice,
-      discountedPrice: product.variety[0].sizeOptions[0].price.originalPrice,
+      discountedPrice: product.variety[0].sizeOptions[0].price.discountedPrice,
       createdAt: product.createdAt,
     })
   );
@@ -466,6 +466,7 @@ const updateProduct = asyncHandler(async (req, res) => {
     updateFields,
     { new: true }
   );
+  console.log(updatedProduct);
   await redis.set(`product:${productId}`, JSON.stringify(updatedProduct));
   await redis.expire(`product:${productId}`, 600);
   await redis.del("topSelledProducts");
@@ -499,13 +500,11 @@ const deleteProduct = asyncHandler(async (req, res) => {
 });
 
 const viewProduct = asyncHandler(async (req, res) => {
-  const user = req.user;
   const { productId } = req.params;
   if (!productId || !isValidObjectId(productId)) {
     throw new ApiError(400, "Invalid ProductId");
   }
   await Product.findByIdAndUpdate(productId, { $inc: { visitorCount: 1 } });
-  await redis.del(`sellerDashboardReport:${user._id}`);
   return res
     .status(200)
     .json(new ApiResponse(200,[],"Successfully increatement product view"));

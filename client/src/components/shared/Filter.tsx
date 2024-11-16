@@ -43,7 +43,7 @@ const Filter = ({filters, setFilters,setProducts }: {filters : IFilter,setFilter
         <div className="filter hidden min-h-screen bg-white z-50 fixed top-0 sm:relative sm:z-0 md:block w-fullz duration-1000  sm:w-full max-w-[305px] border border-1">
             <div className="py-5 px-5 flex justify-between items-center border-b-2">
                 <p className="text-lg">Filter</p>
-                <button onClick={resetFilter} className="text-sm font-semibold text-red-500 cursor-pointer">
+                <button aria-label='filter' onClick={resetFilter} className="text-sm font-semibold text-red-500 cursor-pointer">
                     RESET
                 </button>
             </div>

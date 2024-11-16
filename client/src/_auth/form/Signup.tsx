@@ -4,7 +4,7 @@ import { useCreateUserAccount } from "../../query/user.queries.ts";
 import { INewUser } from "../../types/index.ts";
 import AuthFormSignupButton from "./AuthFormSignupButton.tsx";
 
-const SignIn = () => {
+const SignUp = () => {
   const { mutateAsync: createUserAccount , isPending } = useCreateUserAccount();
   const [name, setName] = useState<string>("harsh");
   const [email, setEmail] = useState<string>("parmarharsh6480@gmail.com");
@@ -15,7 +15,7 @@ const SignIn = () => {
     e.preventDefault();
     const user : INewUser = { name, email, password };
     try {
-      await createUserAccount(user); 
+      await createUserAccount(user);
       navigate('/')
     } catch (error) {
       console.error("Error creating user account: ", error);
@@ -81,4 +81,4 @@ const SignIn = () => {
   );
 };
 
-export default SignIn;
+export default SignUp;

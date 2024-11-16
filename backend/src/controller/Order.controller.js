@@ -1,20 +1,19 @@
-import crypto from 'crypto';
-import { Razorpay_Instance, RAZORPAY_KEY_SECRET } from '../constants.js';
-import Order from '../model/Order.model.js';
-import { asyncHandler } from '../utils/AsyncHandler.js';
-import ApiResponse from '../utils/ApiResponse.js';
-import { Payment } from '../model/Payment.model.js';
-import { Cart } from '../model/Cart.model.js';
-import ApiError from '../utils/ApiError.js';
-import mongoose, { isValidObjectId } from 'mongoose';
-import { Product } from '../model/Product.model.js';
-import { redis } from '../index.js';
-import  PaymentWallet  from '../model/PaymentWallet.model.js';
-
+import crypto from "crypto";
+import { Razorpay_Instance, RAZORPAY_KEY_SECRET } from "../constants.js";
+import Order from "../model/Order.model.js";
+import { asyncHandler } from "../utils/AsyncHandler.js";
+import ApiResponse from "../utils/ApiResponse.js";
+import { Payment } from "../model/Payment.model.js";
+import { Cart } from "../model/Cart.model.js";
+import ApiError from "../utils/ApiError.js";
+import mongoose, { isValidObjectId } from "mongoose";
+import { Product } from "../model/Product.model.js";
+import { redis } from "../index.js";
+import PaymentWallet from "../model/PaymentWallet.model.js";
 
 export const createOrder = asyncHandler(async (req, res) => {
   const { amount } = req.body;
-  
+
   const user = req.user;
 
   if (!amount || isNaN(amount)) {
@@ -25,31 +24,44 @@ export const createOrder = asyncHandler(async (req, res) => {
   session.startTransaction();
 
   try {
-    const cart = await Cart.findOne({ user: user._id }).populate("products.product", "variety");
+    const cart = await Cart.findOne({ user: user._id }).populate(
+      "products.product",
+      "variety"
+    );
     if (!cart || cart.products.length === 0) {
       throw new ApiError(400, "Cart is empty");
     }
-    
+
     let realAmount = 0;
     const cartProducts = [];
 
     for (const item of cart.products) {
-      const { product, variety, sizeOption, quantity,seller } = item;
-      const selectedVariety = product.variety.find(v => v._id.toString() === variety.toString());
-      const selectedSizeOption = selectedVariety.sizeOptions.find(s => s._id.toString() === sizeOption.toString());
+      const { product, variety, sizeOption, quantity, seller } = item;
+      const selectedVariety = product.variety.find(
+        (v) => v._id.toString() === variety.toString()
+      );
+      const selectedSizeOption = selectedVariety.sizeOptions.find(
+        (s) => s._id.toString() === sizeOption.toString()
+      );
 
       if (selectedSizeOption.stock < quantity) {
-        throw new ApiError(400, `Not enough stock for product: ${product.title}`);
+        throw new ApiError(
+          400,
+          `Not enough stock for product: ${product.title}`
+        );
       }
-      
-      realAmount += parseFloat(selectedSizeOption.price.discountedPrice) * quantity;
-    await redis.del(`product:${product}`);
+
+      realAmount +=
+        parseFloat(selectedSizeOption.price.discountedPrice) * quantity;
+      await redis.del(`product:${product}`);
       cartProducts.push({
         product: product._id,
         seller,
         varietyId: variety,
         sizeOptionId: sizeOption,
-        costPrice : selectedSizeOption?.price?.costPrice || selectedSizeOption?.price?.originalPrice,
+        costPrice:
+          selectedSizeOption?.price?.costPrice ||
+          selectedSizeOption?.price?.originalPrice,
         quantity,
         price: selectedSizeOption.price.discountedPrice,
       });
@@ -60,7 +72,7 @@ export const createOrder = asyncHandler(async (req, res) => {
     }
 
     realAmount = Math.round(realAmount * 100) / 100;
-    
+
     if (Math.abs(realAmount - amount) > 0.01) {
       throw new ApiError(400, "Product Amount Mismatched");
     }
@@ -68,32 +80,52 @@ export const createOrder = asyncHandler(async (req, res) => {
     const options = {
       amount: Math.round(realAmount * 100),
       currency: "INR",
-      receipt: `order_rcptid_${Date.now()}_${Math.random().toString(36).substring(7)}`,
+      receipt: `order_rcptid_${Date.now()}_${Math.random()
+        .toString(36)
+        .substring(7)}`,
     };
     const razorpayOrder = await Razorpay_Instance.orders.create(options);
     if (!razorpayOrder) {
       throw new ApiError(500, "Razorpay Order Creation Failed");
     }
 
-    const userOrder = await Order.create([{
-      user: user._id,
-      status: "processing",
-      products: cartProducts,
-      totalAmount: realAmount,
-    }], { session });
+    const userOrder = await Order.create(
+      [
+        {
+          user: user._id,
+          status: "processing",
+          products: cartProducts,
+          totalAmount: realAmount,
+        },
+      ],
+      { session }
+    );
 
-    const payment = await Payment.create([{
-      order: userOrder[0]._id,
-      razorpayOrderId: razorpayOrder.id,
-      amount: Math.round(realAmount * 100),
-      currency: "INR",
-      status: "pending"
-    }], { session });
+    const payment = await Payment.create(
+      [
+        {
+          order: userOrder[0]._id,
+          razorpayOrderId: razorpayOrder.id,
+          amount: Math.round(realAmount * 100),
+          currency: "INR",
+          status: "pending",
+        },
+      ],
+      { session }
+    );
 
     userOrder[0].payment = payment[0]._id;
     await userOrder[0].save({ session });
     await session.commitTransaction();
-    res.status(200).json(new ApiResponse(200, { orderId: razorpayOrder.id }, "Order created successfully"));
+    res
+      .status(200)
+      .json(
+        new ApiResponse(
+          200,
+          { orderId: razorpayOrder.id },
+          "Order created successfully"
+        )
+      );
   } catch (error) {
     await session.abortTransaction();
     throw new ApiError(500, "Creating order failed: " + error.message);
@@ -104,7 +136,8 @@ export const createOrder = asyncHandler(async (req, res) => {
 
 export const verifyOrder = asyncHandler(async (req, res) => {
   const user = req.user;
-  const { razorpay_order_id, razorpay_payment_id, razorpay_signature } = req.body;
+  const { razorpay_order_id, razorpay_payment_id, razorpay_signature } =
+    req.body;
 
   if (!razorpay_order_id || !razorpay_payment_id || !razorpay_signature) {
     throw new ApiError(400, "Missing required payment information");
@@ -114,16 +147,21 @@ export const verifyOrder = asyncHandler(async (req, res) => {
   session.startTransaction();
 
   try {
-    const shasum = crypto.createHmac('sha256', RAZORPAY_KEY_SECRET);
+    const shasum = crypto.createHmac("sha256", RAZORPAY_KEY_SECRET);
     shasum.update(`${razorpay_order_id}|${razorpay_payment_id}`);
-    const digest = shasum.digest('hex');
+    const digest = shasum.digest("hex");
 
-    const payment = await Payment.findOne({ razorpayOrderId: razorpay_order_id }).session(session);
+    const payment = await Payment.findOne({
+      razorpayOrderId: razorpay_order_id,
+    }).session(session);
     if (!payment) {
       throw new ApiError(404, "Payment not found");
     }
-    
-    const order = await Order.findOne({ payment: payment._id, user: user._id }).session(session);
+
+    const order = await Order.findOne({
+      payment: payment._id,
+      user: user._id,
+    }).session(session);
     if (!order) {
       throw new ApiError(404, "Order not found");
     }
@@ -132,19 +170,22 @@ export const verifyOrder = asyncHandler(async (req, res) => {
       payment.razorpaySignature = razorpay_signature;
       payment.status = "success";
       order.status = "success";
-      Promise.all(order.products.map(async(order) => {
-        await PaymentWallet.findOneAndUpdate(
-          {user : order.seller},
-          {
-            $inc : {
-              currentBalance : order.price * order.quantity
+      Promise.all(
+        order.products.map(async (order) => {
+          await PaymentWallet.findOneAndUpdate(
+            { user: order.seller },
+            {
+              $inc: {
+                currentBalance: order.price * order.quantity,
+              },
             }
-          }
-        );
+          );
+        })
+      );
 
-      }))
-    
-    const razorpayPayment = await Razorpay_Instance.orders.fetchPayments(razorpay_order_id);
+      const razorpayPayment = await Razorpay_Instance.orders.fetchPayments(
+        razorpay_order_id
+      );
       payment.paymentMethod = razorpayPayment.items[0].method;
 
       const cart = await Cart.findOne({ user: user._id }).session(session);
@@ -153,25 +194,33 @@ export const verifyOrder = asyncHandler(async (req, res) => {
 
       await payment.save({ session });
       await order.save({ session });
-      redis.del(`paymentWallet:${user._id}:pageParam:0`)
+      const paymentWalletKeys = await redis.keys(`paymentWallet:${user._id}:pageParam:*`);
+      if (paymentWalletKeys.length > 0) {
+        await redis.del(paymentWalletKeys);
+      }
+      await redis.del("topSelledProducts");
       await session.commitTransaction();
       res.status(200).json(new ApiResponse(200, order, "Order successful"));
     } else {
       payment.status = "failed";
       order.status = "failed";
-      Promise.all(order.products.map(async(order) => {
-        await PaymentWallet.findOneAndUpdate(
-          {user : order.seller},
-          {
-            $inc : {
-              currentBalance : order.price * order.quantity
+      Promise.all(
+        order.products.map(async (order) => {
+          await PaymentWallet.findOneAndUpdate(
+            { user: order.seller },
+            {
+              $inc: {
+                currentBalance: order.price * order.quantity,
+              },
             }
-          }
-        );
-      }))
+          );
+        })
+      );
       // Revert stock changes
       for (const item of order.products) {
-        const product = await Product.findById(item.product).select("variety").session(session);
+        const product = await Product.findById(item.product)
+          .select("variety")
+          .session(session);
         const variety = product.variety.id(item.varietyId);
         const sizeOption = variety.sizeOptions.id(item.sizeOptionId);
         sizeOption.stock += item.quantity;
@@ -184,7 +233,6 @@ export const verifyOrder = asyncHandler(async (req, res) => {
       throw new ApiError(400, "Payment verification failed");
     }
   } catch (error) {
-  
     await session.abortTransaction();
     throw new ApiError(500, "Order verification failed: " + error.message);
   } finally {
@@ -195,18 +243,26 @@ export const verifyOrder = asyncHandler(async (req, res) => {
 
 export const getUserOrders = asyncHandler(async (req, res) => {
   const user = req.user;
-  let { skip = 0 } = req.query;
-  skip = parseInt(skip);
-  
-  const cachedOrderList = await redis.lrange(`order:${user._id}`,skip,skip+4);
-  if(cachedOrderList && cachedOrderList.length > 0){
+  let { pageParam = 0 } = req.query;
+  const skip = parseInt(pageParam * 5);
+
+  const cachedOrderList = await redis.lrange(
+    `order:${user._id}`,
+    skip,
+    skip + 9
+  );
+  if (cachedOrderList && cachedOrderList.length > 0) {
     const data = cachedOrderList.map((order) => {
-      return JSON.parse(order)
-    })
-    return res.status(200).json(new ApiResponse(200,data,"Successfully fetch user cart"))
+      return JSON.parse(order);
+    });
+    return res
+      .status(200)
+      .json(new ApiResponse(200, data, "Successfully fetch user cart"));
   }
   if (isNaN(skip) || skip < 0) {
-    return res.status(400).json(new ApiResponse(400, null, "Invalid skip value"));
+    return res
+      .status(400)
+      .json(new ApiResponse(400, null, "Invalid skip value"));
   }
 
   const orders = await Order.aggregate([
@@ -229,7 +285,7 @@ export const getUserOrders = asyncHandler(async (req, res) => {
       $skip: parseInt(skip),
     },
     {
-      $limit: parseInt(5), 
+      $limit: parseInt(5),
     },
     {
       $lookup: {
@@ -242,12 +298,11 @@ export const getUserOrders = asyncHandler(async (req, res) => {
     {
       $addFields: {
         product: { $first: "$product" },
-       
       },
     },
-  {
-    $addFields: {
-       variety: {
+    {
+      $addFields: {
+        variety: {
           $first: {
             $filter: {
               input: "$product.variety",
@@ -256,11 +311,11 @@ export const getUserOrders = asyncHandler(async (req, res) => {
             },
           },
         },
-    }
-  },
-  {
-    $addFields: {
-       sizeOption: {
+      },
+    },
+    {
+      $addFields: {
+        sizeOption: {
           $first: {
             $filter: {
               input: "$variety.sizeOptions",
@@ -270,8 +325,8 @@ export const getUserOrders = asyncHandler(async (req, res) => {
           },
         },
         image: { $first: "$variety.images" },
-    }
-  },
+      },
+    },
     {
       $project: {
         title: "$product.title",
@@ -281,39 +336,52 @@ export const getUserOrders = asyncHandler(async (req, res) => {
         imageUrl: "$image.imageUrl",
         paymentId: "$products.payment",
         price: "$products.price",
-        status : "$products.status",
-        paymentId : "$payment",
-        orderDate : "$orderDate",
+        status: "$products.status",
+        paymentId: "$payment",
+        orderDate: "$orderDate",
         createdAt: 1,
       },
     },
   ]);
-  if(!orders || orders.length==0){
-    return res.status(404).json(new ApiResponse(404, null, "No orders found for this user"));
+  if (!orders || orders.length == 0) {
+    return res
+      .status(404)
+      .json(new ApiResponse(404, null, "No orders found for this user"));
   }
-  
-  await redis.rpush(`order:${user._id}`,...orders.map((order) =>JSON.stringify(order)))
-  await redis.expire(`order:${user._id}`,600)
-  return res.status(200).json(new ApiResponse(200, orders, "Successfully retrieved user orders"));
+
+  await redis.rpush(
+    `order:${user._id}`,
+    ...orders.map((order) => JSON.stringify(order))
+  );
+  await redis.expire(`order:${user._id}`, 600);
+  return res
+    .status(200)
+    .json(new ApiResponse(200, orders, "Successfully retrieved user orders"));
 });
 
-export const getAdminOrders = asyncHandler(async(req,res) => {
+export const getAdminOrders = asyncHandler(async (req, res) => {
   const user = req.user;
   let { pageParam = 0 } = req.query;
-  const skip = parseInt(pageParam*10);
+  const skip = parseInt(pageParam * 10);
   if (isNaN(skip) || skip < 0) {
-    throw new ApiError(400,"Invalid Skip value");
+    throw new ApiError(400, "Invalid Skip value");
   }
-  
-  const cachedOrderList = await redis.lrange(`order:${user._id}`, skip, skip + 9);
-  if(cachedOrderList && cachedOrderList.length > 0){
+
+  const cachedOrderList = await redis.lrange(
+    `order:${user._id}`,
+    skip,
+    skip + 9
+  );
+  if (cachedOrderList && cachedOrderList.length > 0) {
     const data = cachedOrderList.map((order) => {
-      return JSON.parse(order)
-    })
-    return res.status(200).json(new ApiResponse(200,data,"Successfully fetch user cart"))
+      return JSON.parse(order);
+    });
+    return res
+      .status(200)
+      .json(new ApiResponse(200, data, "Successfully fetch user cart"));
   }
-  if(user.role !== "admin"){
-    throw new ApiError(400,"User is not Admin");
+  if (user.role !== "admin") {
+    throw new ApiError(400, "User is not Admin");
   }
   const orders = await Order.aggregate([
     {
@@ -355,10 +423,7 @@ export const getAdminOrders = asyncHandler(async(req,res) => {
               input: "$product.variety",
               as: "vary",
               cond: {
-                $eq: [
-                  "$$vary._id",
-                  "$products.varietyId",
-                ],
+                $eq: ["$$vary._id", "$products.varietyId"],
               },
             },
           },
@@ -374,51 +439,56 @@ export const getAdminOrders = asyncHandler(async(req,res) => {
     },
     {
       $match: {
-        "products.seller": new mongoose.Types.ObjectId(user._id)
+        "products.seller": new mongoose.Types.ObjectId(user._id),
       },
     },
-  {
-    $project: {
-      _id : "$products._id",
-      title : "$product.title",
-      quantity : "$products.quantity",
-      price : "$products.price",
-      status : "$products.status",
-      imageUrl : "$images.imageUrl"
-    }
-  }
+    {
+      $project: {
+        _id: "$products._id",
+        title: "$product.title",
+        quantity: "$products.quantity",
+        price: "$products.price",
+        status: "$products.status",
+        imageUrl: "$images.imageUrl",
+      },
+    },
   ]);
-  if(!orders || orders.length==0){
-    throw new ApiError(400,"No Orders Found!");
+  if (!orders || orders.length == 0) {
+    throw new ApiError(400, "No Orders Found!");
   }
 
-  await redis.rpush(`adminOrder:${user._id}`,...orders.map((order) =>JSON.stringify(order)))
-  await redis.expire(`adminOrder:${user._id}`,600)
+  await redis.rpush(
+    `adminOrder:${user._id}`,
+    ...orders.map((order) => JSON.stringify(order))
+  );
+  await redis.expire(`adminOrder:${user._id}`, 600);
 
-  return res.status(200).json(new ApiResponse(200, orders, "Successfully retrieved seller orders"));
-})
+  return res
+    .status(200)
+    .json(new ApiResponse(200, orders, "Successfully retrieved seller orders"));
+});
 
-export const updateOrderStatus = asyncHandler(async(req,res) => {
-  const {orderId,status} = req.body;
+export const updateOrderStatus = asyncHandler(async (req, res) => {
+  const { orderId, status } = req.body;
   const user = req.user;
-  if(!orderId || !isValidObjectId(orderId) || !status){
-    throw new ApiError(400,"Fields are not valid")
+  if (!orderId || !isValidObjectId(orderId) || !status) {
+    throw new ApiError(400, "Fields are not valid");
   }
-  
-  const order = await Order.findOne(
-    {"products._id" : orderId}
-  )
-  order.products.map(async(order) => {
-    if(order._id.equals(new mongoose.Types.ObjectId(orderId))){
-      if(!order.seller.equals(new mongoose.Types.ObjectId(req.user._id))){
-        throw new ApiError(403,"User is not authorized")
+
+  const order = await Order.findOne({ "products._id": orderId });
+  order.products.map(async (order) => {
+    if (order._id.equals(new mongoose.Types.ObjectId(orderId))) {
+      if (!order.seller.equals(new mongoose.Types.ObjectId(req.user._id))) {
+        throw new ApiError(403, "User is not authorized");
       }
       order.status = status;
-      await order.save({validateBeforeSave : false})
+      await order.save({ validateBeforeSave: false });
     }
-  })
+  });
   await redis.del(`adminOrder:${user._id}`);
   await redis.del(`sellerDashboardReport:${user._id}`);
-  await order.save({validateBeforeSave : false});
-  return res.status(200).json(new ApiResponse(200,order,"Successfully updated order status"))
-})
+  await order.save({ validateBeforeSave: false });
+  return res
+    .status(200)
+    .json(new ApiResponse(200, order, "Successfully updated order status"));
+});

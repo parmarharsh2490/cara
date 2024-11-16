@@ -5,7 +5,7 @@ import Navigation from '../../components/shared/Navigation';
 import Filter from '../../components/shared/Filter';
 import ProductList from '../../components/shared/ProductList';
 import { useGetAllProducts } from '@/query/product.queries';
-import { allProducts } from '@/utils/allProducts';
+import { allItems } from '@/utils/alItems';
 import { IFilter } from '@/types';
 
 const VALID_CATEGORIES = ['tshirt', 'shirt', 'pants', 'bottom', 'jackets'] as const;
@@ -77,7 +77,7 @@ const Category: React.FC = () => {
         <div className="overflow-hidden w-full px-4">
           <div className="flex justify-between items-center sm:mt-12 mb-6 md:mx-8">
             <h1 className="lg:text-2xl hidden sm:block text-base md:text-lg">
-              Results for {category} - {allProducts(products).length} products found
+              Results for {category} - {allItems(products).length} products found
             </h1>
             <h1 className="sm:hidden text-2xl font-bold uppercase">{category}</h1>
             <div className="flex gap-2 items-center ml-2">
@@ -107,7 +107,7 @@ const Category: React.FC = () => {
           <ProductList
           loadMore={() => {}}
             isError={error ? true : false}
-            products={allProducts(products)}
+            products={allItems(products)}
             productLoading={isLoading}
             buttonLoading={isFetchingNextPage}
           />

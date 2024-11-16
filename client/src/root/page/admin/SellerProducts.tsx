@@ -7,7 +7,7 @@ import { FaEdit, FaTrash } from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
 import { useInView } from "react-intersection-observer";
 import Spinner from "@/utils/Spinner.tsx";
-import { allProducts } from "@/utils/allProducts.ts";
+import { allItems } from "@/utils/alItems.ts";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -19,6 +19,7 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
+import SellerProductsSkeleton from "@/utils/skeleton/SellerProductsSkeleton.tsx";
 
 const SellerProducts: React.FC = () => {
   const { mutateAsync: deleteProduct } = useDeleteProduct();
@@ -58,33 +59,9 @@ const SellerProducts: React.FC = () => {
           </thead>
           <tbody>
             {isLoading
-              ? Array(10)
-                  .fill(0)
-                  .map((_, index) => (
-                    <tr key={index} className="animate-pulse">
-                      <td className="py-2 px-4 border-b">
-                        <div className="h-4 bg-gray-200 rounded w-8 mx-auto"></div>
-                      </td>
-                      <td className="py-2 px-4 border-b">
-                        <div className="h-4 bg-gray-200 rounded w-24 mx-auto"></div>
-                      </td>
-                      <td className="py-2 px-4 border-b">
-                        <div className="h-4 bg-gray-200 rounded w-16 mx-auto"></div>
-                      </td>
-                      <td className="py-2 px-4 border-b">
-                        <div className="h-10 bg-gray-200 rounded w-12 mx-auto"></div>
-                      </td>
-                      <td className="py-2 px-4 border-b">
-                        <div className="flex items-center justify-center space-x-2">
-                          <div className="h-6 bg-blue-200 rounded w-12"></div>
-                          <div className="h-6 bg-red-200 rounded w-12"></div>
-                        </div>
-                      </td>
-                    </tr>
-                  ))
-              : // Normal data state
-                allProducts(products).length !== 0 &&
-                allProducts(products).map((product: any, index: number) => (
+              ? <SellerProductsSkeleton/> :
+                allItems(products).length !== 0 &&
+                allItems(products).map((product: any, index: number) => (
                   <tr key={index}>
                     <td className="py-2 px-4 border-b">{index + 1}</td>
                     <td className="py-2 px-4 border-b">{product.title}</td>
@@ -92,6 +69,7 @@ const SellerProducts: React.FC = () => {
                     <td className="py-2 px-4 border-b">
                       <div className="flex items-center justify-center">
                         <img
+                        loading='lazy'
                           src={product.imageUrl}
                           alt={product.title}
                           className="max-w-12 h-auto"
@@ -102,7 +80,7 @@ const SellerProducts: React.FC = () => {
                       <div className="flex items-center justify-center">
                         <button
                           onClick={() =>
-                            navigate(`/update-product/${product._id}`)
+                            navigate(`/admin/update-product/${product._id}`)
                           }
                           className="bg-blue-500 text-white px-2 py-1 rounded mr-2 flex items-center"
                         >

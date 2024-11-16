@@ -15,7 +15,7 @@ const authLayout = () => {
        <section className='flex bg-gray-100 absolute flex-1 items-center justify-center h-screen w-screen'>
          <Outlet/>
          <div className='flex shadow-md '>
-        <img src='/cat.jpeg' width={512} height={384} className='bg-center hidden md:block bg-no-repeat bg-cover max-w-[384px] max-h-[512px]' alt="signin" />
+        <img src='/cat.jpeg' loading='eager' width={512} height={384} className='bg-center hidden md:block bg-no-repeat bg-cover max-w-[384px] max-h-[512px]' alt="signin" />
         </div>
          </section>
         </>

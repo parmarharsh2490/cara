@@ -8,10 +8,13 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { QUERY_KEYS } from "./queryKeys";
 import { IAddToCart, ICartItems, IUpdateCartQuantity } from "@/types";
 import { useToast } from "@/hooks/use-toast";
+import { useContext } from "react";
+import { UserContext } from "@/context";
 
 export { useAddToCart, useGetUserCart, useUpdateQuantity, useRemoveFromCart };
 
 const useGetUserCart = () => {
+  const {user} = useContext(UserContext);
   return useQuery({
     queryFn: getUserCart,
     queryKey: [QUERY_KEYS.CART],
@@ -19,6 +22,7 @@ const useGetUserCart = () => {
     retryOnMount: false,
     refetchOnMount: false,
     retry: false,
+    enabled : !!user?.email
   });
 };
 

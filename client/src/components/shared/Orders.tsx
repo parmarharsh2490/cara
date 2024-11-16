@@ -1,30 +1,21 @@
 import OrdersSkeleton from "@/utils/skeleton/OrdersSkeleton";
 import { useGetUserOrders } from "../../query/orders.queries";
-import { useEffect, useState, useCallback } from "react";
+import { useCallback } from "react";
 import { IOrderProduct } from "@/types";
+import { allItems } from "@/utils/alItems";
 
 const Orders = () => {
-  const [skip, setSkip] = useState(0);
-  const [orders, setOrders] = useState<any[]>([]);
-  const { data: newOrders, isLoading, isFetching,error } = useGetUserOrders(skip);
-
-  useEffect(() => {
-    if (newOrders?.length > 0) {
-      setOrders((prevOrders) => {
-        return [...prevOrders, ...newOrders];
-      });
-    }
-  }, [newOrders]);
+  const { data: orders, isLoading, isFetching,error,fetchNextPage } = useGetUserOrders();
 
   const loadMoreOrders = useCallback(() => {
-    setSkip((prevSkip) => prevSkip + 5);
+    fetchNextPage()
   }, []);
 
-  if (isLoading && orders.length === 0) {
+  if (isLoading) {
     return <OrdersSkeleton />;
   }
 
-  if (!isLoading && orders.length === 0) {
+  if (error && allItems(orders).length===0) {
     return (
       <div className="h-full w-full flex-col flex justify-center items-center">
         <img
@@ -42,7 +33,7 @@ const Orders = () => {
       <h1 className="text-2xl xl:p-3">Your Orders</h1>
 
       <div className="overflow-scroll max-h-[525px]">
-        {orders.map((product: IOrderProduct, index: number) => (
+        {allItems(orders).map((product: IOrderProduct, index: number) => (
           <div
             key={product._id + index}
             className="w-full flex justify-center bg-blue-50 items-center sm:items-center h-auto sm:h-40 p-1 rounded-sm my-3 border"
@@ -100,6 +91,7 @@ const Orders = () => {
         className="py-[6px] px-12 text-base font-bold bg-slate-800 text-white hover:shadow-lg hover:bg-slate-900 duration-500 my-5"
           disabled={error || isFetching ? true : false}
           onClick={loadMoreOrders}
+          aria-label="Load More Orders"
         >
           {isFetching ? "Loading more orders..." : error ? "No More Orders Found" :  "Load More"}
         </button>

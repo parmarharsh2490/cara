@@ -11,9 +11,7 @@ const useGetDashboardDetails = () => {
     return useQuery({
         queryKey : [QUERY_KEYS.DASHBOARD],
         queryFn : getDashboardDetails,
-        staleTime : Infinity,
-        refetchOnMount : false,
-        refetchInterval : false
+        staleTime : Infinity
     })
 }
 

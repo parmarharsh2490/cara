@@ -95,7 +95,7 @@ const ProductListSkeleton = ( ) => {
         </div>
     
     </div>
-    <button className="py-[6px] px-12 w-48 text-base font-bold bg-slate-800 text-white my-5 h-10">
+    <button aria-label="More Products" className="py-[6px] px-12 w-48 text-base font-bold bg-slate-800 text-white my-5 h-10">
     </button>
 </div>
     )

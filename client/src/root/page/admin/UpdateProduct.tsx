@@ -1,3 +1,4 @@
+import Loader from "@/utils/Loader.tsx";
 import ProductForm from "../../../components/shared/ProductForm.tsx";
 import { useGetProductDetails } from "../../../query/product.queries.ts";
 import { useParams } from "react-router-dom";
@@ -7,7 +8,7 @@ const UpdateProduct = () => {
 
   const { data: product, isLoading, error } = useGetProductDetails(productId || "");
 
-  if (isLoading) return <div>Loading product details...</div>;
+  if (isLoading) return <Loader/>;
 
   if (error) return <div>Error loading product details. Please try again later.</div>;
 

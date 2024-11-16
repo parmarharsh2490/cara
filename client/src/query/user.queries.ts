@@ -27,11 +27,12 @@ export {
 };
 const useCreateUserAccount = () => {
   const { toast } = useToast();
-  const { setUser } = useContext(UserContext);
+  const { setUser,setIsAuthenticated } = useContext(UserContext);
   return useMutation({
     mutationFn: (user: INewUser) => createUserAccount(user),
     onSuccess: (data: any) => {
       setUser(data.data);
+      setIsAuthenticated(true);
       toast({
         title: "Success",
         description: "Successfully Signed Up",
@@ -48,11 +49,12 @@ const useCreateUserAccount = () => {
 
 const useLoginUserAccount = () => {
   const { toast } = useToast();
-  const { setUser } = useContext(UserContext);
+  const { setUser,setIsAuthenticated } = useContext(UserContext);
   return useMutation({
     mutationFn: (user: ILoginUser) => loginUserAccount(user),
     onSuccess: (data: any) => {
       setUser(data.data);
+      setIsAuthenticated(true);
       toast({
         title: "Success",
         description: "Successfully Logged In",

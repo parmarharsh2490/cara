@@ -228,7 +228,7 @@ const ProductForm: React.FC<ProductFormProps> = ({ existingProduct, isUpdate = f
             addSizeOption={addSizeOption} 
           />
         ))}
-        <button type="button" className="bg-blue-600 p-4 rounded-2xl" onClick={addColorOption}>
+        <button type="button" aria-label="Add More Color" className="bg-blue-600 p-4 rounded-2xl" onClick={addColorOption}>
           Add More Color
         </button>
 
@@ -240,7 +240,7 @@ const ProductForm: React.FC<ProductFormProps> = ({ existingProduct, isUpdate = f
           >
             {isCreating || isUpdating ? (
               <div className="flex items-center justify-center gap-3">
-                <img src="/spinner.svg" height={24} width={24} className="mx-auto"/>
+                <img loading='lazy' src="/spinner.svg" height={24} width={24} className="mx-auto"/>
                 {isUpdate ? "Updating" : "Creating"}
               </div>
             ) : isUpdate ? "Update" : "Submit"}

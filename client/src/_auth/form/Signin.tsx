@@ -1,27 +1,19 @@
 import { ILoginUser } from "../../types/index.ts";
-import { useGetUserDetails, useLoginUserAccount } from "../../query/user.queries.ts";
-import { useContext, useState } from "react";
+import {  useLoginUserAccount } from "../../query/user.queries.ts";
+import {  useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import AuthFormSignupButton from "./AuthFormSignupButton.tsx";
-import { UserContext } from "@/context/index.tsx";
 
 const SignIn = () => {
   const { mutateAsync: loginUserAccount,isPending : isLoginAccount } = useLoginUserAccount();
-  const { refetch: getUserDetails,isLoading : isFetchingUserDetails } = useGetUserDetails();
   const [email, setEmail] = useState<string>("parmarharsh6480@gmail.com");
   const [password, setPassword] = useState<string>("harsh");
   const navigate = useNavigate();
-  const {setUser} = useContext(UserContext)
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     const user : ILoginUser = {  email, password };
     try {
       await loginUserAccount(user);
-      const userDetails = await getUserDetails();
-      if (userDetails?.data) {
-        setUser(userDetails.data);
-        navigate("/");
-      }
       navigate('/')
     } catch (error) {
       console.log(error);
@@ -63,7 +55,7 @@ const SignIn = () => {
             Forgot password?
           </Link>
         </div>
-        <AuthFormSignupButton isPending={isFetchingUserDetails || isLoginAccount} signIn={true}></AuthFormSignupButton>
+        <AuthFormSignupButton isPending={isLoginAccount} signIn={true}></AuthFormSignupButton>
         <div className="flex justify-center items-center gap-1">
           <h4 className="text-gray-400">Don't have an account?</h4>
           <Link to="/auth/sign-up" className="font-semibold text-xs sm:text-md hover:underline">

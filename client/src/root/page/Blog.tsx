@@ -16,7 +16,7 @@ const Blog = () => {
             <div className="border p-3 space-y-6">
                 {blogs.map((blog, index) => (
                     <div key={index} className="flex flex-col sm:flex-row sm:gap-7 flex-1 mt-5">
-                        <img src={blog.image} alt={`Blog image for ${blog.title}`} className="w-full h-auto max-w-md bg-cover" />
+                        <img loading='lazy' src={blog.image} alt={`Blog image for ${blog.title}`} className="w-full h-auto max-w-md bg-cover" />
                         <div className="flex flex-col items-center justify-center max-w-3xl w-full">
                             <h1 className="text-2xl my-2 font-semibold sm:text-3xl">{blog.title}</h1>
                             <p className="text-base sm:text-sm md:text-lg">{blog.description}</p>

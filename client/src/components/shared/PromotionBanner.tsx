@@ -17,7 +17,7 @@ const PromotionBanner = () => {
         </div>
         <div className="flex w-auto gap-2">
             <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} className="outline-none text-black rounded-md py-2 px-2 md:py-3 md:px-5" placeholder='Your Email Address'/>
-            <button onClick={handleOnClick} className="border rounded-lg border-white p-3 font-thin">Sign Up</button>
+            <button aria-label="PromotionBanner Submit" onClick={handleOnClick} className="border rounded-lg border-white p-3 font-thin">Sign Up</button>
         </div>
     </div>
   )

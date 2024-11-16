@@ -3,10 +3,10 @@ import { useEffect, useState } from 'react';
 const ImageSlider = () => {
   const [counter, setCounter] = useState<number>(0);
   const images = [
-    "/sliderImage1.jpg",
+    "/sliderImage4.avif",
+    "/sliderImage1.avif",
     "/sliderImage2.avif",
     "/sliderImage3.avif",
-    "/imageSlider4.avif",
   ];
 
   useEffect(() => {
@@ -27,6 +27,7 @@ const ImageSlider = () => {
               </svg>
             </button>
             <img
+           loading={counter === index ? "eager" : "lazy"}
               src={img}
               className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-1000 ${
                 counter === index ? "opacity-100" : "opacity-0"

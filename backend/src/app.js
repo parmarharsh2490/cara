@@ -14,11 +14,12 @@ import cartRouter from './routes/cart.routes.js';
 import orderRouter from './routes/Order.routes.js';
 import { promotionalRouter } from './routes/Promotional.routes.js';
 import { paymentWalletRouter } from './routes/paymentWallet.routes.js';
-
+import compression from "compression"
 const app = express();
 
-
+app.use(compression());
 // Middleware
+
 app.use(cookieParser());
 app.use(express.json({ limit: '50mb' }));
 app.use(express.urlencoded({ limit: '50mb', extended: true }));
@@ -56,7 +57,7 @@ app.get('/', (_, res) => {
 });
 
 app.use('/api/v1/user', userRouter);
-app.use('/api/v1/products', verifyJWT, productRouter);
+app.use('/api/v1/products', productRouter);
 app.use('/api/v1/productReview', verifyJWT, productReviewRouter);
 app.use('/api/v1/seller', verifyJWT, sellerRouter);
 app.use('/api/v1/cart', verifyJWT, cartRouter);

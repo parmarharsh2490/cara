@@ -3,6 +3,8 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
 import { QUERY_KEYS } from "./queryKeys"
 import { IAddToWishlist, IWishlistProduct } from "@/types"
 import { useToast } from "@/hooks/use-toast"
+import { useContext } from "react"
+import { UserContext } from "@/context"
 
 export {
     useAddToWishlist,
@@ -48,6 +50,7 @@ const useRemoveFromWishlist = () => {
 }
 
 const useGetUserWishlist = (skip: number) => {
+    const {isAuthenticated} = useContext(UserContext);
     return useQuery({
       queryKey: [QUERY_KEYS.WISHLIST, skip],
       queryFn: () => getUserWishlist(skip),
@@ -56,10 +59,12 @@ const useGetUserWishlist = (skip: number) => {
       refetchOnMount: false,
       retry: false,
       placeholderData : true,
-      refetchOnWindowFocus : false
+      refetchOnWindowFocus : false,
+      enabled : isAuthenticated
     });
 };
 const useGetUserWishlistCount = () => {
+    const {user} = useContext(UserContext);
     return useQuery({
       queryKey: [QUERY_KEYS.WISHLISTCOUNT],
       queryFn: () => getUserWishlistCount(),
@@ -68,6 +73,7 @@ const useGetUserWishlistCount = () => {
       refetchOnMount: false,
       retry: false,
       placeholderData : true,
-      refetchOnWindowFocus : false
+      refetchOnWindowFocus : false,
+      enabled : !!user.email
     });
 };

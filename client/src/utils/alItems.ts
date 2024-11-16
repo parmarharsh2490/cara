@@ -1,4 +1,5 @@
-export const allWishlistProducts = (a : any) => {
+
+export const allItems = (a : any) => {
     const data : any  = []    
     
   a && a.pages &&  a.pages.map((page :any) => {

@@ -1,11 +1,10 @@
-import { isValidObjectId } from "mongoose";
 import { cookieOptions } from "../constants.js";
 import User from "../model/User.model.js";
 import ApiError from "../utils/ApiError.js";
 import ApiResponse from "../utils/ApiResponse.js";
 import { asyncHandler } from "../utils/AsyncHandler.js"
-import otpGenerator from "otp-generator"
 import { getTransporter } from "../utils/email.js";
+import { generateRandomPassword } from "../utils/GenerateRandomPassword.js";
 
 
 
@@ -81,11 +80,11 @@ const loginUser = asyncHandler(async(req,res) => {
     .json(new ApiResponse(200,user,"Successfully login User"))
 });
 
-const logoutUser = async(req,res) => {
+const logoutUser = async(_,res) => {
     return res
     .status(200)
-    .clearCookie("accessToken")
-    .clearCookie("refreshToken")
+    .clearCookie("accessToken",cookieOptions)
+    .clearCookie("refreshToken",cookieOptions)
     .json(new ApiResponse(200,[],"Successfully logout User"))
 }
 
@@ -101,42 +100,18 @@ const forgetPassword = async(req,res) => {
         throw new ApiError(400,"User not found by this email address");
     };
     const transporter = await getTransporter();
-    const otp = parseInt(otpGenerator.generate(6, { upperCaseAlphabets: false, specialChars: false }));
-    const expiry = new Date(Date.now() + 15 * 60 * 1000);
+    const password = generateRandomPassword();
     await transporter.sendMail({
       from: `"Cara" <${process.env.NODEMAILER_AUTH_USER}>`,
-      to: {email}, // list of receivers
+      to: {email},
       subject: "Forget Password",
-      text: `"This is your otp to forget password ${otp}"`, // plain text body
-      html: `<b>This is your otp to forget password ${otp}</b>`, // html body
+      text: `"This is your New password ${password}"`,
+      html: `<b>This is your New password ${password}</b>`,
     });
-    await Otp.create({ email, otp, expiry });
     return res
     .status(200)
-    .json(new ApiResponse(200,user,"Successfully send otp to your mail"))
+    .json(new ApiResponse(200,user,"Successfully send password to your mail"))
 }
-
-const verifyOtp = async (req, res) => {
-    const { email, otp } = req.body;
-    if (!email || !otp) {
-      throw new ApiError(400, "Email and OTP are required");
-    }
-  
-    const otpRecord = await Otp.findOne({ email, otp });
-    if (!otpRecord) {
-      throw new ApiError(400, "Invalid OTP");
-    }
-  
-    if (new Date() > otpRecord.expiry) {
-      await Otp.deleteOne({ email, otp });
-      throw new ApiError(400, "OTP has expired");
-    }
-  
-    await Otp.deleteOne({ email, otp });
-  
-    return res.status(200).json(new ApiResponse(200, null, "OTP verified successfully"));
-};
-
 
 const changePassword = asyncHandler(async(req,res) => {
      const {email,oldPassword,newPassword} = req.body;
@@ -162,24 +137,6 @@ const changePassword = asyncHandler(async(req,res) => {
      .status(200)
      .json(new ApiResponse(200,user,"Successfully changed password"))
 });
-
-const resetPassword = async (req, res) => {
-    const { email, newPassword } = req.body;
-    if (!email || !newPassword) {
-      throw new ApiError(400, "Email and new password are required");
-    }
-  
-    const user = await User.findOne({ email });
-    if (!user) {
-      throw new ApiError(400, "User not found");
-    }
-  
-    user.password = newPassword;
-    await user.save();
-  
-    return res.status(200).json(new ApiResponse(200, null, "Password reset successfully"));
-};
-  
 
 const getUserDetails = async(req,res) => {
     const user = req.user;
@@ -235,9 +192,7 @@ export {
     loginUser,
     logoutUser,
     forgetPassword,
-    resetPassword,
     changePassword,
     getUserDetails,
     updateUserDetails,
-    verifyOtp
 }

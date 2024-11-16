@@ -1,7 +1,7 @@
 export const allReviews = (reviews: any | undefined) => {
-    // if (!reviews?.pages) {
-    //     return [];
-    // }
+    if (!reviews?.pages) {
+        return [];
+    }
     const data :any = []
     
     reviews?.pages.map((review :any) => {

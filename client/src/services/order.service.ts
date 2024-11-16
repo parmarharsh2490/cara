@@ -38,8 +38,8 @@ const paymentHandler =  async({paymentResponse, totalCartAmount} : any) =>  {
   }
 }
 
-const getUserOrders = async(skip : number) => {
-    const response = await apiClient.get(`/order?skip=${skip}`);
+const getUserOrders = async(pageParam : number) => {
+    const response = await apiClient.get(`/order?pageParam=${pageParam}`);
     return response.data.data
 }
 

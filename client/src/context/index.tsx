@@ -1,4 +1,3 @@
-import { useNavigate } from "react-router-dom";
 import React, { createContext, useEffect, useState } from "react";
 import { IUser } from "../types/index.ts";
 import { useGetUserDetails } from "@/query/user.queries.ts";
@@ -22,7 +21,6 @@ const INITIAL_STATE = {
 export const UserContext = createContext(INITIAL_STATE);
 
 const UserProvider = ({ children }: { children: React.ReactNode }) => {
-  const navigate = useNavigate();
   const [user, setUser] = useState<IUser>(INITIAL_USER);
   const [isAuthenticated, setIsAuthenticated] = useState(true);
 
@@ -36,12 +34,12 @@ const UserProvider = ({ children }: { children: React.ReactNode }) => {
         setIsAuthenticated(true);
       } else {
         setIsAuthenticated(false);
-        navigate("/auth/sign-in");
+        // navigate("/auth/sign-in");
       }
     } catch (error) {
       console.error("Failed to authenticate user:", error);
       setIsAuthenticated(false);
-      navigate("/auth/sign-in");
+      // navigate("/auth/sign-in");
     }
   };
 

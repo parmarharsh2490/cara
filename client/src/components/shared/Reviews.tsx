@@ -1,7 +1,7 @@
 
 import  { useContext, useState } from 'react';
 import { useParams } from 'react-router-dom';
-import { StarIcon } from 'lucide-react';
+import { FaRegStar } from "react-icons/fa";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -32,7 +32,7 @@ const ReviewCard = ({ review, productId, onEdit } : any) => {
     <div className="flex items-center">
                <div className="flex items-center bg-green-600 text-white rounded px-1 py-0.5">
                <p className="font-semibold">{review.rating}</p>
-                 <StarIcon className="ml-1 text-xs" />
+                 <FaRegStar size={20} className="ml-1 text-xs" />
                </div>
                <p className="font-semibold ml-2 sm:ml-5">{review.title}</p>
              </div>
@@ -48,7 +48,7 @@ const ReviewCard = ({ review, productId, onEdit } : any) => {
                <span className="text-slate-400">{review.date}</span>
            </div>
          </div>
-           <img src={review.imageUrl} className="max-w-32 ml-4" alt="Review Image" />
+           <img loading='lazy' src={review.imageUrl} className="max-w-32 ml-4" alt="Review Image" />
         {review.userId === user._id && <div className="flex flex-col items-center gap-2">
            <FaEdit size={25} onClick={onEdit} />
             
@@ -106,7 +106,7 @@ const Reviews = () => {
       }
       setShowPopupForm(false);
     } catch (error) {
-      console.log(error);
+      // console.log(error);
     }
   };
 
@@ -120,7 +120,7 @@ const Reviews = () => {
     return (
       <div key={rating} className="flex items-center text-slate-400 text-sm sm:text-base my-1 sm:my-3">
         {rating}
-        <StarIcon className="mx-3 h-4 w-4" />
+        <FaRegStar size={20} className="mx-3 h-4 w-4" />
         <div className="h-2 w-1/2 sm:w-3/5 mr-2 bg-slate-200">
           <div
             style={{ width: `${percentage}%` }}
@@ -139,7 +139,7 @@ const Reviews = () => {
           Rate & Review
         </h1>
         <div className="flex items-center mt-3">
-          <StarIcon className="h-5 w-5 text-green-600" />
+          <FaRegStar size={20} className="h-5 w-5 text-green-600" />
           <span className="font-semibold text-xl mx-1 sm:mx-2">{averageRating.toFixed(1)}</span>
           <span className="text-slate-400 sm:ml-4 ml-1 text-sm">
             {totalUserCount} verified customers reviewed this.
@@ -154,6 +154,7 @@ const Reviews = () => {
         <div className="flex items-center justify-between mb-5 sm:mb-10">
           <h1 className="text-xl sm:text-3xl font-semibold">Customer Reviews</h1>
           <button
+          aria-label='Create Review'
             onClick={() => {
               setAction('create');
               setShowPopupForm(true);

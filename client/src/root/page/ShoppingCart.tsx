@@ -79,13 +79,14 @@ const ShoppingCart = () => {
         {
           products.length === 0 ? (
             <div className='sm:h-[80vh] h-auto w-full flex justify-start sm:justify-center items-center flex-col'>
-            <img src='/emptyCart.jpg' alt="" className='object-fit h-96 w-96'/>
+            <img loading='lazy' src='/emptyCart.jpg' alt="" className='object-fit h-96 w-96'/>
             <h2 className='text-slate-500 font-semibold text-xl -mt-5'>Your cart is empty</h2>
             </div>
           ) : 
           products.map((product : ICartItems,index : number) => (
             <div key={index} className="w-full flex justify-start items-start sm:items-center h-auto sm:h-40 p-1 border rounded-sm my-3">
             <img
+            loading='lazy'
               className="h-full w-[20%] border rounded-sm object-cover"
               src={product.imageUrl}
               alt="Cart Product Image"
@@ -216,7 +217,7 @@ const ShoppingCart = () => {
           </div>
           <div onClick={handlePayment} className="btn px-3 py-4 w-1/2 sm:w-full text-center cursor-pointer bg-slate-700 text-white font-semibold my-3 rounded-lg">
            {isOrderCreating ?   <div className="flex items-center justify-center gap-3">
-          <img width={20} src="/Loader.svg" alt="Loading..." />
+          <img loading='lazy' width={20} src="/Loader.svg" alt="Loading..." />
           Loading
         </div> :  "CHECKOUT"}
           </div>

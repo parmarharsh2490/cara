@@ -1,5 +1,4 @@
 import React from 'react';
-import {  DollarSign, ShoppingBag, FileText, Users } from 'lucide-react';
 import { useGetDashboardDetails } from '../../../query/seller.queries';
 import YearReport from '../../../components/charts/YearReport';
 import TopProducts from '../../../components/shared/TopProducts';
@@ -46,25 +45,25 @@ const Dashboard: React.FC = () => {
           <MetricCard
             title="Total Sales"
             value={dashboardData?.orderStatistics?.totalSales || 0}
-            icon={<ShoppingBag className="text-white" size={24} />}
+            icon={<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-shopping-bag text-white"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4Z"></path><path d="M3 6h18"></path><path d="M16 10a4 4 0 0 1-8 0"></path></svg>}
             color="bg-green-500"
           />
           <MetricCard
             title="Total Income"
             value={dashboardData?.orderStatistics?.totalEarning || 0}
-            icon={<DollarSign className="text-white" size={24} />}
+            icon={<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-dollar-sign text-white"><line x1="12" x2="12" y1="2" y2="22"></line><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path></svg>}
             color="bg-orange-500"
           />
           <MetricCard
             title="Success Orders"
             value={dashboardData?.orderStatistics?.totalSuccessOrders || 0}
-            icon={<FileText className="text-white" size={24} />}
+            icon={<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-file-text text-white"><path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"></path><path d="M14 2v4a2 2 0 0 0 2 2h4"></path><path d="M10 9H8"></path><path d="M16 13H8"></path><path d="M16 17H8"></path></svg>}
             color="bg-gray-400"
           />
           <MetricCard
             title="Total Visitor"
             value={dashboardData?.totalVisitors[0]?.totalVisitorCount || 0}
-            icon={<Users className="text-white" size={24} />}
+            icon={<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-users text-white"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M22 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>}
             color="bg-blue-500"
           />
         </div>

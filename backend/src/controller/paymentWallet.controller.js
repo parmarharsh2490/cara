@@ -120,7 +120,10 @@ const withdrawAmount = asyncHandler(async (req, res) => {
   if (!updatedPaymentWallet) {
     throw new ApiError(400, "Cannot Withdraw");
   }
-  await redis.del(`paymentWallet:${user._id}:pageParam:0`)
+  const paymentWalletKeys = await redis.keys(`paymentWallet:${user._id}:pageParam:*`);
+  if (paymentWalletKeys.length > 0) {
+    await redis.del(paymentWalletKeys);
+  }
   return res
     .status(200)
     .json(new ApiResponse(200, updatedPaymentWallet, "Successfully Withdrawn"));

@@ -36,6 +36,8 @@ const ProductList = ({
           <button
             disabled={isError || !products.length.toString().endsWith("0")}
             onClick={loadMore}
+            name="More Products"
+            aria-label="More Products"
             className={`py-[6px] px-12 text-base font-bold bg-slate-800 text-white hover:shadow-lg hover:bg-slate-900 duration-500 my-5 ${
               products.length < 1 && "hidden"
             }`}

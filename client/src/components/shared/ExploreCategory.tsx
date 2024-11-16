@@ -12,7 +12,7 @@ const categories = [
 const ExploreCategory = () => (
   <div className="relative mt-10 flex flex-col items-center w-full">
     <h1 className="text-2xl mb-2">Explore Products</h1>
-    <p className="text-sm text-gray-400 mb-6">Select Category</p>
+    <p className="text-sm text-gray-700 mb-6">Select Category</p>
     <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4 w-full justify-items-center">
       {categories.map(({ image, link, name }, index) => (
         <Link
@@ -21,6 +21,7 @@ const ExploreCategory = () => (
           className="flex flex-col items-center p-3 max-w-[175px] shadow-md rounded-3xl border-none hover:scale-105 sm:hover:scale-110 hover:shadow-2xl transition-transform duration-700"
         >
           <img
+          loading='lazy'
             className="w-full h-40 object-cover rounded-2xl mb-2"
             src={image}
             alt={`${name} category`}

@@ -80,6 +80,7 @@ const PopupForm: React.FC<IPopupFormProps> = ({ inputData,label, title, showPopu
         ))}
         <button
           type="submit"
+          aria-label="Pop-up Form Submit"
           className="bg-gray-700 text-white w-full p-3 mt-4 rounded-lg hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-primary-500"
         >
           {isLoading ? "Loading..." : "Save"}

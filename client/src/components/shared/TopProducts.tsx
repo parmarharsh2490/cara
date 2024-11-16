@@ -28,6 +28,7 @@ const TopProducts = ({ topProducts }: { topProducts: any }) => {
             <tr key={product._id} className="text-center border-b">
               <td className="p-2">
                 <img
+                loading='lazy'
                   src={product.imageUrl}
                   alt={product.title}
                   className="w-14 h-14 object-cover mx-auto"

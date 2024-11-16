@@ -13,7 +13,7 @@ import { useAddToWishlist } from "../../query/wishlist.queries";
 import { useAddToCart, useGetUserCart } from "../../query/cart.queries";
 import ProductList from "../../components/shared/ProductList";
 import { viewProduct } from "@/services/product.service";
-import { allProducts } from "@/utils/allProducts";
+import { allItems } from "@/utils/alItems";
 import ProductSkeleton from "@/utils/skeleton/ProductSkeleton";
 import { productDiscountPercentage } from "@/utils/productDiscountPercentage";
 import { alreadyInCart } from "@/utils/alreadyInCart";
@@ -99,7 +99,7 @@ const ProductDetails = () => {
           <Navigation />
           {product && (
             <section
-              id="prodetails"
+              id="productDetails"
               className="gap-10 p-5 sm:px-10 flex flex-col sm:flex-row w-full items-center justify-center h-[70%]"
             >
               <div className="h-full w-full sm:w-[70%] md:w-[55%] lg:w-[35%] flex items-center   flex-col-reverse md:flex-row">
@@ -110,6 +110,7 @@ const ProductDetails = () => {
                       imageIndex: Key | null | undefined
                     ) => (
                       <img
+                      loading='lazy'
                         key={imageIndex}
                         src={image?.imageUrl}
                         onClick={() => imageClick(imageIndex as number)}
@@ -120,6 +121,7 @@ const ProductDetails = () => {
                   )}
                 </div>
                 <img
+                loading='lazy'
                   src={
                     product.variety[selectedVarietyIndex].images[
                       selectedImageIndex
@@ -274,7 +276,7 @@ const ProductDetails = () => {
             </p>
             <ProductList
               loadMore={loadMore}
-              products={allProducts(products)}
+              products={allItems(products)}
               buttonLoading={isFetchingNextPage}
               isError={!!isFetchingProductsError}
               productLoading={isLoading}

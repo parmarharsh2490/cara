@@ -13,6 +13,7 @@ const About = () => {
       <section className="flex flex-col gap-2 md:flex-row items-center justify-center p-6 md:p-12 bg-gray-100 w-screen">
         <div className="md:w-1/2 w-full">
         <img
+        loading='lazy'
           src={aboutImage}
           alt="About Us"
           className="w-full h-auto rounded-lg shadow-lg"

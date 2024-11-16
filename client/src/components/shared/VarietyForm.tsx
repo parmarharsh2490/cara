@@ -121,6 +121,7 @@ const VarietyForm: React.FC<VarietyFormProps> = ({
       {/* Add More Sizes */}
       <div className="mt-4">
         <button
+        aria-label="Create More SizeOption"
           type="button"
           onClick={() => addSizeOption(index)}
           className="bg-green-500 text-white py-2 px-4 rounded-lg"
@@ -143,6 +144,7 @@ const VarietyForm: React.FC<VarietyFormProps> = ({
         <div className="mt-2 grid grid-cols-2 md:grid-cols-5 gap-2">
           {variety.images.map((image : any, imgIndex) => (
             <img key={imgIndex} 
+            loading='lazy'
             src={typeof image === "string" ? image : image?.imageUrl ? image?.imageUrl : URL.createObjectURL(image)}
             // src={image?.imageUrl ? image?.imageUrl : image || URL.createObjectURL(image)}
             className="w-full h-[75%] bg-cover rounded-lg" />

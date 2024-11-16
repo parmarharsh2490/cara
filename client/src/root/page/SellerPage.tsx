@@ -4,13 +4,13 @@ import  { useContext, useState } from 'react'
 import { Link, Outlet, useNavigate } from 'react-router-dom'
 
 const menuItems = [
-  { label: 'Dashboard', path: '/dashboard' },
-  { label: 'Add Product', path: '/add-product' },
+  { label: 'Dashboard', path: '/admin/dashboard' },
+  { label: 'Add Product', path: '/admin/add-product' },
   { label: 'Orders', path: '/admin/orders' },
-  { label: 'Products', path: '/admin-products' },
-  { label: 'Payment Wallet', path: '/payment-wallet' },
-  { label: 'Analytics', path: '/analytics' },
-  { label: 'Setting', path: '/setting' },
+  { label: 'Products', path: '/admin/products' },
+  { label: 'Payment Wallet', path: '/admin/payment-wallet' },
+  { label: 'Analytics', path: '/admin/analytics' },
+  { label: 'Setting', path: '/admin/setting' },
 ];
 
 const SellerPage = () => {
@@ -42,6 +42,7 @@ const SellerPage = () => {
           <ul className="py-7 px-5 z-50">
           <Link className='flex items-center justify-center mb-2 sm:mb-10' to="/">
                   <img
+                  loading='lazy'
                     className="sm:min-w-[7rem] w-[6rem] h-8 sm:h-8"
                     src="/logo.png"
                     alt="caralogo"
@@ -80,6 +81,7 @@ const SellerPage = () => {
         </div>
         <div className='flex items-center justify-between py-3 px-5 bg-slate-200 my-2'>
           <img
+          loading='eager'
             src="https://img.freepik.com/free-psd/3d-illustration-human-avatar-profile_23-2150671116.jpg?w=740&amp;t=st=1703837364~exp=1703837964~hmac=33dcc8385818924229394fd67ba929edb782c5eb07ec9f261dfa935f2ae88d53"
             alt="user-image"
             className="w-7 h-7 bg-slate-600 rounded-full overflow-hidden"
