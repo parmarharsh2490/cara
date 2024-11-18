@@ -252,7 +252,7 @@ const ShoppingCart = () => {
                   {isOrderCreating ? (
                     <div className="flex items-center justify-center gap-3">
                       <img
-                        loading="lazy"
+                        loading="eager"
                         width={20}
                         src="/Loader.svg"
                         alt="Loading..."

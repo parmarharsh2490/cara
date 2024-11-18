@@ -8,6 +8,7 @@ import AlertDialog from "../ui/AlertDialog.tsx";
 // const AlertDialog = React.lazy(() => import("../ui/AlertDialog"))
 const Navigation = () => {
   const [showAlertDialog, setShowAlertDialog] = useState(false);
+  const [showSearchInput, setShowSearchInput] = useState(false);
   const [searchValue, setSearchValue] = useState<string>("");
   const navigate = useNavigate();
   const handleSearchValueSubmit = (e: { preventDefault: () => void }) => {
@@ -20,17 +21,16 @@ const Navigation = () => {
   };
   const { data: userCart } = useGetUserCart();
   const { data: userWishlistCount } = useGetUserWishlistCount();
-  const { user,isAuthenticated } = useContext(UserContext);
+  const { user, isAuthenticated } = useContext(UserContext);
   const { mutate: becomeSeller, isPending, isSuccess } = useBecomeSeller();
   const handleBecomeSellerClick = (e: React.MouseEvent<HTMLAnchorElement>) => {
     e.preventDefault();
-    if(!isAuthenticated){
-      navigate('/auth/sign-in');
-    }
-    else if (user.role === "customer") {
+    if (!isAuthenticated) {
+      navigate("/auth/sign-in");
+    } else if (user.role === "customer") {
       setShowAlertDialog(true);
-    }else{
-      navigate('/admin/dashboard')
+    } else {
+      navigate("/admin/dashboard");
     }
   };
   return (
@@ -81,6 +81,7 @@ const Navigation = () => {
               <div className="flex  lg:hidden">
                 <div className="sm:ml-6 gap-3 flex md:hidden justify-center items-center">
                   <svg
+                    onClick={() => setShowSearchInput(!showSearchInput)}
                     stroke="currentColor"
                     fill="currentColor"
                     strokeWidth="0"
@@ -112,7 +113,7 @@ const Navigation = () => {
                     </div>
                   </div>
                   <div className="relative">
-                    <Link  aria-label="Go To Cart" to="/checkout/cart">
+                    <Link aria-label="Go To Cart" to="/checkout/cart">
                       <svg
                         stroke="currentColor"
                         fill="none"
@@ -173,7 +174,7 @@ const Navigation = () => {
                 } md:translate-x-0 transition-transform duration-300 ease-in-out`}
               >
                 <Link
-                aria-label="Go To Home"
+                  aria-label="Go To Home"
                   className="my-2 text-sm xl:text-base leading-5 text-gray-700 transition-colors duration-300 transform hover:text-blue-600 hover:underline md:mx-2 lg:mx-4 md:my-1"
                   to="/"
                 >
@@ -199,36 +200,37 @@ const Navigation = () => {
                   <span className="">Become a Seller</span>
                 </Link>
                 <Link
-                aria-label="Go To About Section"
+                  aria-label="Go To About Section"
                   className="my-2  whitespace-nowrap lg:block text-sm xl:text-base leading-5 text-gray-700 transition-colors duration-300 transform hover:text-blue-600 hover:underline md:mx-2 lg:mx-4 md:my-1"
                   to="/about"
                 >
                   About Cara
                 </Link>
                 <Link
-                aria-label="Go To Contact Section"
+                  aria-label="Go To Contact Section"
                   className="my-2 whitespace-nowrap text-sm xl:text-base leading-5 text-gray-700 transition-colors duration-300 transform hover:text-blue-600 hover:underline md:mx-2 lg:mx-4 md:my-1"
                   to="/contact"
                 >
                   Contact Us
                 </Link>
                 <Link
-                aria-label="Go To Blog Section"
+                  aria-label="Go To Blog Section"
                   className="my-2 whitespace-nowrap text-sm xl:text-base leading-5 text-gray-700 transition-colors duration-300 transform hover:text-blue-600 hover:underline md:mx-2 lg:mx-4 md:my-1"
                   to="/blog"
                 >
                   Blog
                 </Link>
                 <Link
-                aria-label="Go To Profile Section"
+                  aria-label="Go To Profile Section"
                   className="my-2 md:hidden whitespace-nowrap text-sm xl:text-base leading-5 text-gray-700 transition-colors duration-300 transform hover:text-blue-600 hover:underline md:mx-2 lg:mx-4 md:my-1"
                   to="/profile"
                 >
                   Profile
                 </Link>
+                
                 {!isAuthenticated && (
                   <Link
-                  aria-label="Go To Login Page"
+                    aria-label="Go To Login Page"
                     className="my-2 text-sm  whitespace-nowrap xl:text-base leading-5 text-gray-700 transition-colors duration-300 transform hover:text-blue-600 hover:underline md:mx-2 lg:mx-4 md:my-1"
                     to="/auth/sign-in"
                   >
@@ -294,40 +296,75 @@ const Navigation = () => {
           </div>
           <div className=" pt-4 my-2  border-t gap-3 overscroll-x-auto sm:scroll-hidden flex justify-center item-center">
             <Link
-            aria-label="Go To Shopping Tshirt"
+              aria-label="Go To Shopping Tshirt"
               className="sm:mx-4 ml-2 text-nowrap text-sm leading-5 text-gray-700 transition-colors duration-300 transform  hover:text-blue-600 dark:hover:text-blue-400 hover:underline md:my-0"
               to="/shopping/tshirt"
             >
               T-shirts
             </Link>
             <Link
-             aria-label="Go To Shopping Shirt"
+              aria-label="Go To Shopping Shirt"
               className="sm:mx-4 ml-2 text-sm text-nowrap leading-5 text-gray-700 transition-colors duration-300 transform  hover:text-blue-600 whitespace-nowrap dark:hover:text-blue-400 hover:underline md:my-0"
               to="/shopping/shirt"
             >
               Shirts
             </Link>
             <Link
-             aria-label="Go To Shopping Pant"
+              aria-label="Go To Shopping Pant"
               className="sm:mx-4 ml-2 text-sm  text-nowrap leading-5 text-gray-700 transition-colors duration-300 transform  hover:text-blue-600 dark:hover:text-blue-400 hover:underline md:my-0"
               to="/shopping/pant"
             >
               Pants
             </Link>
             <Link
-             aria-label="Go To Shopping Bottoms"
+              aria-label="Go To Shopping Bottoms"
               className="sm:mx-4 ml-2 text-sm  text-nowrap leading-5 text-gray-700 transition-colors duration-300 transform  hover:text-blue-600 dark:hover:text-blue-400 hover:underline md:my-0"
               to="/shopping/pant"
             >
               Bottoms
             </Link>
             <Link
-             aria-label="Go To Shopping Jacket"
+              aria-label="Go To Shopping Jacket"
               className="sm:mx-4 ml-2 text-sm text-nowrap  leading-5 text-gray-700 transition-colors duration-300 transform  hover:text-blue-600 dark:hover:text-blue-400 hover:underline md:my-0"
               to="/shopping/jacket"
             >
               Jackets
             </Link>
+          </div>
+          <div
+            className={`bg-white sm:hidden absolute  top-full -z-10 w-full left-0 sm:z-50 ${
+              !showSearchInput && "hidden"
+            }`}
+          >
+            <div className="relative border border-gray-300">
+              <span className="absolute inset-y-0 left-0 flex items-center pl-3">
+                <svg
+                  className="w-5 h-5 text-gray-400"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                >
+                  <path
+                    d="M21 21L15 15M17 10C17 13.866 13.866 17 10 17C6.13401 17 3 13.866 3 10C3 6.13401 6.13401 3 10 3C13.866 3 17 6.13401 17 10Z"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  ></path>
+                </svg>
+              </span>
+              <input
+                type="text"
+                className="w-full sm:w-full py-2 pl-10 pr-4 text-gray-700 bg-white focus:border-slate-100 focus:outline-none sm:border rounded-md"
+                placeholder="Search"
+                value={searchValue}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter") {
+                    navigate(`/shopping/${searchValue}`);
+                  }
+                }}
+                onChange={(e) => setSearchValue(e.target.value)}
+              />
+            </div>
           </div>
         </div>
       </nav>

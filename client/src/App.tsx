@@ -4,6 +4,16 @@ import "./globals.css";
 import Home from "./root/page/Home.tsx";
 
 import Loader from "./utils/Loader.tsx";
+import OrdersSkeleton from "./utils/skeleton/OrdersSkeleton.tsx";
+import AddressSkeleton from "./utils/skeleton/AddressSkeleton.tsx";
+import ProductSkeleton from "./utils/skeleton/ProductSkeleton.tsx";
+import SettingSkeleton from "./utils/skeleton/SettingSkeleton.tsx";
+import WishlistSkeleton from "./utils/skeleton/WishlistSkeleton.tsx";
+import AnalyticsSkeleton from "./utils/skeleton/AnalyticsSkeleton.tsx";
+import DashboardSkeleton from "./utils/skeleton/DashboardSkeleton.tsx";
+import SellerOrdersSkeleton from "./utils/skeleton/SellerOrdersSkeleton.tsx";
+import ShoppingCartSkeleton from "./utils/skeleton/ShoppingCartSkeleton.tsx";
+import SellerProductsSkeleton from "./utils/skeleton/SellerProductsSkeleton.tsx";
 
 const SignIn = React.lazy(() => import("./_auth/form/Signin.tsx"));
 const Signup = React.lazy(() => import("./_auth/form/Signup.tsx"));
@@ -31,48 +41,90 @@ const SellerProducts = React.lazy(() => import("./root/page/admin/SellerProducts
 
 const App = () => {
   return (
-    <>
     <Routes>
-      <Route>
       <Route index element={<Home />} />
+
+      <Route element={<AuthLayout />}>
+        <Route
+          path="/auth/sign-in"
+          element={<Suspense fallback={<Loader />}><SignIn /></Suspense>}
+        />
+        <Route
+          path="/auth/sign-up"
+          element={<Suspense fallback={<Loader />}><Signup /></Suspense>}
+        />
       </Route>
+
+      <Route element={<Suspense fallback={<Loader />}><ProfileComponent /></Suspense>}>
+        <Route
+          path="/profile"
+          element={<Suspense fallback={<Loader />}><Profile /></Suspense>}
+        />
+        <Route
+          path="/wishlist"
+          element={<Suspense fallback={<WishlistSkeleton />}><Wishlist /></Suspense>}
+        />
+        <Route
+          path="/address"
+          element={<Suspense fallback={<AddressSkeleton />}><Address /></Suspense>}
+        />
+        <Route
+          path="/orders"
+          element={<Suspense fallback={<OrdersSkeleton />}><Orders /></Suspense>}
+        />
+      </Route>
+
+      <Route
+        path="/admin"
+        element={<Suspense><SellerPage /></Suspense>}
+      >
+        <Route
+          path="dashboard"
+          element={<Suspense fallback={<DashboardSkeleton />}><Dashboard /></Suspense>}
+        />
+        <Route
+          path="setting"
+          element={<Suspense fallback={<SettingSkeleton />}><Setting /></Suspense>}
+        />
+        <Route
+          path="add-product"
+          element={<Suspense fallback={<Loader />}><AddProduct /></Suspense>}
+        />
+        <Route
+          path="update-product/:productId"
+          element={<Suspense fallback={<ProductSkeleton />}><UpdateProduct /></Suspense>}
+        />
+        <Route
+          path="orders"
+          element={<Suspense fallback={<SellerOrdersSkeleton />}><SellerOrders /></Suspense>}
+        />
+        <Route
+          path="payment-wallet"
+          element={<Suspense fallback={<Loader />}><PaymentWallet /></Suspense>}
+        />
+        <Route
+          path="products"
+          element={<Suspense fallback={<SellerProductsSkeleton />}><SellerProducts /></Suspense>}
+        />
+        <Route
+          path="analytics"
+          element={<Suspense fallback={<AnalyticsSkeleton />}><Analytics /></Suspense>}
+        />
+      </Route>
+
+      <Route path="/blog" element={<Suspense fallback={<Loader />}><Blog /></Suspense>} />
+      <Route path="/about" element={<Suspense fallback={<Loader />}><About /></Suspense>} />
+      <Route path="/contact" element={<Suspense fallback={<Loader />}><Contact /></Suspense>} />
+      <Route
+        path="/checkout/cart"
+        element={<Suspense fallback={<ShoppingCartSkeleton />}><ShoppingCart /></Suspense>}
+      />
+      <Route
+        path="/product/:productId"
+        element={<Suspense fallback={<ProductSkeleton />}><ProductDetails /></Suspense>}
+      />
+      <Route path="/shopping/:category" element={<Suspense fallback={<Loader />}><Category /></Suspense>} />
     </Routes>
-    <Suspense fallback={<Loader />}>
-      <Routes>
-
-        <Route element={<AuthLayout />}>
-          <Route path="/auth/sign-in" element={<SignIn />} />
-          <Route path="/auth/sign-up" element={<Signup />} />
-        </Route>
-
-        <Route element={<ProfileComponent />}>
-          <Route path="/profile" element={<Profile />} />
-          <Route path="/wishlist" element={<Wishlist />} />
-          <Route path="/address" element={<Address />} />
-          <Route path="/orders" element={<Orders />} />
-        </Route>
-
-        <Route path="/admin" element={<SellerPage />}>
-          <Route path="dashboard" element={<Dashboard />} />
-          <Route path="setting" element={<Setting />} />
-          <Route path="add-product" element={<AddProduct />} />
-          <Route path="update-product/:productId" element={<UpdateProduct />} />
-          <Route path="orders" element={<SellerOrders />} />
-          <Route path="payment-wallet" element={<PaymentWallet />} />
-          <Route path="products" element={<SellerProducts />} />
-          <Route path="analytics" element={<Analytics />} />
-        </Route>
-
-        <Route path="/blog" element={<Blog />} />
-        <Route path="/about" element={<About />} />
-        <Route path="/contact" element={<Contact />} />
-        <Route path="/checkout/cart" element={<ShoppingCart />} />
-        <Route path="/product/:productId" element={<ProductDetails />} />
-        <Route path="/shopping/:category" element={<Category />} />
-
-      </Routes>
-    </Suspense>
-    </>
   );
 };
 
