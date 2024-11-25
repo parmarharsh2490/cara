@@ -26,7 +26,7 @@ const SignUp = () => {
   return (
     <div className="flex min-w-[384px] min-h-[512px] flex-1 items-center justify-center flex-col max-w-sm bg-white">
       <div className="pt-5">
-        <h1 className="text-xl md:text-2xl font-semibold">Welcome To Cara</h1>
+        <h1 className="text-xl md:text-2xl font-semibold">Welcome To Shopy</h1>
         <p className="text-gray-400">Please enter your details</p>
       </div>
       <form onSubmit={(e) =>handleSubmit(e)} className="flex flex-col w-full gap-3 p-8 pt-3">

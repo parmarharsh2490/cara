@@ -102,7 +102,7 @@ const forgetPassword = async(req,res) => {
     const transporter = await getTransporter();
     const password = generateRandomPassword();
     await transporter.sendMail({
-      from: `"Cara" <${process.env.NODEMAILER_AUTH_USER}>`,
+      from: `"Shopy" <${process.env.NODEMAILER_AUTH_USER}>`,
       to: {email},
       subject: "Forget Password",
       text: `"This is your New password ${password}"`,

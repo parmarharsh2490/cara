@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "name": "cara-backend",
+  "name": "shopy-backend",
   "builds": [
     { "src": "src/app.js", "use": "@vercel/node" }
   ],

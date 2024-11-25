@@ -22,7 +22,7 @@ const SignIn = () => {
   return (
     <div className="flex sm:min-w-[384px] min-h-[512px] flex-1 items-center justify-center flex-col max-w-sm w-full bg-white">
       <div className="pt-5">
-        <h1 className="text-xl md:text-2xl font-semibold">Welcome To Cara</h1>
+        <h1 className="text-xl md:text-2xl font-semibold">Welcome To Shopy</h1>
         <p className="text-gray-400">Please enter your details</p>
       </div>
       <form action="post" onSubmit={handleSubmit} className="flex flex-col w-full gap-3 p-8 pt-3">
