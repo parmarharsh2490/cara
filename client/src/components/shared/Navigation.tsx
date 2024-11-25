@@ -204,7 +204,7 @@ const Navigation = () => {
                   className="my-2  whitespace-nowrap lg:block text-sm xl:text-base leading-5 text-gray-700 transition-colors duration-300 transform hover:text-blue-600 hover:underline md:mx-2 lg:mx-4 md:my-1"
                   to="/about"
                 >
-                  About Shopy
+                  About Cara
                 </Link>
                 <Link
                   aria-label="Go To Contact Section"

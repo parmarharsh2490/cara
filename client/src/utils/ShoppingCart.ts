@@ -36,7 +36,7 @@ export const useShoppingCart = () => {
       key: import.meta.env.RAZORPAY_API_KEY,
       amount: totalCartAmount,
       currency: "INR",
-      name: "Shopy",
+      name: "Cara",
       description: "Test Transaction - No actual payment.",
       order_id: orderId,
       handler: async (response: any) => {
