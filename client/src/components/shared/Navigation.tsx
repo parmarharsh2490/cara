@@ -43,7 +43,7 @@ const Navigation = () => {
                 <Link to="/">
                   <img
                     // loading="eager"
-                    className="sm:min-w-[7rem] w-[6rem] h-8 sm:h-8"
+                    className="sm:min-w-[7rem] w-[6rem] h-8 sm:h-8 invert"
                     src="/logo.png"
                     alt="shopylogo"
                     // fetchPriority="high"
