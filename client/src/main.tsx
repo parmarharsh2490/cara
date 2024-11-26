@@ -4,7 +4,7 @@ import { BrowserRouter } from "react-router-dom";
 import React from "react";
 import { QueryProvider } from "./query/QueryProvider.js";
 import { UserProvider } from "./context/index.js";
-
+import { Analytics } from "@vercel/analytics/react"
 const Toaster = React.lazy(() => import("./components/ui/toaster.js"));
 
 createRoot(document.getElementById("root")!).render(
@@ -12,6 +12,7 @@ createRoot(document.getElementById("root")!).render(
     <QueryProvider>
       <UserProvider>
         <App />
+        <Analytics />
       </UserProvider>
       <Toaster />
     </QueryProvider>
