@@ -27,7 +27,7 @@ app.use(express.urlencoded({ limit: '50mb', extended: true }));
 // CORS settings
 const allowedOrigins = [
   'http://localhost:5173',
-  'https://cara-omega-six.vercel.app',
+  'https://shopy-ecommce.vercel.app/',
 ];
 
 const corsOptions = {
