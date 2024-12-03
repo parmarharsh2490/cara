@@ -43,7 +43,7 @@ const Navigation = () => {
                 <Link to="/">
                   <img
                     // loading="eager"
-                    className="sm:min-w-[7rem] w-[6rem] h-8 sm:h-8 invert"
+                    className="sm:min-w-[7rem] w-[6rem] h-8 sm:h-8"
                     src="/logo.png"
                     alt="shopylogo"
                     // fetchPriority="high"
@@ -201,10 +201,10 @@ const Navigation = () => {
                 </Link>
                 <Link
                   aria-label="Go To About Section"
-                  className="my-2  whitespace-nowrap lg:block text-sm xl:text-base leading-5 text-gray-700 transition-colors duration-300 transform hover:text-blue-600 hover:underline md:mx-2 lg:mx-4 md:my-1"
+                  className="my-2  whitespace-nowrap hidden xl:block text-sm xl:text-base leading-5 text-gray-700 transition-colors duration-300 transform hover:text-blue-600 hover:underline md:mx-2 lg:mx-4 md:my-1"
                   to="/about"
                 >
-                  About Cara
+                  About Sara-Ecommerce
                 </Link>
                 <Link
                   aria-label="Go To Contact Section"

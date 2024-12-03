@@ -3,6 +3,7 @@ import React, { Suspense } from "react";
 import Navigation from "../../components/shared/Navigation";
 import ImageSlider from "@/components/shared/ImageSlider";
 import SeasonBanner from "@/components/shared/SeasonBanner";
+import Meta from "@/utils/Meta";
 
 // Lazy load all other components
 const ExploreCategory = React.lazy(() => import("../../components/shared/ExploreCategory"));
@@ -14,6 +15,11 @@ const NewArrival = React.lazy(() => import("./NewArrival"));
 const Home = () => {
   return (
     <>
+    <Meta
+      title="Sara-Ecommerce"
+      description="Discover premium quality t-shirts, pants, jackets, and more for men, women, and kids at Sara Store. Shop our latest collections and enjoy great discounts on all styles."    
+      keywords="Sara, Sara-ecommerce, Sara-Ecommerce, Shopping, t-shirts, pants, jackets, clothing, men, women, kids, fashion, online store, buy clothes online, Sara Store, casual wear, formal wear, stylish clothing"
+      />
       {/* Priority content loaded immediately */}
       <Navigation />
       <ImageSlider />

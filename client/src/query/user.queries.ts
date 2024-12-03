@@ -1,5 +1,6 @@
 import {
   createUserAccount,
+  forgetpassword,
   getUserDetails,
   loginUserAccount,
   updateUserDetails,
@@ -24,6 +25,7 @@ export {
   useUpdateSellerDetails,
   useUpdateUserDetails,
   useBecomeSeller,
+  useForgetpassword
 };
 const useCreateUserAccount = () => {
   const { toast } = useToast();
@@ -68,6 +70,7 @@ const useLoginUserAccount = () => {
     },
   });
 };
+
 const useGetUserDetails = () => {
   return useQuery({
     queryKey: [QUERY_KEYS.USER],
@@ -123,6 +126,27 @@ const useUpdateSellerDetails = () => {
     mutationFn: (sellerData: ISeller) => updateSellerDetails(sellerData),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.SELLERDETAILS] });
+    },
+  });
+};
+
+const useForgetpassword = () => {
+  const {toast} = useToast();
+  return useMutation({
+    mutationFn: (email : string) => forgetpassword(email),
+    onSuccess: () => {
+      toast({
+        title : "Successfully Send Password",
+        description : "Please check your email for your new password",
+        variant : "cart"
+      })
+    },
+    onError: () => {
+      toast({
+        title : "Failed To Send Password",
+        description : "Failed To Create new password",
+        variant : "destructive"
+      })
     },
   });
 };

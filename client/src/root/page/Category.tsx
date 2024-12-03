@@ -7,6 +7,7 @@ import ProductList from '../../components/shared/ProductList';
 import { useGetAllProducts } from '@/query/product.queries';
 import { allItems } from '@/utils/alItems';
 import { IFilter } from '@/types';
+import Meta from '@/utils/Meta';
 
 const VALID_CATEGORIES = ['tshirt', 'shirt', 'pants', 'bottom', 'jackets'] as const;
 type ValidCategory = typeof VALID_CATEGORIES[number];
@@ -68,56 +69,61 @@ const Category: React.FC = () => {
 
   return (
     <>
+    <Meta
+      title={`${category.toUpperCase()} - Sara-Ecommerce`}
+      description={`Explore a wide range of ${category} on Sara-Ecommerce. Find the best deals and latest trends in ${category}.`}
+      keywords={`${category}, Sara-Ecommerce, ${category} deals, ${category} trends, online shopping`}
+      />
       <Navigation />
       <div className="flex overflow-hidden">
-        <Filter 
-          filters={filters} 
-          setFilters={setFilters}
-        />
-        <div className="overflow-hidden w-full px-4">
-          <div className="flex justify-between items-center sm:mt-12 mb-6 md:mx-8">
-            <h1 className="lg:text-2xl hidden sm:block text-base md:text-lg">
-              Results for {category} - {allItems(products).length} products found
-            </h1>
-            <h1 className="sm:hidden text-2xl font-bold uppercase">{category}</h1>
-            <div className="flex gap-2 items-center ml-2">
-              <label htmlFor="sortby" className="whitespace-nowrap text-sm md:text-base font-semibold">
-                Sort By
-              </label>
-              <select
-                name="sortby"
-                id="sortby"
-                className="py-2 px-3 border rounded-md"
-                onChange={handleSortChange}
-                value={
-                  filters.priceLowToHigh
-                    ? 'priceLowToHigh'
-                    : filters.priceHighToLow
-                    ? 'priceHighToLow'
-                    : 'latest'
-                }
-              >
-                <option value="latest">Latest</option>
-                <option value="priceHighToLow">Price: High to Low</option>
-                <option value="priceLowToHigh">Price: Low to High</option>
-              </select>
-            </div>
-          </div>
-
-          <ProductList
-          loadMore={() => {}}
-            isError={error ? true : false}
-            products={allItems(products)}
-            productLoading={isLoading}
-            buttonLoading={isFetchingNextPage}
-          />
-          
-          {/* Infinite scroll trigger */}
-          {!isLoading && !error && hasNextPage && (
-            <div ref={ref} className="h-20 flex items-center justify-center">
-            </div>
-          )}
+      <Filter 
+        filters={filters} 
+        setFilters={setFilters}
+      />
+      <div className="overflow-hidden w-full px-4">
+        <div className="flex justify-between items-center sm:mt-12 mb-6 md:mx-8">
+        <h1 className="lg:text-2xl hidden sm:block text-base md:text-lg">
+          Results for {category} - {allItems(products).length} products found
+        </h1>
+        <h1 className="sm:hidden text-2xl font-bold uppercase">{category}</h1>
+        <div className="flex gap-2 items-center ml-2">
+          <label htmlFor="sortby" className="whitespace-nowrap text-sm md:text-base font-semibold">
+          Sort By
+          </label>
+          <select
+          name="sortby"
+          id="sortby"
+          className="py-2 px-3 border rounded-md"
+          onChange={handleSortChange}
+          value={
+            filters.priceLowToHigh
+            ? 'priceLowToHigh'
+            : filters.priceHighToLow
+            ? 'priceHighToLow'
+            : 'latest'
+          }
+          >
+          <option value="latest">Latest</option>
+          <option value="priceHighToLow">Price: High to Low</option>
+          <option value="priceLowToHigh">Price: Low to High</option>
+          </select>
         </div>
+        </div>
+
+        <ProductList
+        loadMore={() => {}}
+        isError={error ? true : false}
+        products={allItems(products)}
+        productLoading={isLoading}
+        buttonLoading={isFetchingNextPage}
+        />
+        
+        {/* Infinite scroll trigger */}
+        {!isLoading && !error && hasNextPage && (
+        <div ref={ref} className="h-20 flex items-center justify-center">
+        </div>
+        )}
+      </div>
       </div>
     </>
   );

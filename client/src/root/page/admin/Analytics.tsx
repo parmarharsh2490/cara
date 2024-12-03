@@ -3,6 +3,7 @@ import { useGetAnalyticsDetails } from '../../../query/seller.queries';
 import { BsThreeDots } from 'react-icons/bs';
 import { PieChart, Pie, Cell } from 'recharts';
 import { BarChart,ComposedChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Rectangle } from 'recharts';
+import Meta from '@/utils/Meta';
 
 const CategoryChart = ({topSellingCategory} : any) => {
 const COLORS = ['#1e293b', '#475569', '#94a3b8', '#e2e8f0'];
@@ -212,29 +213,43 @@ const ProductRatingChart = ({ selledProductRatings } : any) => {
 const Analytics = () => {
   const {data : analyticsData,isLoading,isFetched} = useGetAnalyticsDetails();
   if(isLoading || !isFetched){
-    return <AnalyticsSkeleton/>
+    return (
+      <>
+          <Meta
+    title="Analytics - Seller Section | Sara-Ecommerce"
+    description="Gain insights into your sales performance with detailed analytics in the Seller Section of Sara-Ecommerce. Track top-selling categories, revenue margins, weekly progress, payment methods, and product ratings."
+    keywords="Analytics, Seller Section, Sales Performance, Top Selling Categories, Revenue Margins, Weekly Progress, Payment Methods, Product Ratings, Sara-Ecommerce, Seller Dashboard"
+   />
+    <AnalyticsSkeleton/>
+      </>
+  )
   }
   
   return (
-   <>
-    <div className="flex flex-col w-full  items-center justify-around lg:flex-row lg:flex-wrap">
-     <div className="recent-orders-chart  -black m-3 w-full max-w-[300px] lg:w-[25%] h-fit overfl  flex-1 bg-white rounded-lg shadow-md sm:p-5">
-    <div className=" flex items-center justify-between mb-0 p-2">
-    {/* recent orders category  */}
-      <h1 className="sm:text-xl text-lg font-semibold">Top Selling Category</h1>
-      <BsThreeDots />
-    </div>
-   <CategoryChart topSellingCategory={analyticsData.topSellingCategory}/>
+  <>
+    <Meta
+    title="Analytics - Seller Section | Sara-Ecommerce"
+    description="Gain insights into your sales performance with detailed analytics in the Seller Section of Sara-Ecommerce. Track top-selling categories, revenue margins, weekly progress, payment methods, and product ratings."
+    keywords="Analytics, Seller Section, Sales Performance, Top Selling Categories, Revenue Margins, Weekly Progress, Payment Methods, Product Ratings, Sara-Ecommerce, Seller Dashboard"
+   />
+   <div className="flex flex-col w-full  items-center justify-around lg:flex-row lg:flex-wrap">
+    <div className="recent-orders-chart  -black m-3 w-full max-w-[300px] lg:w-[25%] h-fit overfl  flex-1 bg-white rounded-lg shadow-md sm:p-5">
+   <div className=" flex items-center justify-between mb-0 p-2">
+   {/* recent orders category  */}
+    <h1 className="sm:text-xl text-lg font-semibold">Top Selling Category</h1>
+    <BsThreeDots />
+   </div>
+  <CategoryChart topSellingCategory={analyticsData.topSellingCategory}/>
   </div>
-      <RevenueMarginChart revenueMargin={analyticsData.revenueMargin} />
-    <WeeklyProgressChart lastWeekOrders={analyticsData.lastWeekOrders}/>
-      <div className='flex flex-col items-center justify-around sm:flex-row w-full lg:w-[50%] '>
-      <PaymentChart paymentChart={analyticsData.paymentChart}/>
-      
-      <ProductRatingChart selledProductRatings={analyticsData.selledProductRatings}/>
-      </div>
+    <RevenueMarginChart revenueMargin={analyticsData.revenueMargin} />
+   <WeeklyProgressChart lastWeekOrders={analyticsData.lastWeekOrders}/>
+    <div className='flex flex-col items-center justify-around sm:flex-row w-full lg:w-[50%] '>
+    <PaymentChart paymentChart={analyticsData.paymentChart}/>
+    
+    <ProductRatingChart selledProductRatings={analyticsData.selledProductRatings}/>
     </div>
-    </>
+   </div>
+   </>
   );
 };
 

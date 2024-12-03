@@ -4,6 +4,7 @@ import React, { useContext, useEffect, useState } from 'react';
 import { UserContext } from '../../context';
 import { useSendContactformDetails } from '@/query/promotional.queries';
 import { IContactForm } from '@/types';
+import Meta from '@/utils/Meta';
 
 const ContactItem = ({ icon, text }: { icon: any, text: string }) => (
   <li className="py-3 flex items-center list-none">
@@ -59,6 +60,11 @@ const Contact = () => {
   
   return (
     <>
+      <Meta
+        title="Contact Us - Sara-Ecommerce"
+        description="Get in touch with Sara-Ecommerce. Visit our head office or contact us via email or phone. We are here to assist you with any inquiries or support you need."
+        keywords="Sara-Ecommerce contact, Sara-Ecommerce contact, contact Sara Store, Sara Store head office, Sara-Ecommerce email, Sara-Ecommerce phone"
+      />
       <Navigation />
       <section className="flex flex-col sm:flex-row justify-between items-center p-5 sm:p-10">
         <div className="sm:w-[40%]">
@@ -76,7 +82,6 @@ const Contact = () => {
           <iframe
             className="h-full w-full"
             src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d158083.72648931606!2d-1.542925238614341!3d51.75025883356493!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x48713380adc41faf%3A0xc820dba8cb547402!2sOxford%2C%20UK!5e0!3m2!1sen!2sin!4v1682152127479!5m2!1sen!2sin"
-            // const AlertDialog = React.lazy(()=> import("../ui/AlertDialog"));
             referrerPolicy="no-referrer-when-downgrade"
           />
         </div>
@@ -122,21 +127,21 @@ const Contact = () => {
         </form>
         <div className="people">
           <PeopleCard
-            imageSrc="https://gauravssharma.github.io/Cara.in/peaple/1.png"
+            imageSrc="https://gauravssharma.github.io/cara.in/peaple/1.png"
             name="John Doe"
             position="Senior Marketing Manager"
             phone="+000034352"
             email="xyz@gmail.com"
           />
           <PeopleCard
-            imageSrc="https://gauravssharma.github.io/Cara.in/peaple/2.png"
+            imageSrc="https://gauravssharma.github.io/cara.in/peaple/2.png"
             name="Jane Smith"
             position="Marketing Coordinator"
             phone="+000034353"
             email="jane.smith@gmail.com"
           />
           <PeopleCard
-            imageSrc="https://gauravssharma.github.io/Cara.in/peaple/3.png"
+            imageSrc="https://gauravssharma.github.io/cara.in/peaple/3.png"
             name="Alex Johnson"
             position="Sales Manager"
             phone="+000034354"

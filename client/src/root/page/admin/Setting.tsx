@@ -5,6 +5,7 @@ import { FaEdit } from "react-icons/fa";
 import { fieldMappings, getPopupLabelByLabel } from "../../../utils/labelHelpers";
 import SettingSkeleton from "@/utils/skeleton/SettingSkeleton";
 import RenderField from "@/utils/RenderField";
+import Meta from "@/utils/Meta";
 const Settings: React.FC = () => {
   const [popupContent, setPopupContent] = useState<{ 
     popupTitle: string; 
@@ -30,47 +31,61 @@ const Settings: React.FC = () => {
     setShowPopupForm(true);
   };
   if(isLoading || !isFetched){
-    return <SettingSkeleton/>
+    return (
+      <>
+            <Meta
+    title="Settings - Seller Page | Sara-Ecommerce"
+    description="Manage your seller profile settings in the Seller Page of Sara-Ecommerce. Update your personal information, business details, and other settings to keep your profile up-to-date."
+    keywords="Settings, Seller Page, Profile Management, Personal Information, Business Details, Sara-Ecommerce, Seller Dashboard"
+     />
+    <SettingSkeleton/>
+      </>
+  )
   }
   return (
     <>
-            <div className="container bg-slate-100 mx-auto p-4 sm:p-6 w-full">
-              <h1 className="text-2xl sm:text-3xl font-bold mb-6 text-center">
-                Seller Profile Settings
-              </h1>
-              {Object.keys(fieldMappings).map((section) => (
-                <div key={section} className="bg-white mx-auto max-w-4xl shadow-md rounded-lg p-4 sm:p-6 mb-6">
-                  <div className="flex items-center justify-between border-b pb-4 mb-4">
-                    <h2 className="text-xl sm:text-2xl font-bold">
-                      {section.replace(/_/g, " ")}
-                    </h2>
-                    <button
-                      aria-label={`Edit ${section.replace(/_/g, " ")}`}
-                      onClick={() => handleEditClick(section as keyof typeof fieldMappings)}
-                      className="text-blue-500 hover:text-blue-600 transition-colors cursor-pointer flex items-center p-2 rounded-full hover:bg-blue-50"
-                    >
-                      <FaEdit className="w-5 h-5" />
-                    </button>
-                  </div>
-                  {fieldMappings[section as keyof typeof fieldMappings].map(({ name, label }) =>
-                  <RenderField key={name} name={name} label={label} section={section} sellerResponse={sellerResponse}/>
-                  )}
-                </div>
-              ))}
+      <Meta
+    title="Settings - Seller Page | Sara-Ecommerce"
+    description="Manage your seller profile settings in the Seller Page of Sara-Ecommerce. Update your personal information, business details, and other settings to keep your profile up-to-date."
+    keywords="Settings, Seller Page, Profile Management, Personal Information, Business Details, Sara-Ecommerce, Seller Dashboard"
+     />
+        <div className="container bg-slate-100 mx-auto p-4 sm:p-6 w-full">
+          <h1 className="text-2xl sm:text-3xl font-bold mb-6 text-center">
+          Seller Profile Settings
+          </h1>
+          {Object.keys(fieldMappings).map((section) => (
+          <div key={section} className="bg-white mx-auto max-w-4xl shadow-md rounded-lg p-4 sm:p-6 mb-6">
+            <div className="flex items-center justify-between border-b pb-4 mb-4">
+            <h2 className="text-xl sm:text-2xl font-bold">
+              {section.replace(/_/g, " ")}
+            </h2>
+            <button
+              aria-label={`Edit ${section.replace(/_/g, " ")}`}
+              onClick={() => handleEditClick(section as keyof typeof fieldMappings)}
+              className="text-blue-500 hover:text-blue-600 transition-colors cursor-pointer flex items-center p-2 rounded-full hover:bg-blue-50"
+            >
+              <FaEdit className="w-5 h-5" />
+            </button>
             </div>
-      
-            {showPopupForm && (
-              <PopupForm
-                isLoading={popupContent.popupTitle === "Personal_Information" ? isUpdatingUserDetails : isUpdatingSellerDetails}
-                handleSubmitFunction={popupContent.popupTitle === "Personal_Information" ? updateUserDetails : updateSellerDetails}
-                title={popupContent.popupTitle}
-                inputData={popupFields}
-                showPopupForm={showPopupForm}
-                setShowPopupForm={setShowPopupForm}
-                label={popupContent.popupLabel}
-              />
+            {fieldMappings[section as keyof typeof fieldMappings].map(({ name, label }) =>
+            <RenderField key={name} name={name} label={label} section={section} sellerResponse={sellerResponse}/>
             )}
-          </>
+          </div>
+          ))}
+        </div>
+      
+        {showPopupForm && (
+          <PopupForm
+          isLoading={popupContent.popupTitle === "Personal_Information" ? isUpdatingUserDetails : isUpdatingSellerDetails}
+          handleSubmitFunction={popupContent.popupTitle === "Personal_Information" ? updateUserDetails : updateSellerDetails}
+          title={popupContent.popupTitle}
+          inputData={popupFields}
+          showPopupForm={showPopupForm}
+          setShowPopupForm={setShowPopupForm}
+          label={popupContent.popupLabel}
+          />
+        )}
+        </>
   );
 };
 

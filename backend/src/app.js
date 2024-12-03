@@ -27,7 +27,7 @@ app.use(express.urlencoded({ limit: '50mb', extended: true }));
 // CORS settings
 const allowedOrigins = [
   'http://localhost:5173',
-  'https://shopy-ecommce.vercel.app/',
+  'https://sara-ecommerce.vercel.app/',
 ];
 
 const corsOptions = {

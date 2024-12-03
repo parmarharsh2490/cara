@@ -6,7 +6,8 @@ export {
     loginUserAccount,
     getUserDetails,
     updateUserDetails,
-    logOut
+    logOut,
+    forgetpassword
 }
 
 const createUserAccount = async (user: INewUser) => {
@@ -59,5 +60,10 @@ const updateUserDetails = async (userDetails : IUser) => {
 
 const logOut = async() => {
     const respose = await apiClient.post('/user/logout');
+    return respose.data
+}
+const forgetpassword = async(email : string) => {
+    console.log(email)
+    const respose = await apiClient.post('/user/forgetpassword',{email});
     return respose.data
 }

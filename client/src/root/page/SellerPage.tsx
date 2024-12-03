@@ -31,6 +31,7 @@ const SellerPage = () => {
    
   }
   return (
+    <>
     <div className='flex'>
       {/* Sidebar */}
       <div
@@ -43,7 +44,7 @@ const SellerPage = () => {
           <Link className='flex items-center justify-center mb-2 sm:mb-10' to="/">
                   <img
                   loading='lazy'
-                    className="sm:min-w-[7rem] w-[6rem] h-8 sm:h-8 invert"
+                    className="sm:min-w-[7rem] w-[6rem] h-8 sm:h-8"
                     src="/logo.png"
                     alt="shopylogo"
                   />
@@ -127,6 +128,7 @@ const SellerPage = () => {
   </main>
 </div>
     </div>
+    </>
   )
 }
 

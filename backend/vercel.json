@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "name": "shopy-backend",
+  "name": "sara-ecommerce-backend",
   "builds": [
     { "src": "src/app.js", "use": "@vercel/node" }
   ],

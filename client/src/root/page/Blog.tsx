@@ -1,3 +1,7 @@
+import Footer from "@/components/shared/Footer";
+import Navigation from "@/components/shared/Navigation";
+import Meta from "@/utils/Meta";
+
 const Blog = () => {
     const blogs = [
         { image: "/blog1.jpg", title: "Summer 2024: Top Fashion Trends", description: "Get ahead of the season with the hottest trends in summer fashion for 2024. From bold prints to airy fabrics, find your perfect look. Whether you're heading to the beach or a summer soirée, our guide will help you navigate the latest trends in style. Discover the colors, patterns, and silhouettes that are making waves this season, and learn how to incorporate them into your wardrobe effortlessly." },
@@ -8,7 +12,14 @@ const Blog = () => {
     ];
 
     return (
-        <div className="flex flex-1 flex-col items-center justify-center p-6">
+        <>
+        <Meta
+            title="Blog - Fashion Tips and Trends"
+            description="Explore our latest blog posts on fashion tips, trends, and styling advice. Stay updated with the newest trends and learn how to elevate your wardrobe with our expert guides."
+            keywords="Sara-Ecommerce,Sara,fashion blog, style tips, fashion trends, wardrobe advice, styling guides, fashion news"
+        />
+        <Navigation/>
+          <div className="flex flex-1 flex-col items-center justify-center p-6">
             <div className="w-full text-center my-3">
                 <h1 className="font-bold text-2xl">Today's Blogs</h1>
                 <p className="text-slate-600 text-base">Read our exciting blogs written by our fashion experts</p>
@@ -26,6 +37,9 @@ const Blog = () => {
                 ))}
             </div>
         </div>
+        <Footer/>
+        </>
+      
     );
 };
 

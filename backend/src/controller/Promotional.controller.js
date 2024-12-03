@@ -30,7 +30,7 @@ const sendPromotionalEmail = asyncHandler(async (req, res) => {
     const [promotionalData, result] = await Promise.all([
         Promotional.create({ email }),
         transporter.sendMail({
-            from: `"Cara Promotional Mail" <${process.env.GMAIL_USER}>`,
+            from: `"Sara-Ecommerce Promotional Mail" <${process.env.GMAIL_USER}>`,
             to: email,
             subject: "Promotional Mail Signup",
             html: promotionalTemplate
@@ -69,7 +69,7 @@ const sendContactFormDetails = asyncHandler(async (req, res) => {
     .replace('{{message}}', message);
 
     const result = await transporter.sendMail({
-        from: `"Cara Contact Form" <${process.env.GMAIL_USER}>`,
+        from: `"Sara-Ecommerce Contact Form" <${process.env.GMAIL_USER}>`,
         to: process.env.GMAIL_USER,
         subject: "New Contact Form Submission",
         html: htmlContent

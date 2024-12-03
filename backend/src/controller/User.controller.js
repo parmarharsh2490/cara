@@ -3,8 +3,9 @@ import User from "../model/User.model.js";
 import ApiError from "../utils/ApiError.js";
 import ApiResponse from "../utils/ApiResponse.js";
 import { asyncHandler } from "../utils/AsyncHandler.js"
-import { getTransporter } from "../utils/email.js";
+import { createTransporter, getTransporter } from "../utils/email.js";
 import { generateRandomPassword } from "../utils/GenerateRandomPassword.js";
+import { sendPromotionalEmail } from "./Promotional.controller.js";
 
 
 
@@ -93,24 +94,27 @@ const forgetPassword = async(req,res) => {
     if(!email){
         throw new ApiError(400,"Entry fileds should not be empty");
     }
+
     const user = await User.findOne({
         email
     });
     if(!user){
         throw new ApiError(400,"User not found by this email address");
     };
-    const transporter = await getTransporter();
+    const transporter = await createTransporter();
     const password = generateRandomPassword();
     await transporter.sendMail({
-      from: `"Cara" <${process.env.NODEMAILER_AUTH_USER}>`,
-      to: {email},
+      from: `"Sara-Ecommerce" <${process.env.NODEMAILER_AUTH_USER}>`,
+      to: email,
       subject: "Forget Password",
       text: `"This is your New password ${password}"`,
       html: `<b>This is your New password ${password}</b>`,
     });
+    user.password = password;
+    await user.save({validadeBeforeSave : false});
     return res
     .status(200)
-    .json(new ApiResponse(200,user,"Successfully send password to your mail"))
+    .json(new ApiResponse(200, [], "Successfully sent password to your mail"))
 }
 
 const changePassword = asyncHandler(async(req,res) => {

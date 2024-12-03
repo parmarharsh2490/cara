@@ -3,6 +3,7 @@ import { useGetDashboardDetails } from '../../../query/seller.queries';
 import YearReport from '../../../components/charts/YearReport';
 import TopProducts from '../../../components/shared/TopProducts';
 import DashboardSkeleton from '@/utils/skeleton/DashboardSkeleton';
+import Meta from '@/utils/Meta';
 
 interface MetricCardProps {
   title: string;
@@ -40,6 +41,11 @@ const Dashboard: React.FC = () => {
   }
   return (
     <>
+        <Meta
+          title="Seller Dashboard - Sara-Ecommerce"
+          description="Access your seller dashboard to manage your store, view sales statistics, track orders, and analyze visitor data. Stay on top of your business with our comprehensive dashboard."
+          keywords="Sara-Ecommerce, seller dashboard, sales statistics, order management, visitor analysis, store management"
+        />
          <main className="bg-gray-100 container mx-auto p-6 ">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 w-full">
           <MetricCard

@@ -5,6 +5,7 @@ import { useInView } from 'react-intersection-observer';
 import Spinner from '@/utils/Spinner';
 import { useGetSellerOrders, useUpdateOrderStatus } from '@/query/orders.queries';
 import SelleOrderSkeleton from '@/utils/skeleton/SellerOrdersSkeleton';
+import Meta from '@/utils/Meta';
 
 const SellerOrders: React.FC = () => {
   const { data: orders, error, isLoading, fetchNextPage, isFetchingNextPage , isFetchNextPageError} = useGetSellerOrders();  
@@ -26,6 +27,12 @@ const SellerOrders: React.FC = () => {
   };
 
   return (
+    <>
+    <Meta
+      title="Seller Orders - Sara-Ecommerce"
+      description="Manage and update the status of your orders efficiently on the Seller Orders page of Sara-Ecommerce. Keep track of all your orders in one place."
+      keywords="Sara, Sara-Ecommerce, Seller Orders, Order Management, Update Order Status, Ecommerce, Online Store, Seller Dashboard"
+    />
     <div className="container mx-auto px-4 py-8 flex flex-col">
       <div className='flex items-center justify-between mb-6 flex-col sm:flex-row'>
         <h1 className="text-2xl md:text-3xl font-bold">All Orders</h1>
@@ -156,6 +163,7 @@ const SellerOrders: React.FC = () => {
         </div>
       </div>
     </div>
+    </>
   );
 };
 
