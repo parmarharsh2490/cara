@@ -94,7 +94,7 @@
   </url>
 
   <!-- Dynamic Pages -->
-  <url>
+  <!-- <url>
     <loc>https://sara-ecommerce.vercel.app/product/:productId</loc>
     <changefreq>daily</changefreq>
     <priority>0.9</priority>
@@ -103,5 +103,5 @@
     <loc>https://sara-ecommerce.vercel.app/shopping/:category</loc>
     <changefreq>daily</changefreq>
     <priority>0.9</priority>
-  </url>
+  </url> -->
 </urlset>
