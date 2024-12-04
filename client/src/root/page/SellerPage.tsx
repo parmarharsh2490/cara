@@ -46,7 +46,7 @@ const SellerPage = () => {
                   loading='lazy'
                     className="sm:min-w-[7rem] w-[6rem] h-8 sm:h-8"
                     src="/logo.png"
-                    alt="shopylogo"
+                    alt="Sara-Ecommerce Logo"
                   />
                 </Link>
           <button
