@@ -15,6 +15,7 @@ import orderRouter from './routes/Order.routes.js';
 import { promotionalRouter } from './routes/Promotional.routes.js';
 import { paymentWalletRouter } from './routes/paymentWallet.routes.js';
 import compression from "compression"
+import { generateSitemapXml } from './utils/generateSitemapXml.js';
 const app = express();
 
 app.use(compression());
@@ -66,5 +67,6 @@ app.use('/api/v1/wishlist', verifyJWT, wishListRouter);
 app.use('/api/v1/address', verifyJWT, addressRouter);
 app.use('/api/v1/promotional', verifyJWT, promotionalRouter);
 app.use('/api/v1/paymentwallet', verifyJWT, paymentWalletRouter);
+app.get('/sitemap.xml', generateSitemapXml);
 
 export default app;

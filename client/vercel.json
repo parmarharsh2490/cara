@@ -2,7 +2,7 @@
   "rewrites": [
     {
       "source": "/sitemap.xml",
-      "destination": "/sitemap.xml"
+      "destination": "https://cara-backend-nine.vercel.app/sitemap.xml"
     },
     {
       "source": "/(.*)",
