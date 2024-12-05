@@ -43,8 +43,8 @@ const App = () => {
   return (
     <Routes>
       <Route index element={<Home />} />
-
-      <Route element={<AuthLayout />}>
+      
+      <Route element={<Suspense fallback={<Loader />}><AuthLayout /></Suspense>}>
         <Route
           path="/auth/sign-in"
           element={<Suspense fallback={<Loader />}><SignIn /></Suspense>}
@@ -54,6 +54,7 @@ const App = () => {
           element={<Suspense fallback={<Loader />}><Signup /></Suspense>}
         />
       </Route>
+      
 
       <Route element={<Suspense fallback={<Loader />}><ProfileComponent /></Suspense>}>
         <Route
@@ -76,7 +77,7 @@ const App = () => {
 
       <Route
         path="/admin"
-        element={<Suspense><SellerPage /></Suspense>}
+        element={<Suspense fallback={<DashboardSkeleton />}><SellerPage /></Suspense>}
       >
         <Route
           path="dashboard"
