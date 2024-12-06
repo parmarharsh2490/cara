@@ -319,7 +319,7 @@ const Navigation = () => {
             <Link
               aria-label="Go To Shopping Bottoms"
               className="sm:mx-4 ml-2 text-sm  text-nowrap leading-5 text-gray-700 transition-colors duration-300 transform  hover:text-blue-600 dark:hover:text-blue-400 hover:underline md:my-0"
-              to="/shopping/pant"
+              to="/shopping/bottom"
             >
               Bottoms
             </Link>

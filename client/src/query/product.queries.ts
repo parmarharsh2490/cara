@@ -68,10 +68,16 @@ const useGetTopSelledProducts = (skip : number) => {
 }
 
 const useCreateProduct = () => {
-    const {toast} = useToast()
+    const {toast} = useToast();
+    const queryClient = useQueryClient();
     return useMutation({
         mutationFn : (data : any) => createProduct(data),
         onSuccess : () => {
+            const queryKeysToInvalidate = [QUERY_KEYS.LATEST_PRODUCTS,QUERY_KEYS.ADMINPRODUCTS,QUERY_KEYS.PRODUCTS];
+
+      queryKeysToInvalidate.forEach((queryKey) => {
+        queryClient.invalidateQueries({ queryKey: [queryKey] });
+      });
             toast({
                 title: "Success",
                 description: "Successfully created Product"

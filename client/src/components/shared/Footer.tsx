@@ -53,7 +53,7 @@ const Footer = () => {
               <h2 className="text-gray-700 uppercase text-sm font-semibold">Contact</h2>
               <ul className="mt-2 space-y-2">
                 <li><a href="tel:+919123456789" className="text-sm text-gray-600 hover:underline">+91 9123456789</a></li>
-                <li><a href="mailto:2101031000125@silveroakuni.ac.in" className="text-sm text-gray-600 hover:underline">2101031000125@silveroakuni.ac.in</a></li>
+                <li><a href="mailto:parmarharsh6480@gmail.com" className="text-sm text-gray-600 hover:underline">parmarharsh6480@gmail.com</a></li>
               </ul>
             </div>
           </div>
