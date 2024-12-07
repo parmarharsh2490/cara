@@ -198,6 +198,7 @@ export const verifyOrder = asyncHandler(async (req, res) => {
       if (paymentWalletKeys.length > 0) {
         await redis.del(paymentWalletKeys);
       }
+      await redis.del(`sellerDashboardReport:${user._id}`)
       await redis.del("topSelledProducts");
       await session.commitTransaction();
       res.status(200).json(new ApiResponse(200, order, "Order successful"));

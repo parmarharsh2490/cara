@@ -1,5 +1,7 @@
+import { useNavigate } from "react-router-dom";
+
 const TopProducts = ({ topProducts }: { topProducts: any }) => {
- 
+  const navigate = useNavigate()
   return (
     <div className="top-products w-full lg:w-1/2 bg-white rounded-lg shadow-md p-2 sm:p-5">
       <h1 className="text-xl font-semibold mb-5">Top Products</h1>
@@ -28,6 +30,7 @@ const TopProducts = ({ topProducts }: { topProducts: any }) => {
             <tr key={product._id} className="text-center border-b">
               <td className="p-2">
                 <img
+                onClick={() => navigate(`/product/${product._id}`)}
                 loading='lazy'
                   src={product.imageUrl}
                   alt={product.title}

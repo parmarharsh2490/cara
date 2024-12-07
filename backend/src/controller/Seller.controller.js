@@ -146,7 +146,9 @@ const getDashboardDetails = asyncHandler(async (req, res) => {
                   $sum: 1,
                 },
                 price: {
-                  $sum: "$products.price",
+                  $sum: {
+                    $multiply : ["$products.price","$products.quantity"]
+                  },
                 },
               },
             },

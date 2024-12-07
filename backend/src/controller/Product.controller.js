@@ -79,7 +79,7 @@ const getAllProducts = asyncHandler(async (req, res) => {
       { $limit: MAX_PRODUCTS },
       {
         $group: {
-          _id: "$_id",
+          _id: "$variety._id",
           products: {
             $push: {
               _id: "$_id",
@@ -96,7 +96,7 @@ const getAllProducts = asyncHandler(async (req, res) => {
       {
         $project: {
           product: {
-            $first: {
+            $first:  {
               $sortArray: {
                 input: "$products",
                 sortBy: SecondSortCondition,
@@ -282,7 +282,7 @@ const getAdminProducts = asyncHandler(async (req, res) => {
     },
     {
       $sort: {
-        createdAt: 1,
+        createdAt: -1,
       },
     },
     {
