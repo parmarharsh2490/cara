@@ -263,7 +263,7 @@ const ProductDetails = () => {
                "Go To Cart" : 
                (
               isAddingToCartPending
-              ? <div className="flex items-center justify-center">Adding <img src="/spinner.svg" alt="spinner" width={25} height={25} /></div>
+              ? <div className="flex items-center justify-center gap-2">Adding <img src="/spinner.svg" alt="spinner" width={25} height={25} /></div>
               : "ADD TO BAG"
                )
               )

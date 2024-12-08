@@ -77,7 +77,7 @@ const App = () => {
 
       <Route
         path="/admin"
-        element={<Suspense fallback={<DashboardSkeleton />}><SellerPage /></Suspense>}
+        element={<Suspense fallback={<Loader />}><SellerPage /></Suspense>}
       >
         <Route
           path="dashboard"

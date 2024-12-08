@@ -151,28 +151,30 @@ const ProductRatingChart = ({ selledProductRatings } : any) => {
   const oR = 100;
   const value = 150; // Adjust based on your data
 
-  const renderNeedle = ({value, cx, cy, iR, oR, color} : any) => {
-    let total = selledProductRatings.reduce((sum :any, v :any) => sum + v.value, 0);
-    
-    // Calculate angle correctly to match the PieChart’s start and end angles
-    const angle = 180 - (180 * value) / total;
-    const length = (iR + 2 * oR) / 3;
+  const renderNeedle = ({ averageRating, cx, cy, iR, oR, color }: any) => {
+    const minRating = 1;
+    const maxRating = 5;
+  
+    // Map averageRating to angular range [180, 0]
+    const angle = 180 - ((averageRating - minRating) / (maxRating - minRating)) * 180;
+  
+    const length = (iR + 2 * oR) / 3; // Length of the needle
     const sin = Math.sin(RADIAN * angle);
     const cos = Math.cos(RADIAN * angle);
-    const r = 5;
-
-    // Center position for the needle base
+    const r = 5; // Radius for the needle base
+  
+    // Needle base center
     const x0 = cx;
     const y0 = cy;
-
+  
     // Calculate needle points
     const xba = x0 + r * sin;
     const yba = y0 - r * cos;
     const xbb = x0 - r * sin;
     const ybb = y0 + r * cos;
     const xp = x0 + length * cos;
-    const yp = y0 + length * sin;
-
+    const yp = y0 - length * sin;
+  
     return (
       <>
         <circle cx={x0} cy={y0} r={r} fill={color} stroke="none" />
@@ -180,31 +182,34 @@ const ProductRatingChart = ({ selledProductRatings } : any) => {
       </>
     );
   };
+  
+  
 
   return (
     <div className='flex flex-col max-w-[300px] items-center justify-center bg-white w-full lg:w-[45%] m-3 p-4'>
-      <h1 className='pb-2 text-xl flex flex-col'>Your Products Ratings: <span className='text-center'>{averageRating}</span></h1>
+      <h1 className='pb-2 text-xl flex flex-col'>Your Products Ratings: <span className='text-center'>{averageRating.toString().slice(0,4)}</span></h1>
       <PieChart width={220} height={120}>
-        <Pie
-          dataKey="value"
-          startAngle={180}
-          endAngle={0}
-          data={selledProductRatings}
-          cx={cx}
-          cy={cy}
-          innerRadius={iR}
-          outerRadius={oR}
-          fill="#8884d8"
-          stroke="none"
-        >
-          {selledProductRatings.map((entry : any, index : number) => (
-            <Cell key={`cell-${index}`} fill={entry.color} />
-          ))}
-        </Pie>
-        <svg x={0} y={0} width={220} height={220}>
-          {renderNeedle({value, cx, cy, iR, oR, color: '#d0d000'})}
-        </svg>
-      </PieChart>
+  <Pie
+    dataKey="value"
+    startAngle={180}
+    endAngle={0}
+    data={selledProductRatings}
+    cx={cx}
+    cy={cy}
+    innerRadius={iR}
+    outerRadius={oR}
+    fill="#8884d8"
+    stroke="none"
+  >
+    {selledProductRatings.map((entry: any, index: number) => (
+      <Cell key={`cell-${index}`} fill={entry.color} />
+    ))}
+  </Pie>
+  <svg x={0} y={0} width={220} height={220}>
+    {renderNeedle({ averageRating, cx, cy, iR, oR, color: '#d0d000' })}
+  </svg>
+</PieChart>
+
     </div>
   );
 };

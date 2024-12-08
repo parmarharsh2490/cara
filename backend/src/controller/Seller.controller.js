@@ -434,6 +434,14 @@ const getAnalyticsDetails = asyncHandler(async (req,res) => {
               },
             },
             {
+              $sort : {
+                value : -1
+              }
+            },
+            {
+              $limit : 3
+            },
+            {
               $project : {
                 _id : 0,
                 name : "$_id",
