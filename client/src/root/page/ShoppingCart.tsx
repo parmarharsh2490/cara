@@ -12,6 +12,7 @@ import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useShoppingCart } from "@/utils/ShoppingCart.ts";
 import Meta from "@/utils/Meta.tsx";
+import { colorMap } from "@/utils/colorMap.ts";
 
 declare global {
   interface Window {
@@ -93,7 +94,9 @@ const ShoppingCart = () => {
                             <h3 className="text-sm w-full flex items-center gap-2 justify-center">
                               Color :
                               <span
-                                className={`bg-${product.color !== "white" && product.color}-800  border min-w-[20px] border-black min-h-[20px] rounded-full inline-block`}
+                                className={`
+  ${colorMap[product.color] || colorMap.white} 
+  border min-w-[20px] border-black min-h-[20px] rounded-full inline-block`}
                               ></span>
                               <div className="inline-block rounded-sm">
                                 {product.color}
